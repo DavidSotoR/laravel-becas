@@ -33,41 +33,44 @@ class ClientesController extends Controller
     public function nuevo(Request $request){
 
         $validator = Validator::make($request->all(),[
-            'nombre' => 'required',
-            'id_tipo_cliente' => 'required|int',
+            'nombre' => 'required|unique:clientes',
+            'descripcion' => 'required',
+            'notificaciones_email' => 'required',
+            'id_tipo_cliente' => 'required',
         ]);
 
         if($validator->fails()){
             return response()->json($validator->errors(), 400);
         }
 
-        $cliente = Clientes::create(array_merge(
-            $validator->validate()
-        ));
+        $cliente = Clientes::create($validator->validate());
 
-        return response()->json(['message' => 'Nuevo cliente creado', 'cliente' => $cliente], 201);
+        return response()->json(['message' => 'Nuevo cliente creado', 'data' => $cliente], 201);
     }
 
     public function editar(Request $request){
-
+        $id = $request->id;
         $validator = Validator::make($request->all(),[
             'id' => 'required',
-            'nombre' => 'required',
-            'id_tipo_cliente' => 'required|int',
+            'nombre' => ['required','min:2', Rule::unique('clientes')->ignore($id)],
+            'descripcion' => 'required',
+            'notificaciones_email' => 'required',
+            'id_tipo_cliente' => 'required',
         ]);
 
         if($validator->fails()){
             return response()->json($validator->errors(), 400);
         }
 
-        $editar = new Perfiles;
+        $editar = Clientes::where('id',$id)->first();
         $editar->id = $request->id;
         $editar->nombre = $request->nombre;
         $editar->descripcion = $request->descripcion;
         $editar->notificaciones_email = $request->notificaciones_email;
         $editar->id_tipo_cliente = $request->id_tipo_cliente;
+        $editar->save();
 
 
-        return response()->json(['message' => 'Nuevo cliente creado', 'cliente' => $editar], 201);
+        return response()->json(['message' => 'Cliente modificado', 'data' => $editar], 201);
     }
 }

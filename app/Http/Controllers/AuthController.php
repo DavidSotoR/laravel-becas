@@ -103,6 +103,6 @@ class AuthController extends Controller
             ]
         ));
 
-        return response()->json(['message' => 'Nuevo usuario creado', 'user' => $user], 201);
+        return response()->json(['message' => 'Nuevo usuario creado', 'data' => $user], 201);
     }
 }

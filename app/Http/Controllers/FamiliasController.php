@@ -41,10 +41,8 @@ class FamiliasController extends Controller
             return response()->json($validator->errors(), 400);
         }
 
-        $cliente = Familias::create(array_merge(
-            $validator->validate()
-        ));
+        $cliente = Familias::create($validator->validate());
 
-        return response()->json(['message' => 'Nuevo cliente creado', 'cliente' => $cliente], 201);
+        return response()->json(['message' => 'Nuevo cliente creado', 'data' => $cliente], 201);
     }
 }
