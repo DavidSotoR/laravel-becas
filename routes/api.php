@@ -51,6 +51,6 @@ Route::group([
     Route::get('familias', 'FamiliasController@lista');
     Route::get('familias/{id}', 'FamiliasController@id');
     Route::post('familias', 'FamiliasController@nuevo');
-
+    //Familias documentos
 
 });
