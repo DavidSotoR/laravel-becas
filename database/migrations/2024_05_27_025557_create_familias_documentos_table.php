@@ -17,12 +17,14 @@ class CreateFamiliasDocumentosTable extends Migration
             $table->id();
             $table->unsignedBigInteger('id_familia');
             $table->unsignedBigInteger('id_familias_documentos_tipo');
+            $table->unsignedBigInteger('id_ciclo_escolar');
             $table->string('nombre',240)->nullable();
             $table->string('directorio',240)->nullable();
             $table->string('alias',240)->nullable();
             $table->timestamps();
             $table->foreign('id_familia')->references('id')->on('familias');
             $table->foreign('id_familias_documentos_tipo')->references('id')->on('familias_documentos_tipos');
+            $table->foreign('id_ciclo_escolar')->references('id')->on('ciclo_escolar');
         });
     }
 

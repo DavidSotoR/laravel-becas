@@ -16,6 +16,7 @@ class CreateAlumnosTable extends Migration
         Schema::create('alumnos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_familias');
+            $table->unsignedBigInteger('id_ciclo_escolar');
             $table->string('nombre',120);
             $table->string('domicilio',240);
             $table->string('colonia',60);
@@ -24,6 +25,7 @@ class CreateAlumnosTable extends Migration
             $table->string('telefono_madre',60)->nullable();
             $table->string('telefono_padre',60)->nullable();
             $table->foreign('id_familias')->references('id')->on('familias');
+            $table->foreign('id_ciclo_escolar')->references('id')->on('ciclo_escolar');
             $table->timestamps();
         });
     }
