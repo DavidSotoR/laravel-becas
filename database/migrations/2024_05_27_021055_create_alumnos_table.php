@@ -24,9 +24,9 @@ class CreateAlumnosTable extends Migration
             $table->string('codigo_postal',5);
             $table->string('telefono_madre',60)->nullable();
             $table->string('telefono_padre',60)->nullable();
+            $table->timestamps();
             $table->foreign('id_familias')->references('id')->on('familias');
             $table->foreign('id_ciclo_escolar')->references('id')->on('ciclo_escolar');
-            $table->timestamps();
         });
     }
 
