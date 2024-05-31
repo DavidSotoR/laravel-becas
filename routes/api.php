@@ -28,6 +28,9 @@ Route::group([
     Route::post('me', 'AuthController@me');
     Route::post('register', 'AuthController@register');
 
+    //Usuarios
+    Route::get('usuarios', 'PerfilesController@lista');
+    Route::get('usuarios/{id}', 'PerfilesController@id');
     //Perfiles
     Route::get('perfiles', 'PerfilesController@lista');
     Route::get('perfiles/{id}', 'PerfilesController@id');
