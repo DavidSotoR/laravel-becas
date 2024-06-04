@@ -48,8 +48,16 @@ class FamiliasPadresController extends Controller
             return response()->json($validator->errors(), 400);
         }
 
+        $elemento = FamiliasPadres::
+                    where('id_familia',$request->id_familia)
+                    ->where('id_familias_padres_tipo',$request->id_familias_padres_tipo)
+                    ->first();
+        if($elemento){
+            return response()->json(["id_familias_padres_tipo"=>["El tipo de familiar ya fu dado de alta con anterioridad"]], 400);
+        }
+
         $cliente = FamiliasPadres::create($validator->validate());
 
-        return response()->json(['message' => 'Nuevo cliente creado', 'data' => $cliente], 201);
+        return response()->json(['message' => 'Nuevo registro de padre creado', 'data' => $cliente], 201);
     }
 }

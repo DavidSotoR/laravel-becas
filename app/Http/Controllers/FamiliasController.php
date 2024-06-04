@@ -19,8 +19,15 @@ class FamiliasController extends Controller
         $this->middleware('auth:api');
     }
 
-    public function lista(){
-        $lista = Familias::get();
+    public function lista(Request $request){
+        $query = Familias::query();
+
+        //filtrat por siclo escolar id_ciclo_escolar
+        if(isset($request->id_ciclo_escolar)){
+            $query->where('id_ciclo_escolar', $request->id_ciclo_escolar);
+        }
+
+        $lista = $query->get();
         return response()->json($lista);
     }
 
@@ -43,6 +50,6 @@ class FamiliasController extends Controller
 
         $cliente = Familias::create($validator->validate());
 
-        return response()->json(['message' => 'Nuevo cliente creado', 'data' => $cliente], 201);
+        return response()->json(['message' => 'Nuevo registro creado', 'data' => $cliente], 201);
     }
 }
