@@ -35,9 +35,8 @@ class FamiliasDocumentosController extends Controller
     public function file($alias){
         $elemento = FamiliasDocumentos::where('alias',$alias)->first();
 
-        return storage_path('app/public/' . $elemento->directorio);
-        return response::download(storage_path('app/public/' . $elemento->directorio));
-        //return Response::download($elemento->directorio);
+        //return storage_path('app/public/' . $elemento->directorio);
+        return response()->download(storage_path('app/public/' . $elemento->directorio));
     }
 
     public function nuevo(Request $request){

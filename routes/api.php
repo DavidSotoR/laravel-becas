@@ -70,5 +70,6 @@ Route::group([
     Route::get('familias/documentos/file/{alias}', 'FamiliasDocumentosController@file');
     Route::get('familias/documentos/{id}', 'FamiliasDocumentosController@id');
     Route::post('familias/documentos', 'FamiliasDocumentosController@nuevo');
+    //Encuestas
 
 });
