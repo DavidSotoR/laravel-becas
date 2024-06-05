@@ -65,8 +65,11 @@ Route::group([
     Route::get('familias/alumnos/{id}', 'AlumnosController@id');
     Route::post('familias/alumnos', 'AlumnosController@nuevo');
     //Familias documentos
-    //Route::get('familias/{id_familia}/documentos', 'FamiliasDocumentosController@lista');
-    //Route::get('familias/documentos/{id}', 'FamiliasDocumentosController@id');
-   // Route::post('familias/documentos', 'FamiliasDocumentosController@nuevo');
+    Route::get('familias/documentos/tipos', 'FamiliasDocumentosTiposController@lista');
+    Route::get('familias/{id_familia}/documentos', 'FamiliasDocumentosController@lista');
+    Route::get('familias/documentos/file/{alias}', 'FamiliasDocumentosController@file');
+    Route::get('familias/documentos/{id}', 'FamiliasDocumentosController@id');
+    Route::post('familias/documentos', 'FamiliasDocumentosController@nuevo');
+    //Encuestas
 
 });

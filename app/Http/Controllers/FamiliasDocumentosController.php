@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 //use Illuminate\Support\Facades\Storage;
 use App\FamiliasDocumentos;
+use File;
 
 class FamiliasDocumentosController extends Controller
 {
@@ -20,8 +21,8 @@ class FamiliasDocumentosController extends Controller
         $this->middleware('auth:api');
     }
 
-    public function lista(){
-        $lista = FamiliasDocumentos::get();
+    public function lista($id_familia){
+        $lista = FamiliasDocumentos::where('id_familia',$id_familia)->get();
         return response()->json($lista);
     }
 
@@ -31,25 +32,46 @@ class FamiliasDocumentosController extends Controller
         return response()->json($elemento);
     }
 
+    public function file($alias){
+        $elemento = FamiliasDocumentos::where('alias',$alias)->first();
+
+        //return storage_path('app/public/' . $elemento->directorio);
+        return response()->download(storage_path('app/public/' . $elemento->directorio));
+    }
+
     public function nuevo(Request $request){
         //Storage::disk('local')->put('example.txt', 'Contents');
+
         $validator = Validator::make($request->all(),[
             'id_familia' => 'required|int',
             'id_familias_documentos_tipo' => 'required|int',
             'id_ciclo_escolar' => 'required|int',
-
-            'nombre' => 'required|nullable',
-            'directorio' => 'required|nullable',
-            'alias' => 'required|nullable',
+            'file' => 'required|mimes:csv,txt,xlx,xls,pdf,png|max:2048',
         ]);
 
         if($validator->fails()){
             return response()->json($validator->errors(), 400);
         }
 
-        $cliente = FamiliasDocumentos::create($validator->validate());
 
-        return response()->json(['message' => 'Nuevo cliente creado', 'data' => $cliente], 201);
+        $documento = new File;
+
+        $documentoName = $request->file->getClientOriginalName();
+        $documentoAlias = time().'_'.$request->file->getClientOriginalName();
+        $documentoPath = $request->file('file')->storeAs('uploads', $documentoAlias, 'public');
+
+
+        $elemento = FamiliasDocumentos::create([
+            "id_familia" => $request->id_familia,
+            "id_familias_documentos_tipo" => $request->id_familias_documentos_tipo,
+            "id_ciclo_escolar" => $request->id_ciclo_escolar,
+            'nombre' => $documentoName,
+            'directorio' => $documentoPath,
+            'alias' => $documentoAlias
+        ]);
+
+        return response()->json(['message' => 'Nuevo documento añadidio', 'data' => $elemento], 201);
+
     }
     //Storage::delete('file.jpg');
     //Storage::delete(['file.jpg', 'file2.jpg']);
