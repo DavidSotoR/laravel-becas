@@ -29,8 +29,8 @@ Route::group([
     Route::post('register', 'AuthController@register');
 
     //Usuarios
-    Route::get('usuarios', 'PerfilesController@lista');
-    Route::get('usuarios/{id}', 'PerfilesController@id');
+    Route::get('usuarios', 'UsuariosController@lista');
+    Route::get('usuarios/{id}', 'UsuariosController@id');
     //Perfiles
     Route::get('perfiles', 'PerfilesController@lista');
     Route::get('perfiles/{id}', 'PerfilesController@id');
