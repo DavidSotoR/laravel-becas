@@ -19,12 +19,12 @@ class UsuariosController extends Controller
     }
 
     public function lista(){
-        $lista = User::get();
+        $lista = User::with('perfil')->get();
         return response()->json($lista);
     }
 
     public function id($id){
-        $elemento = User::where('id',$id)->first();
+        $elemento = User::with('perfil')->where('id',$id)->first();
         return response()->json($elemento);
     }
 }

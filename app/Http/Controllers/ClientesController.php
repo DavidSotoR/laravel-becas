@@ -63,7 +63,6 @@ class ClientesController extends Controller
         }
 
         $editar = Clientes::where('id',$id)->first();
-        $editar->id = $request->id;
         $editar->nombre = $request->nombre;
         $editar->descripcion = $request->descripcion;
         $editar->notificaciones_email = $request->notificaciones_email;

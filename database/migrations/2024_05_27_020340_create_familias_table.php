@@ -16,8 +16,13 @@ class CreateFamiliasTable extends Migration
         Schema::create('familias', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_ciclo_escolar');
+            //Familia
             $table->string('nombre',240);
+            //folio-< año - id del colegio -
             $table->string('situacion_beca',1200)->nullable();
+
+            $table->string('nombre',240)->nullable();
+            $table->string('nombre',240)->nullable();
             $table->timestamps();
             $table->foreign('id_ciclo_escolar')->references('id')->on('ciclo_escolar');
         });

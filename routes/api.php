@@ -29,8 +29,8 @@ Route::group([
     Route::post('register', 'AuthController@register');
 
     //Usuarios
-    Route::get('usuarios', 'PerfilesController@lista');
-    Route::get('usuarios/{id}', 'PerfilesController@id');
+    Route::get('usuarios', 'UsuariosController@lista');
+    Route::get('usuarios/{id}', 'UsuariosController@id');
     //Perfiles
     Route::get('perfiles', 'PerfilesController@lista');
     Route::get('perfiles/{id}', 'PerfilesController@id');
@@ -71,5 +71,9 @@ Route::group([
     Route::get('familias/documentos/{id}', 'FamiliasDocumentosController@id');
     Route::post('familias/documentos', 'FamiliasDocumentosController@nuevo');
     //Encuestas
+    Route::get('catalogos/encuestas', 'CatalogoEncuestasController@lista');
+    Route::get('catalogos/encuestas/{id}', 'CatalogoEncuestasController@id');
+    Route::post('catalogos/encuestas', 'CatalogoEncuestasController@nuevo');
+    Route::put('catalogos/encuestas', 'CatalogoEncuestasController@editar');
 
 });
