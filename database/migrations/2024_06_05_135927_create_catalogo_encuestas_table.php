@@ -17,7 +17,7 @@ class CreateCatalogoEncuestasTable extends Migration
             $table->id();
             $table->unsignedBigInteger('id_tipo_cliente');
             $table->string('nombre',250);
-            $table->string('descripcion',1200);
+            $table->string('descripcion',1200)->nullable();
             $table->timestamps();
             $table->foreign('id_tipo_cliente','id_tipo_cliente_foreign')->references('id')->on('tipos_clientes');
         });

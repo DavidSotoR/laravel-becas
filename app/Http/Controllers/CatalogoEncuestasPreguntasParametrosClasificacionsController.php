@@ -1,0 +1,73 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use App\CatalogoEncuestasPreguntasParametrosClasificacions;
+
+class CatalogoEncuestasPreguntasParametrosClasificacionsController extends Controller
+{
+    /**
+     * Create a new AuthController instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
+
+    public function lista($id_catalogo_encuesta){
+        $lista = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta',$id_catalogo_encuesta)->get();
+        return response()->json($lista);
+    }
+
+    public function id($id){
+        $elemento = CatalogoEncuestasPreguntasParametrosClasificacions::where('id',$id)->first();
+        return response()->json($elemento);
+    }
+
+    public function nuevo(Request $request){
+
+        $validator = Validator::make($request->all(),[
+            'id_catalogo_encuesta' => 'required|int',
+            'nombre'=>['required','string','min:2',Rule::unique('catalogo_encuestas_preguntas_parametros_clasificaciones')],
+            'puntos_maximo' => 'required|int',
+        ]);
+
+        if($validator->fails()){
+            return response()->json(["errors"=>$validator->errors()], 400);
+        }
+
+        $elemento = CatalogoEncuestasPreguntasParametrosClasificacions::create(
+            $validator->validate()
+        );
+
+        return response()->json(['message' => 'Elemento Guardado', 'data' => $elemento], 201);
+    }
+
+    public function editar(Request $request){
+        $id = $request->id;
+
+        $validator = Validator::make($request->all(),[
+            'nombre' => ['required','string','min:2',Rule::unique('catalogo_encuestas_preguntas_parametros_clasificaciones')->ignore($id)],
+            'id_catalogo_encuesta' => 'required|int',
+            'puntos_maximo' => 'required|int',
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors(), 400);
+        }
+
+        $editar = CatalogoEncuestasPreguntasParametrosClasificacions::where('id',$id)->first();
+        $editar->nombre = $request->nombre;
+        $editar->id_catalogo_encuesta = $request->id_catalogo_encuesta;
+        $editar->puntos_maximo = $request->puntos_maximo;
+        $editar->save();
+
+
+        return response()->json(['message' => 'Encuesta modificada', 'data' => $editar], 201);
+    }
+}

@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use App\CatalogoEncuestas;
+use App\CatalogoEncuestasPreguntas;
 
-class CatalogoEncuestasController extends Controller
+class CatalogoEncuestasPreguntasController extends Controller
 {
     /**
      * Create a new AuthController instance.
@@ -19,37 +19,26 @@ class CatalogoEncuestasController extends Controller
         $this->middleware('auth:api');
     }
 
-    public function lista(Request $request){
-        $query = CatalogoEncuestas::query();
-        $query->with('tipoCliente');
-
-        //Filtrar encuestas por filtro de cliente empresa o escuelas
-        if($request->id_tipo_cliente){
-            $query->where('id_tipo_cliente', $request->id_tipo_cliente);
-        }
-
-        $lista = $query->get();
-        return response()->json($lista);
-    }
-
     public function id($id){
-        $elemento = CatalogoEncuestas::with('tipoCliente','preguntas')->where('id',$id)->first();
+        //with('tipoCliente','preguntas')->
+        $elemento = CatalogoEncuestasPreguntas::where('id',$id)->first();
         return response()->json($elemento);
     }
 
     public function nuevo(Request $request){
 
         $validator = Validator::make($request->all(),[
-            'id_tipo_cliente' => 'required|int',
-            'nombre' => 'required|string',
-            'descripcion' => 'required|string',
+            'pregunta'=>'required|string',
+            'id_catalogo_encuesta' => 'required|int',
+            'id_catalogo_encuestas_preguntas_tipo' => 'required|int',
+            'id_catalogo_encuestas_preguntas_parametro_clasificacion' => 'required|int',
         ]);
 
         if($validator->fails()){
             return response()->json(["errors"=>$validator->errors()], 400);
         }
 
-        $elemento = CatalogoEncuestas::create(
+        $elemento = CatalogoEncuestasPreguntas::create(
             $validator->validate()
         );
 

@@ -21,8 +21,8 @@ class CreateFamiliasTable extends Migration
             //folio-< año - id del colegio -
             $table->string('situacion_beca',1200)->nullable();
 
-            $table->string('nombre',240)->nullable();
-            $table->string('nombre',240)->nullable();
+            $table->string('latitud',240)->nullable();
+            $table->string('longitud',240)->nullable();
             $table->timestamps();
             $table->foreign('id_ciclo_escolar')->references('id')->on('ciclo_escolar');
         });

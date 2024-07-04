@@ -70,7 +70,21 @@ Route::group([
     Route::get('familias/documentos/file/{alias}', 'FamiliasDocumentosController@file');
     Route::get('familias/documentos/{id}', 'FamiliasDocumentosController@id');
     Route::post('familias/documentos', 'FamiliasDocumentosController@nuevo');
+
     //Encuestas
+
+
+    Route::get('catalogos/encuestas/parametros/{id}', 'CatalogoEncuestasPreguntasParametrosClasificacionsController@id');
+    Route::post('catalogos/encuestas/parametros', 'CatalogoEncuestasPreguntasParametrosClasificacionsController@nuevo');
+    Route::put('catalogos/encuestas/parametros', 'CatalogoEncuestasPreguntasParametrosClasificacionsController@editar');
+    Route::get('catalogos/encuestas/{id_catalogo_encuesta}/parametros', 'CatalogoEncuestasPreguntasParametrosClasificacionsController@lista');
+
+    Route::get('catalogos/encuestas/preguntas/tipos', 'CatalogoEncuestasPreguntasTiposController@lista');
+    Route::get('catalogos/encuestas/preguntas/tipos/{id}', 'CatalogoEncuestasPreguntasTiposController@id');
+
+    Route::post('catalogos/encuestas/preguntas', 'CatalogoEncuestasController@nuevo');
+    Route::put('catalogos/encuestas/preguntas', 'CatalogoEncuestasController@editar');
+
     Route::get('catalogos/encuestas', 'CatalogoEncuestasController@lista');
     Route::get('catalogos/encuestas/{id}', 'CatalogoEncuestasController@id');
     Route::post('catalogos/encuestas', 'CatalogoEncuestasController@nuevo');
