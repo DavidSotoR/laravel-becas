@@ -13,10 +13,10 @@ class CatalogoEncuestasPreguntas extends Model
     }
 
     public function tipoPreguntas(){
-        return $this->hasOne('App\CatalogoEncuestasPreguntasParametrosClasificacionTipo','id','id_catalogo_encuestas_preguntas_tipo');
+        return $this->hasOne('App\CatalogoEncuestasPreguntasTipos','id','id_catalogo_encuestas_preguntas_tipo');
     }
 
     public function parametroDeClasificacion(){
-        return $this->hasOne('App\CatalogoEncuestasPreguntasParametrosClasificacion','id','id_catalogo_encuestas_preguntas_parametro_clasificacion');
+        return $this->hasOne('App\CatalogoEncuestasPreguntasParametrosClasificacions','id','id_catalogo_encuestas_preguntas_parametro_clasificacion');
     }
 }

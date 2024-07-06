@@ -84,6 +84,8 @@ Route::group([
 
     Route::post('catalogos/encuestas/preguntas', 'CatalogoEncuestasPreguntasController@nuevo');
     Route::put('catalogos/encuestas/preguntas', 'CatalogoEncuestasPreguntasController@editar');
+    Route::get('catalogos/encuestas/{id_encuesta}/preguntas', 'CatalogoEncuestasPreguntasController@lista');
+    Route::get('catalogos/encuestas/preguntas/{id}', 'CatalogoEncuestasPreguntasController@id');
 
     Route::get('catalogos/encuestas', 'CatalogoEncuestasController@lista');
     Route::get('catalogos/encuestas/{id}', 'CatalogoEncuestasController@id');

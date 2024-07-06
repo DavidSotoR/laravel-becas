@@ -19,9 +19,22 @@ class CatalogoEncuestasPreguntasController extends Controller
         $this->middleware('auth:api');
     }
 
+    public function lista($id_encuesta){
+        $query = CatalogoEncuestasPreguntas::query();
+        //$query->with(['catalogoEncuesta','tipoPreguntas','parametroDeClasificacion']);
+        $query->with(['catalogoEncuesta','tipoPreguntas','parametroDeClasificacion']);
+
+        $query->where('id_catalogo_encuesta', $id_encuesta);
+
+
+        $lista = $query->get();
+        return response()->json($lista);
+    }
+
     public function id($id){
         //with('tipoCliente','preguntas')->
-        $elemento = CatalogoEncuestasPreguntas::where('id',$id)->first();
+        //with(['catalogoEncuesta','tipoPreguntas','parametroDeClasificacion'])->
+        $elemento = CatalogoEncuestasPreguntas::with(['catalogoEncuesta','tipoPreguntas','parametroDeClasificacion'])->where('id',$id)->first();
         return response()->json($elemento);
     }
 
