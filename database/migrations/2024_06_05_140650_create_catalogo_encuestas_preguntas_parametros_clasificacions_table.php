@@ -30,6 +30,6 @@ class CreateCatalogoEncuestasPreguntasParametrosClasificacionsTable extends Migr
      */
     public function down()
     {
-        Schema::dropIfExists('catalogo_encuestas_preguntas_parametros_clasificacions');
+        Schema::dropIfExists('catalogo_encuestas_preguntas_parametros_clasificaciones');
     }
 }

@@ -30,10 +30,17 @@ class CatalogoEncuestasPreguntasParametrosClasificacionsController extends Contr
     }
 
     public function nuevo(Request $request){
+        $id_catalogo_encuesta = $request->id_catalogo_encuesta;
 
         $validator = Validator::make($request->all(),[
             'id_catalogo_encuesta' => 'required|int',
-            'nombre'=>['required','string','min:2',Rule::unique('catalogo_encuestas_preguntas_parametros_clasificaciones')],
+            'nombre'=>[
+                        'required','string','min:2',
+                        Rule::unique('catalogo_encuestas_preguntas_parametros_clasificaciones')
+                        ->where(function ($query) use($id_catalogo_encuesta) {
+                            return $query->where('id_catalogo_encuesta', $id_catalogo_encuesta);
+                        }),
+                    ],
             'puntos_maximo' => 'required|int',
         ]);
 
@@ -50,9 +57,17 @@ class CatalogoEncuestasPreguntasParametrosClasificacionsController extends Contr
 
     public function editar(Request $request){
         $id = $request->id;
+        $id_catalogo_encuesta = $request->id_catalogo_encuesta;
 
         $validator = Validator::make($request->all(),[
-            'nombre' => ['required','string','min:2',Rule::unique('catalogo_encuestas_preguntas_parametros_clasificaciones')->ignore($id)],
+            'nombre' => [
+                            'required','string','min:2',
+                            Rule::unique('catalogo_encuestas_preguntas_parametros_clasificaciones')
+                            ->where(function ($query) use($id,$id_catalogo_encuesta) {
+                                return $query->where('id', $id)
+                                ->where('id_catalogo_encuesta', $id_catalogo_encuesta);
+                            }),
+                        ],
             'id_catalogo_encuesta' => 'required|int',
             'puntos_maximo' => 'required|int',
         ]);
