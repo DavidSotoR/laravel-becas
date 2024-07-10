@@ -24,6 +24,15 @@ class CreateUsersTable extends Migration
             $table->timestamps();
             $table->foreign('id_perfil')->references('id')->on('perfiles');
         });
+
+        DB::table('users')->insert(
+            [
+                'name' => 'David Soto'
+                ,'email' => 'davidsotord93@gmail.com'
+                ,'id_perfil' => 1
+                ,'password' => bcrypt('Admin123')
+            ]
+        );
     }
 
     /**
