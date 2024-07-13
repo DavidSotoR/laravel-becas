@@ -67,6 +67,9 @@ class ClientesController extends Controller
         $editar->descripcion = $request->descripcion;
         $editar->notificaciones_email = $request->notificaciones_email;
         $editar->id_tipo_cliente = $request->id_tipo_cliente;
+        if(isset($request->id_clientes_hermanos)){
+            $editar->id_clientes_hermanos = $request->id_clientes_hermanos;
+        }
         $editar->save();
 
 

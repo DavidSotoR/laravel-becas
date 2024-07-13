@@ -35,9 +35,14 @@ Route::group([
     Route::get('perfiles', 'PerfilesController@lista');
     Route::get('perfiles/{id}', 'PerfilesController@id');
 
-
     //Tipos de Clientes
     Route::get('clientes/tipos', 'TiposClientesController@lista');
+
+    //Clientes Hermanos
+    Route::get('clientes/hermanos', 'ClientesHermanosController@lista');
+    Route::get('clientes/hermanos/{id}', 'ClientesHermanosController@id');
+    Route::post('clientes/hermanos', 'ClientesHermanosController@nuevo');
+    Route::put('clientes/hermanos', 'ClientesHermanosController@editar');
 
     //Clientes
     Route::get('clientes', 'ClientesController@lista');
