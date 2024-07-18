@@ -20,8 +20,22 @@ class ClientesController extends Controller
         $this->middleware('auth:api');
     }
 
-    public function lista(){
-        $lista = Clientes::get();
+    public function lista(Request $request){
+
+        $query = Clientes::query();
+
+        if(isset($request->id_tipo_cliente)){
+            $query->where('id_tipo_cliente', $request->id_tipo_cliente);
+        }
+        if(isset($request->id_clientes_hermanos)){
+            $query->where('id_clientes_hermanos', $request->id_clientes_hermanos);
+            if($request->id_clientes_hermanos == 0){
+                $query->orWhereNull('id_clientes_hermanos');
+            }
+        }
+
+        $lista = $query ->get();
+
         return response()->json($lista);
     }
 
