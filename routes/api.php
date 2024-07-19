@@ -41,8 +41,10 @@ Route::group([
     //Clientes Hermanos
     Route::get('clientes/hermanos', 'ClientesHermanosController@lista');
     Route::get('clientes/hermanos/{id}', 'ClientesHermanosController@id');
+    Route::post('clientes/hermanos/{id}', 'ClientesHermanosController@nuevosHermanos');
     Route::post('clientes/hermanos', 'ClientesHermanosController@nuevo');
     Route::put('clientes/hermanos', 'ClientesHermanosController@editar');
+    Route::delete('clientes/{id}/hermano', 'ClientesHermanosController@eliminarHermano');
 
     //Clientes
     Route::get('clientes', 'ClientesController@lista');

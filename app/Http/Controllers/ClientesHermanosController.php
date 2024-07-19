@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\ClientesHermanos;
+use App\Clientes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -62,6 +63,47 @@ class ClientesHermanosController extends Controller
 
 
         return response()->json(['message' => 'Elemento modificado', 'data' => $editar], 201);
+    }
+
+    public function eliminarHermano($id){
+        if(!$id){
+            return response()->json(["id_cliente"=>["Id del ciente no resivido"]], 400);
+        }
+        $editar = Clientes::where('id',$id)->first();
+        $editar->id_clientes_hermanos = null;
+        $editar->save();
+
+        return response()->json(['message' => 'Elemento modificado', 'data' => $editar], 201);
+
+    }
+
+    public function nuevosHermanos(Request $request, int $id){
+
+        if(!$id){
+            return response()->json(["id"=>["familia comun no encontrada"]], 400);
+        }
+
+        $lista_clientes = array();
+
+        if(isset($request->lista_clientes)){
+            $lista_clientes = $request->lista_clientes;
+
+            //return response()->json(['message' => 'Elemento modificado', 'data' => $lista_clientes], 201);
+        }
+
+        if(isset($request->id_cliente)){
+            $lista_clientes[] = $request->id_cliente;
+        }
+
+        foreach($lista_clientes AS $id_cliente){
+            $editar = Clientes::where('id',$id_cliente)->first();
+            $editar->id_clientes_hermanos = $id;
+            $editar->save();
+        }
+
+        $lista = ClientesHermanos::with('lista')->where('id',$id)->first();
+
+        return response()->json(['message' => 'Elemento modificado', 'data' => $lista], 201);
     }
 
 }
