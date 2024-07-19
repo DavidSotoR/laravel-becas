@@ -46,4 +46,27 @@ class CicloEscolarController extends Controller
 
         return response()->json(['message' => 'Nuevo cliente creado', 'data' => $cliente], 201);
     }
+
+    public function editar(Request $request){
+        $id = $request->id;
+        $validator = Validator::make($request->all(),[
+            'id' => 'required',
+            'activo' => 'required',
+            'inicio' => ['required','date_format:Y/m/d', Rule::unique('ciclo_escolar','inicio')->ignore($id)],
+            'fin' => ['required','date_format:Y/m/d', Rule::unique('ciclo_escolar','fin')->ignore($id)],
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors(), 400);
+        }
+
+        $editar = CicloEscolar::where('id',$id)->first();
+        $editar->activo = $request->activo;
+        $editar->inicio = $request->inicio;
+        $editar->fin = $request->fin;
+        $editar->save();
+
+
+        return response()->json(['message' => 'Elemento modificado', 'data' => $editar], 201);
+    }
 }

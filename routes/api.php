@@ -54,6 +54,7 @@ Route::group([
     Route::get('ciclos', 'CicloEscolarController@lista');
     Route::get('ciclos/{id}', 'CicloEscolarController@id');
     Route::post('ciclos', 'CicloEscolarController@nuevo');
+    Route::put('ciclos', 'CicloEscolarController@editar');
 
     //Familias
     Route::get('familias', 'FamiliasController@lista');
