@@ -22,11 +22,13 @@ class ClientesController extends Controller
 
     public function lista(Request $request){
 
-        $query = Clientes::query();
+        $query = Clientes::query()->with("tipoCliente");
+
 
         if(isset($request->id_tipo_cliente)){
             $query->where('id_tipo_cliente', $request->id_tipo_cliente);
         }
+
         if(isset($request->id_clientes_hermanos)){
             if($request->id_clientes_hermanos == 0){
                 $query->where(function ($query) use ($request){
@@ -45,7 +47,7 @@ class ClientesController extends Controller
     }
 
     public function id($id){
-        $elemento = Clientes::where('id',$id)->first();
+        $elemento = Clientes::with("tipoCliente")->where('id',$id)->first();
         return response()->json($elemento);
     }
 
