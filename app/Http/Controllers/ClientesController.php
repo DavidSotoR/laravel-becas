@@ -28,9 +28,14 @@ class ClientesController extends Controller
             $query->where('id_tipo_cliente', $request->id_tipo_cliente);
         }
         if(isset($request->id_clientes_hermanos)){
-            $query->where('id_clientes_hermanos', $request->id_clientes_hermanos);
             if($request->id_clientes_hermanos == 0){
-                $query->orWhereNull('id_clientes_hermanos');
+                $query->where(function ($query) use ($request){
+                    $query
+                        ->where('id_clientes_hermanos', $request->id_clientes_hermanos)
+                        ->orWhereNull('id_clientes_hermanos');
+                });
+            }else{
+                $query->where('id_clientes_hermanos', $request->id_clientes_hermanos);
             }
         }
 
@@ -51,6 +56,7 @@ class ClientesController extends Controller
             'descripcion' => 'required',
             'notificaciones_email' => 'required',
             'id_tipo_cliente' => 'required',
+            'id_clientes_hermanos' => 'nullable|int',
         ]);
 
         if($validator->fails()){
@@ -70,6 +76,7 @@ class ClientesController extends Controller
             'descripcion' => 'required',
             'notificaciones_email' => 'required',
             'id_tipo_cliente' => 'required',
+            'id_clientes_hermanos' => 'nullable|int',
         ]);
 
         if($validator->fails()){

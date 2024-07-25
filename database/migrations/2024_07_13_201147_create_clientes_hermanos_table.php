@@ -33,6 +33,11 @@ class CreateClientesHermanosTable extends Migration
      */
     public function down()
     {
+        Schema::table('clientes', function (Blueprint $table) {
+            $table->dropForeign('id_clientes_hermanos_fkch');
+            $table->dropColumn('id_clientes_hermanos');
+        });
+
         Schema::dropIfExists('clientes_hermanos');
     }
 }

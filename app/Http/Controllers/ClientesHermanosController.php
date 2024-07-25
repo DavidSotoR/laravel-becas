@@ -21,8 +21,12 @@ class ClientesHermanosController extends Controller
         $this->middleware('auth:api');
     }
 
-    public function lista(){
-        $lista = ClientesHermanos::with('lista')->get();
+    public function lista(Request $request){
+        $query = ClientesHermanos::query();
+        if(isset($request->lista)){
+            $query->with('lista');
+        }
+        $lista = $query->get();
         return response()->json($lista);
     }
 
