@@ -18,7 +18,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','id_perfil',
+        'name', 'email', 'password','id_perfil','id_cliente',
     ];
 
     /**
@@ -60,5 +60,9 @@ class User extends Authenticatable implements JWTSubject
 
     public function perfil(){
         return $this->hasOne('App\Perfiles','id','id_perfil');
+    }
+
+    public function cliente(){
+        return $this->hasOne('App\Clientes','id','id_cliente');
     }
 }
