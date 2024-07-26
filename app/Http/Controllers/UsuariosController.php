@@ -18,8 +18,18 @@ class UsuariosController extends Controller
         $this->middleware('auth:api');
     }
 
-    public function lista(){
-        $lista = User::with('perfil','cliente')->get();
+    public function lista(Request $request){
+        $query = User::query()->with('perfil','cliente');
+
+        if(isset($request->id_cliente)){
+            if($request->id_cliente == 0){
+                $query->where('id_cliente',null);
+            }else{
+                $query->where('id_cliente',$request->id_cliente);
+            }
+        }
+
+        $lista = $query->get();
         return response()->json($lista);
     }
 
