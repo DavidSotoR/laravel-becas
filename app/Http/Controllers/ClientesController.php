@@ -51,6 +51,11 @@ class ClientesController extends Controller
         return response()->json($elemento);
     }
 
+    public function usuarios($id){
+        $elemento = Clientes::with("tipoCliente","usuarios")->where('id',$id)->first();
+        return response()->json($elemento);
+    }
+
     public function nuevo(Request $request){
 
         $validator = Validator::make($request->all(),[

@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Clientes extends Model
 {
@@ -10,5 +11,9 @@ class Clientes extends Model
 
     public function tipoCliente(){
         return $this->hasOne('App\TiposClientes','id','id_tipo_cliente');
+    }
+
+    public function usuarios(){
+        return $this->belongsTo('App\User','id_cliente','id');
     }
 }

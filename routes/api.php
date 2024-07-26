@@ -48,6 +48,7 @@ Route::group([
 
     //Clientes
     Route::get('clientes', 'ClientesController@lista');
+    Route::get('clientes/{id}/usuarios', 'ClientesController@usuarios');
     Route::get('clientes/{id}', 'ClientesController@id');
     Route::post('clientes', 'ClientesController@nuevo');
     Route::put('clientes', 'ClientesController@editar');
