@@ -30,6 +30,7 @@ Route::group([
 
     //Usuarios
     Route::get('usuarios', 'UsuariosController@lista');
+    Route::put('usuarios', 'UsuariosController@editar');
     Route::get('usuarios/{id}', 'UsuariosController@id');
     //Perfiles
     Route::get('perfiles', 'PerfilesController@lista');
