@@ -84,6 +84,9 @@ Route::group([
     //Encuestas
 
 
+    Route::get('catalogos/encuestas/parametros/tipos/{id}', 'CatalogoEncuestasPreguntasParametrosClasificacionsTipoController@id');
+    Route::get('catalogos/encuestas/parametros/tipos', 'CatalogoEncuestasPreguntasParametrosClasificacionsTipoController@lista');
+
     Route::get('catalogos/encuestas/parametros/{id}', 'CatalogoEncuestasPreguntasParametrosClasificacionsController@id');
     Route::post('catalogos/encuestas/parametros', 'CatalogoEncuestasPreguntasParametrosClasificacionsController@nuevo');
     Route::put('catalogos/encuestas/parametros', 'CatalogoEncuestasPreguntasParametrosClasificacionsController@editar');

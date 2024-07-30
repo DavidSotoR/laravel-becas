@@ -20,12 +20,12 @@ class CatalogoEncuestasPreguntasParametrosClasificacionsController extends Contr
     }
 
     public function lista($id_catalogo_encuesta){
-        $lista = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta',$id_catalogo_encuesta)->get();
+        $lista = CatalogoEncuestasPreguntasParametrosClasificacions::with('tipoParametro')->where('id_catalogo_encuesta',$id_catalogo_encuesta)->get();
         return response()->json($lista);
     }
 
     public function id($id){
-        $elemento = CatalogoEncuestasPreguntasParametrosClasificacions::where('id',$id)->first();
+        $elemento = CatalogoEncuestasPreguntasParametrosClasificacions::with('tipoParametro')->where('id',$id)->first();
         return response()->json($elemento);
     }
 
@@ -42,6 +42,7 @@ class CatalogoEncuestasPreguntasParametrosClasificacionsController extends Contr
                         }),
                     ],
             'puntos_maximo' => 'required|int',
+            'id_catalogo_encuestas_preguntas_parametros_clasificaciones_tipos' =>'required|int',
         ]);
 
         if($validator->fails()){
@@ -70,6 +71,7 @@ class CatalogoEncuestasPreguntasParametrosClasificacionsController extends Contr
                         ],
             'id_catalogo_encuesta' => 'required|int',
             'puntos_maximo' => 'required|int',
+            'id_catalogo_encuestas_preguntas_parametros_clasificaciones_tipos' =>'required|int',
         ]);
 
         if($validator->fails()){
