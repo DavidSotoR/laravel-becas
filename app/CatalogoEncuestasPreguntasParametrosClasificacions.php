@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CatalogoEncuestasPreguntasParametrosClasificacions extends Model
 {
@@ -11,5 +12,9 @@ class CatalogoEncuestasPreguntasParametrosClasificacions extends Model
 
     public function tipoParametro(){
         return $this->hasOne('App\CatalogoEncuestasPreguntasParametrosClasificacionsTipo','id','id_catalogo_encuestas_preguntas_parametros_clasificaciones_tipos');
+    }
+
+    public function items(){
+        return $this->hasMany('App\CatalogoEncuestasPreguntasParametrosClasificacionItems','id_catalogo_encuestas_preguntas_parametro_clasificacion','id');
     }
 }

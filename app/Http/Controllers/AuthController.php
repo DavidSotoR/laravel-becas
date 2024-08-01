@@ -18,7 +18,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login','register']]);
+        $this->middleware('auth:api', ['except' => ['login']]);
     }
 
     /**
@@ -28,9 +28,35 @@ class AuthController extends Controller
      */
     public function login()
     {
-        $credentials = request(['email', 'password']);
+        //leer parametros
+        $credentials = request(['login', 'password']);
 
-        if (! $token = auth()->attempt($credentials)) {
+        //valida que exsistan
+        if(!isset($credentials['login']) OR !isset($credentials['password'])){
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+        //valida que login no sea null o ""
+        if(!$credentials['login']){
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        //si es un email se selecciona la columna email si no la columna short name
+        $fieldType = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'short_name';
+
+        //Se añade que la cuenta a lagearse tenga el valor 1 (true) en el campos active
+        $loginCondition = [$fieldType => $credentials['login'], 'password' => $credentials['password'],'active' => 1];
+
+        if ($fieldType == 'email') {
+            $loginCondition['id_perfil'] = [5,6]; // Si es email el perfil tiene que ser empresa o familia
+        }
+        //else{
+            $loginCondition['id_perfil'] = [1,2,3,4]; // para short name la cuenta es interna
+        //}
+
+        // se valida la cuenta en caso de true retorna token
+        if (! $token = auth()->attempt(
+            $loginCondition
+            )) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 

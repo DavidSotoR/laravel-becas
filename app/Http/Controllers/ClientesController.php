@@ -98,6 +98,36 @@ class ClientesController extends Controller
         if(isset($request->id_clientes_hermanos)){
             $editar->id_clientes_hermanos = $request->id_clientes_hermanos;
         }
+
+        if(isset($request->rso))
+            $editar->rso = $request->rso;
+        if(isset($request->nombre_uno))
+            $editar->nombre_uno = $request->nombre_uno;
+        if(isset($request->telefono_uno))
+            $editar->telefono_uno = $request->telefono_uno;
+        if(isset($request->nombre_dos))
+            $editar->nombre_dos = $request->nombre_dos;
+        if(isset($request->telefono_dos))
+            $editar->telefono_dos = $request->telefono_dos;
+        if(isset($request->telefono_mobil))
+            $editar->telefono_mobil = $request->telefono_mobil;
+        if(isset($request->calle))
+            $editar->calle = $request->calle;
+        if(isset($request->entre_cale))
+            $editar->entre_cale = $request->entre_cale;
+        if(isset($request->colonia))
+            $editar->colonia = $request->colonia;
+        if(isset($request->codigo_postal))
+            $editar->codigo_postal = $request->codigo_postal;
+        if(isset($request->ciudad))
+            $editar->ciudad = $request->ciudad;
+        if(isset($request->estado))
+            $editar->estado = $request->estado;
+        if(isset($request->pais))
+            $editar->pais = $request->pais;
+        if(isset($request->rason_social))
+            $editar->rason_social = $request->rason_social;
+
         $editar->save();
 
 

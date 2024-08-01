@@ -7,7 +7,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Clientes extends Model
 {
-    protected $fillable = ['nombre','descripcion','notificaciones_email','id_tipo_cliente','id_clientes_hermanos'];
+    protected $fillable = [
+        'nombre',
+        'descripcion',
+        'notificaciones_email',
+        'id_tipo_cliente',
+        'id_clientes_hermanos',
+        'rso',
+        'nombre_uno',
+        'telefono_uno',
+        'nombre_dos',
+        'telefono_dos',
+        'telefono_mobil',
+        'calle',
+        'entre_cale',
+        'colonia',
+        'codigo_postal',
+        'ciudad',
+        'estado',
+        'pais',
+        'rason_social',
+    ];
 
     public function tipoCliente(){
         return $this->hasOne('App\TiposClientes','id','id_tipo_cliente');
