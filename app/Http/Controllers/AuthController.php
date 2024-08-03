@@ -48,9 +48,9 @@ class AuthController extends Controller
         if ($fieldType == 'email') {
             $loginCondition['id_perfil'] = [5,6]; // Si es email el perfil tiene que ser empresa o familia
         }
-        //else{
-            $loginCondition['id_perfil'] = [1,2,3,4]; // para short name la cuenta es interna
-        //}
+        else{
+            $loginCondition['id_perfil'] = [1,2,3,4,5,6]; // para short name la cuenta es interna
+        }
 
         // se valida la cuenta en caso de true retorna token
         if (! $token = auth()->attempt(
