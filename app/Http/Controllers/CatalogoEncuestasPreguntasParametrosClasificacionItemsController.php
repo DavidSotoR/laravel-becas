@@ -19,8 +19,20 @@ class CatalogoEncuestasPreguntasParametrosClasificacionItemsController extends C
         $this->middleware('auth:api');
     }
 
-    public function lista(Request $request){
-        $lista = CatalogoEncuestasPreguntasParametrosClasificacionItems::get();
+    public function lista(Request $request,$id_parametros = null,$id_pregunta = null){
+
+        $query = CatalogoEncuestasPreguntasParametrosClasificacionItems::query();
+
+        //Filtrar encuestas por filtro de cliente empresa o escuelas
+        if($id_parametros){
+            $query->where('id_catalogo_encuestas_preguntas_parametro_clasificacion', $id_parametros);
+        }
+        if($id_pregunta){
+            $query->where('id_catalogo_encuestas_preguntas_parametro_clasificacion', $id_pregunta);
+        }
+
+        $lista = $query->get();
+
         return response()->json($lista);
     }
 
