@@ -33,11 +33,11 @@ class AuthController extends Controller
 
         //valida que exsistan
         if(!isset($credentials['login']) OR !isset($credentials['password'])){
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Unauthorized 1'], 401);
         }
         //valida que login no sea null o ""
         if(!$credentials['login']){
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Unauthorized 2'], 401);
         }
 
         //si es un email se selecciona la columna email si no la columna short name
@@ -57,7 +57,7 @@ class AuthController extends Controller
         if (! $token = auth()->attempt(
             $loginCondition
             )) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Unauthorized 3'], 401);
         }
 
         return $this->respondWithToken($token);
