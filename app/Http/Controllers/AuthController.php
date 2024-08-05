@@ -29,7 +29,7 @@ class AuthController extends Controller
     {
         //leer parametros
         $credentials = request(['login', 'password']);
-
+/*
         //valida que exsistan
         if(!isset($credentials['login']) OR !isset($credentials['password'])){
             return response()->json(['error' => 'Unauthorized 1'], 401);
@@ -37,7 +37,7 @@ class AuthController extends Controller
         //valida que login no sea null o ""
         if(!$credentials['login']){
             return response()->json(['error' => 'Unauthorized 2'], 401);
-        }
+        }*/
 
         //si es un email se selecciona la columna email si no la columna short name
         $fieldType = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'short_name';

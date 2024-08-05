@@ -114,3 +114,7 @@ Route::group([
     Route::put('catalogos/encuestas', 'CatalogoEncuestasController@editar');
 
 });
+
+Route::post('pwreturn',function(Request $request){
+    return response()->json([bcrypt($request->password)],201);
+});
