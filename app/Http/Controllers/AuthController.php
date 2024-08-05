@@ -25,10 +25,15 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login()
+    public function login(Request $request)
     {
+        $request->validate([
+            'login' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
         //leer parametros
-        $credentials = request(['login', 'password']);
+        $credentials = $request->only('login', 'password');
 /*
         //valida que exsistan
         if(!isset($credentials['login']) OR !isset($credentials['password'])){
