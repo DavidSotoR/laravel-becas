@@ -60,6 +60,20 @@ Route::group([
     Route::post('ciclos', 'CicloEscolarController@nuevo');
     Route::put('ciclos', 'CicloEscolarController@editar');
 
+    //Proyectos
+    Route::get('proyectos', 'ProyectosController@lista');
+    Route::get('proyectos/{id}', 'ProyectosController@id');
+    Route::post('proyectos', 'ProyectosController@nuevo');
+    Route::put('proyectos', 'ProyectosController@eliminar');
+    //Proyectos Clientes
+    Route::get('proyectos/{id_proyecto}/clientes', 'ProyectosClientesController@lista');
+    Route::get('proyectos/clientes/{id}', 'ProyectosClientesController@id');
+    Route::post('proyectos/clientes', 'ProyectosClientesController@nuevo');
+    Route::delete('proyectos/clientes/{id}', 'ProyectosClientesController@eliminar');
+
+
+
+
     //Familias
     Route::get('familias', 'FamiliasController@lista');
     Route::get('familias/{id}', 'FamiliasController@id');
