@@ -62,8 +62,10 @@ class CatalogoEncuestasPreguntasParametrosClasificacionItemsController extends C
         return response()->json(['message' => 'Elemento Guardado', 'data' => $elemento], 201);
     }
 
-    public function editar(Request $request){
-        $id = $request->id;
+    public function editar(Request $request,$id = 0){
+        if(!$id){
+            return response()->json(["id" => ["id de ítem es requerido"]], 400);
+        }
 
         $validator = Validator::make($request->all(),[
             'id_catalogo_encuestas_preguntas_parametro_clasificacion' => 'nullable|int',

@@ -103,7 +103,7 @@ Route::group([
     Route::get('catalogos/encuestas/parametros/{id_parametros}/items', 'CatalogoEncuestasPreguntasParametrosClasificacionItemsController@lista');
     Route::get('catalogos/encuestas/preguntas/{id_pregunta}/items', 'CatalogoEncuestasPreguntasParametrosClasificacionItemsController@lista');
     Route::post('catalogos/encuestas/parametros/items', 'CatalogoEncuestasPreguntasParametrosClasificacionItemsController@nuevo');
-    Route::put('catalogos/encuestas/parametros/items', 'CatalogoEncuestasPreguntasParametrosClasificacionItemsController@editar');
+    Route::put('catalogos/encuestas/parametros/items/{id}', 'CatalogoEncuestasPreguntasParametrosClasificacionItemsController@editar');
     Route::delete('catalogos/encuestas/parametros/items/{id}', 'CatalogoEncuestasPreguntasParametrosClasificacionItemsController@eliminar');
 
     Route::get('catalogos/encuestas/parametros/tipos/{id}', 'CatalogoEncuestasPreguntasParametrosClasificacionsTipoController@id');
