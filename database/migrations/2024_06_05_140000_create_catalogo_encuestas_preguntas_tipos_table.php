@@ -35,6 +35,12 @@ class CreateCatalogoEncuestasPreguntasTiposTable extends Migration
         DB::table('catalogo_encuestas_preguntas_tipos')->insert(
             ['nombre' => 'Pregunta abierta']
         );
+        DB::table('catalogo_encuestas_preguntas_tipos')->insert(
+            ['nombre' => 'Salto de Hoja']
+        );
+        DB::table('catalogo_encuestas_preguntas_tipos')->insert(
+            ['nombre' => 'Salto de Hoja']
+        );
     }
 
     /**

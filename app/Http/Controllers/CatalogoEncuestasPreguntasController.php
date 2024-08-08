@@ -46,6 +46,9 @@ class CatalogoEncuestasPreguntasController extends Controller
             'id_catalogo_encuesta' => 'required|int',
             'id_catalogo_encuestas_preguntas_tipo' => 'required|int',
             'id_catalogo_encuestas_preguntas_parametro_clasificacion' => 'required|int',
+            'orden'=> 'nullable|int',
+            'numero_pregunta'=> 'nullable|int',
+            'longitud_respuesta'=> 'nullable|int',
         ]);
 
         if($validator->fails()){
@@ -59,21 +62,50 @@ class CatalogoEncuestasPreguntasController extends Controller
         return response()->json(['message' => 'Nuevo cliente creado', 'data' => $elemento], 201);
     }
 
-    public function editar(Request $request){
-        $id = $request->id;
+    public function editar(Request $request,$id_encuesta = 0,$id = 0){
+
+        if(!$id_encuesta){
+            return response()->json(["id_encuesta" => ["id_encuesta es requerido"]], 400);
+        }
+
+        if(!$id){
+            return response()->json(["id" => ["id de pregunta es requerido"]], 400);
+        }
 
         $validator = Validator::make($request->all(),[
-            'nombre' => ['required','string','min:2',Rule::unique('catalogo_encuestas')->ignore($id)],
-            'descripcion' => 'required|string',
+            'pregunta'=> ['required','string','min:2',
+                            Rule::unique('catalogo_encuestas_preguntas')
+                            ->where(function ($query) use ($id_encuesta) {
+                                return $query->where('id_catalogo_encuesta', $id_encuesta);
+                            })
+                            ->ignore($id)
+                          ],
+            'puntos_maximos'=>'required|int',
+            'id_catalogo_encuestas_preguntas_tipo' => 'required|int',
+            'id_catalogo_encuestas_preguntas_parametro_clasificacion' => 'required|int',
+            'orden'=> 'nullable|int',
+            'numero_pregunta'=> 'nullable|int',
+            'longitud_respuesta'=> 'nullable|int',
         ]);
 
         if($validator->fails()){
             return response()->json($validator->errors(), 400);
         }
 
-        $editar = CatalogoEncuestas::where('id',$id)->first();
-        $editar->nombre = $request->nombre;
-        $editar->descripcion = $request->descripcion;
+        $editar = CatalogoEncuestasPreguntas::where('id',$id)->first();
+        $editar->pregunta = $request->pregunta;
+        $editar->puntos_maximos = $request->puntos_maximos;
+        $editar->id_catalogo_encuestas_preguntas_tipo = $request->id_catalogo_encuestas_preguntas_tipo;
+        $editar->id_catalogo_encuestas_preguntas_parametro_clasificacion = $request->id_catalogo_encuestas_preguntas_parametro_clasificacion;
+
+        if(isset($request->orden))
+            $editar->orden = $request->orden;
+
+        $editar->numero_pregunta = $request->numero_pregunta;
+
+        if(isset($request->longitud_respuesta))
+            $editar->longitud_respuesta = $request->longitud_respuesta;
+
         $editar->save();
 
 

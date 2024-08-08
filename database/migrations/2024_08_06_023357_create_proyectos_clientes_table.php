@@ -17,8 +17,10 @@ class CreateProyectosClientesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('id_proyecto');
             $table->unsignedBigInteger('id_cliente');
+            $table->unsignedBigInteger('id_encuesta');
             $table->foreign('id_proyecto')->references('id')->on('proyectos');
             $table->foreign('id_cliente')->references('id')->on('clientes');
+            $table->foreign('id_encuesta')->references('id')->on('catalogo_encuestas');
             $table->timestamps();
         });
     }
