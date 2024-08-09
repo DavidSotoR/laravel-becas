@@ -42,10 +42,9 @@ class CatalogoEncuestasPreguntasController extends Controller
 
         $validator = Validator::make($request->all(),[
             'pregunta'=>'required|string',
-            'puntos_maximos'=>'required|int',
             'id_catalogo_encuesta' => 'required|int',
             'id_catalogo_encuestas_preguntas_tipo' => 'required|int',
-            'id_catalogo_encuestas_preguntas_parametro_clasificacion' => 'required|int',
+            'id_catalogo_encuestas_preguntas_parametro_clasificacion' => 'nullable|int',
             'orden'=> 'nullable|int',
             'numero_pregunta'=> 'nullable|int',
             'longitud_respuesta'=> 'nullable|int',
@@ -82,7 +81,7 @@ class CatalogoEncuestasPreguntasController extends Controller
                           ],
             'puntos_maximos'=>'required|int',
             'id_catalogo_encuestas_preguntas_tipo' => 'required|int',
-            'id_catalogo_encuestas_preguntas_parametro_clasificacion' => 'required|int',
+            'id_catalogo_encuestas_preguntas_parametro_clasificacion' => 'nullable|int',
             'orden'=> 'nullable|int',
             'numero_pregunta'=> 'nullable|int',
             'longitud_respuesta'=> 'nullable|int',
