@@ -25,7 +25,7 @@ class CatalogoEncuestasPreguntasParametrosClasificacionsController extends Contr
     }
 
     public function id($id){
-        $elemento = CatalogoEncuestasPreguntasParametrosClasificacions::with('tipoParametro','items')->where('id',$id)->first();
+        $elemento = CatalogoEncuestasPreguntasParametrosClasificacions::with('tipoParametro','items','porPregunta','porPregunta.tipoPreguntas')->where('id',$id)->first();
         return response()->json($elemento);
     }
 

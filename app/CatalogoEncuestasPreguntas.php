@@ -25,7 +25,11 @@ class CatalogoEncuestasPreguntas extends Model
         return $this->hasOne('App\CatalogoEncuestasPreguntasTipos','id','id_catalogo_encuestas_preguntas_tipo');
     }
 
-    public function parametroDeClasificacion(){
+    public function clasificacionParametro(){
         return $this->hasOne('App\CatalogoEncuestasPreguntasParametrosClasificacions','id','id_catalogo_encuestas_preguntas_parametro_clasificacion');
+    }
+
+    public function items(){
+        return $this->hasMany('App\CatalogoEncuestasPreguntasParametrosClasificacionItems','id_catalogo_encuestas_preguntas','id');
     }
 }

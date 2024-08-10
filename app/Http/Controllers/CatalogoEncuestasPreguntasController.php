@@ -21,8 +21,8 @@ class CatalogoEncuestasPreguntasController extends Controller
 
     public function lista($id_encuesta){
         $query = CatalogoEncuestasPreguntas::query();
-        //$query->with(['catalogoEncuesta','tipoPreguntas','parametroDeClasificacion']);
-        $query->with(['catalogoEncuesta','tipoPreguntas','parametroDeClasificacion']);
+        //$query->with(['catalogoEncuesta','tipoPreguntas','clasificacionParametro']);
+        $query->with(['catalogoEncuesta','tipoPreguntas','clasificacionParametro']);
 
         $query->where('id_catalogo_encuesta', $id_encuesta);
 
@@ -33,8 +33,8 @@ class CatalogoEncuestasPreguntasController extends Controller
 
     public function id($id){
         //with('tipoCliente','preguntas')->
-        //with(['catalogoEncuesta','tipoPreguntas','parametroDeClasificacion'])->
-        $elemento = CatalogoEncuestasPreguntas::with(['catalogoEncuesta','tipoPreguntas','parametroDeClasificacion'])->where('id',$id)->first();
+        //with(['catalogoEncuesta','tipoPreguntas','clasificacionParametro'])->
+        $elemento = CatalogoEncuestasPreguntas::with(['catalogoEncuesta','tipoPreguntas','clasificacionParametro','items'])->where('id',$id)->first();
         return response()->json($elemento);
     }
 

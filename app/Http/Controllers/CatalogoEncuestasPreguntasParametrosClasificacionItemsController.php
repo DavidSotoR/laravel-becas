@@ -19,7 +19,11 @@ class CatalogoEncuestasPreguntasParametrosClasificacionItemsController extends C
         $this->middleware('auth:api');
     }
 
-    public function lista(Request $request,$id_parametros = null,$id_pregunta = null){
+    public function lista(Request $request,$id_parametros = 0,$id_pregunta = 0){
+
+        if(!$id_parametros  AND  !$id_pregunta){
+            return response()->json([], 200);
+        }
 
         $query = CatalogoEncuestasPreguntasParametrosClasificacionItems::query();
 
@@ -28,7 +32,7 @@ class CatalogoEncuestasPreguntasParametrosClasificacionItemsController extends C
             $query->where('id_catalogo_encuestas_preguntas_parametro_clasificacion', $id_parametros);
         }
         if($id_pregunta){
-            $query->where('id_catalogo_encuestas_preguntas_parametro_clasificacion', $id_pregunta);
+            $query->where('id_catalogo_encuestas_preguntas', $id_pregunta);
         }
 
         $lista = $query->get();
