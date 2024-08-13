@@ -84,6 +84,8 @@ class ClientesController extends Controller
             'notificaciones_email' => 'required',
             'id_tipo_cliente' => 'required',
             'id_clientes_hermanos' => 'nullable|int',
+            'id_catalogo_encuesta' => 'nullable|int',
+            'documentacion_digital' => 'nullable|boolean',
         ]);
 
         if($validator->fails()){
@@ -99,6 +101,11 @@ class ClientesController extends Controller
             $editar->id_clientes_hermanos = $request->id_clientes_hermanos;
         }
 
+
+        if(isset($request->id_catalogo_encuesta))
+            $editar->id_catalogo_encuesta = $request->id_catalogo_encuesta;
+            if(isset($request->documentacion_digital))
+                $editar->documentacion_digital = $request->documentacion_digital;
         if(isset($request->rso))
             $editar->rso = $request->rso;
         if(isset($request->nombre_uno))

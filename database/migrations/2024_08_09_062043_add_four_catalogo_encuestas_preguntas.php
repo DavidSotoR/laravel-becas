@@ -27,6 +27,7 @@ class AddFourCatalogoEncuestasPreguntas extends Migration
     public function down()
     {
         Schema::table('catalogo_encuestas_preguntas', function (Blueprint $table) {
+            $table->dropForeign('id_catalogo_encuestas_preguntas_parametro_clasificacion_fk');
             $table->unsignedBigInteger('id_catalogo_encuestas_preguntas_parametro_clasificacion')->nullable(false)->change();
         });
     }

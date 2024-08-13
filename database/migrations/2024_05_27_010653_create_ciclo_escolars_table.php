@@ -29,6 +29,6 @@ class CreateCicloEscolarsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ciclo_escolars');
+        Schema::dropIfExists('ciclo_escolar');
     }
 }

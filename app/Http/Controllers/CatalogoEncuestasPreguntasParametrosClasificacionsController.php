@@ -43,6 +43,7 @@ class CatalogoEncuestasPreguntasParametrosClasificacionsController extends Contr
                     ],
             'puntos_maximo' => 'required|int',
             'id_catalogo_encuestas_preguntas_parametros_clasificaciones_tipos' =>'required|int',
+            'color' => 'nullable|string',
         ]);
 
         if($validator->fails()){
@@ -56,22 +57,28 @@ class CatalogoEncuestasPreguntasParametrosClasificacionsController extends Contr
         return response()->json(['message' => 'Elemento Guardado', 'data' => $elemento], 201);
     }
 
-    public function editar(Request $request){
-        $id = $request->id;
-        $id_catalogo_encuesta = $request->id_catalogo_encuesta;
+    public function editar(Request $request,$id_encuesta = 0,$id = 0){
+
+        if(!$id_encuesta){
+            return response()->json(["id_encuesta" => ["id de encuesta es requerido"]], 400);
+        }
+
+        if(!$id){
+            return response()->json(["id" => ["id del parametros es requerido"]], 400);
+        }
 
         $validator = Validator::make($request->all(),[
             'nombre' => [
                             'required','string','min:2',
                             Rule::unique('catalogo_encuestas_preguntas_parametros_clasificaciones')
-                            ->where(function ($query) use($id,$id_catalogo_encuesta) {
-                                return $query->where('id', $id)
-                                ->where('id_catalogo_encuesta', $id_catalogo_encuesta);
-                            }),
+                            ->where(function ($query) use($id_encuesta) {
+                                return $query->where('id_catalogo_encuesta', $id_encuesta);
+                            })->ignore($id),
                         ],
-            'id_catalogo_encuesta' => 'required|int',
             'puntos_maximo' => 'required|int',
             'id_catalogo_encuestas_preguntas_parametros_clasificaciones_tipos' =>'required|int',
+            'color' => 'nullable|string',
+            'formato_decimales' => 'nullable|boolean',
         ]);
 
         if($validator->fails()){
@@ -80,8 +87,9 @@ class CatalogoEncuestasPreguntasParametrosClasificacionsController extends Contr
 
         $editar = CatalogoEncuestasPreguntasParametrosClasificacions::where('id',$id)->first();
         $editar->nombre = $request->nombre;
-        $editar->id_catalogo_encuesta = $request->id_catalogo_encuesta;
         $editar->puntos_maximo = $request->puntos_maximo;
+        $editar->color = (isset($request->color)) ? $request->color : '#ffffff';
+        $editar->formato_decimales = (isset($request->formato_decimales)) ? $request->formato_decimales : false ;
         $editar->save();
 
 

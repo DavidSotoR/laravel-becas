@@ -27,13 +27,19 @@ class Clientes extends Model
         'estado',
         'pais',
         'rason_social',
+        'id_catalogo_encuesta',
+        'documentacion_digital',
     ];
 
     public function tipoCliente(){
         return $this->hasOne('App\TiposClientes','id','id_tipo_cliente');
     }
+    public function encuesta(){
+        return $this->hasOne('App\CatalogoEncuestasPreguntas','id','id_catalogo_encuesta');
+    }
 
     public function usuarios(){
         return $this->belongsTo('App\User','id_cliente','id');
     }
+
 }

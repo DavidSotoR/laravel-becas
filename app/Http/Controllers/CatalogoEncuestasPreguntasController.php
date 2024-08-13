@@ -22,7 +22,7 @@ class CatalogoEncuestasPreguntasController extends Controller
     public function lista($id_encuesta){
         $query = CatalogoEncuestasPreguntas::query();
         //$query->with(['catalogoEncuesta','tipoPreguntas','clasificacionParametro']);
-        $query->with(['catalogoEncuesta','tipoPreguntas','clasificacionParametro']);
+        $query->with(['tipoPreguntas','clasificacionParametro']);
 
         $query->where('id_catalogo_encuesta', $id_encuesta);
 
