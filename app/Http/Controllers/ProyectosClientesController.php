@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\ProyectosClientes;
+use App\Clientes;
+use App\Proyectos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -19,12 +21,20 @@ class ProyectosClientesController extends Controller
         $this->middleware('auth:api');
     }
 
-    public function lista($id_proyecto){
-        $query = ProyectosClientes::query();
+    public function lista(Request $request,$id_proyecto){
+        //Lista de clientes
+        $lista = array();
 
-        $query->where('id_proyecto', $id_proyecto);
+        $proyectos = Proyectos::findOrFail($id_proyecto);
 
-        $lista = $query->get();
+        if ($request->has('no_enlazados') && $request->no_enlazados) {
+            $lista = Clientes::whereDoesntHave('proyectos', function($query) use ($id_proyecto) {
+                $query->where('id_proyecto', $id_proyecto);
+            })->get();
+        } else {
+            $lista = $proyectos->clientes()->get();
+        }
+
         return response()->json($lista);
     }
 

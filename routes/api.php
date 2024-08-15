@@ -70,8 +70,11 @@ Route::group([
     Route::get('proyectos/clientes/{id}', 'ProyectosClientesController@id');
     Route::post('proyectos/clientes', 'ProyectosClientesController@nuevo');
     Route::delete('proyectos/clientes/{id}', 'ProyectosClientesController@eliminar');
-
-
+    //Proyectos Ordenes de servicio
+    Route::get('proyectos/{id_proyecto}/ordenes-servicio', 'OrdenesServicioController@lista');
+    Route::get('proyectos/ordenes-servicio/{id}', 'OrdenesServicioController@id');
+    Route::post('proyectos/ordenes-servicio', 'OrdenesServicioController@nuevo');
+    Route::put('proyectos/ordenes-servicio/{id}', 'OrdenesServicioController@editar');
 
 
     //Familias

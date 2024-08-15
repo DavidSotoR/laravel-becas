@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Clientes extends Model
 {
@@ -40,6 +41,10 @@ class Clientes extends Model
 
     public function usuarios(){
         return $this->belongsTo('App\User','id_cliente','id');
+    }
+
+    public function proyectos(){
+        return $this->belongsToMany('App\Proyectos', 'proyectos_clientes', 'id_cliente','id_proyecto');
     }
 
 }
