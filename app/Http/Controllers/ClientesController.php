@@ -134,6 +134,11 @@ class ClientesController extends Controller
             $editar->pais = $request->pais;
         if(isset($request->rason_social))
             $editar->rason_social = $request->rason_social;
+        if(isset($request->id_catalogo_encuesta))
+            $editar->id_catalogo_encuesta = $request->id_catalogo_encuesta;
+        if(isset($request->documentacion_digital))
+            $editar->documentacion_digital = $request->documentacion_digital;
+
 
         $editar->save();
 
