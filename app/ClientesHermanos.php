@@ -12,6 +12,12 @@ class ClientesHermanos extends Model
     public function lista(){
         return $this->hasMany('App\Clientes','id_clientes_hermanos','id');
     }
+
+    public function listaHemanos($id_cliente_omitir)
+    {
+        return $this->hasMany('App\Clientes', 'id_clientes_hermanos', 'id')
+                    ->where('id', '!=', $id_cliente_omitir);
+    }
 }
 
 

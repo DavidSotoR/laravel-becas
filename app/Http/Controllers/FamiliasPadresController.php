@@ -32,7 +32,7 @@ class FamiliasPadresController extends Controller
     public function nuevo(Request $request){
 
         $validator = Validator::make($request->all(),[
-            'id_familia' => 'required|int',
+            'id_servicio_estudio' => 'required|int',
             'id_familias_padres_tipo' => 'required|int',
             'nombre' => 'required',
             'edad' => 'required|int',

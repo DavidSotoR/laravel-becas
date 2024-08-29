@@ -18,8 +18,12 @@ class PerfilesController extends Controller
         $this->middleware('auth:api');
     }
 
-    public function lista(){
-        $lista = Perfiles::get();
+    public function lista(Request $request){
+        $query = Perfiles::query();
+        if(isset($request->interno)){
+            $query->where('interno',$request->interno);
+        }
+        $lista = $query->get();
         return response()->json($lista);
     }
 

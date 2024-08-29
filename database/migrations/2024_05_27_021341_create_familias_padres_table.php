@@ -15,7 +15,6 @@ class CreateFamiliasPadresTable extends Migration
     {
         Schema::create('familias_padres', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_familia');
             $table->unsignedBigInteger('id_familias_padres_tipo');
             $table->string('nombre',120);
             $table->integer('edad');
@@ -26,7 +25,6 @@ class CreateFamiliasPadresTable extends Migration
             $table->string('email',60)->nullable();
             $table->string('telefono_casa',60)->nullable();
             $table->timestamps();
-            $table->foreign('id_familia')->references('id')->on('familias');
             $table->foreign('id_familias_padres_tipo')->references('id')->on('familias_padres_tipos');
         });
     }

@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Familias extends Model
 {
-    protected $fillable = ['id_ciclo_escolar','nombre','situacion_beca'];
+    protected $fillable = ['nombre','situacion_beca'];
 }

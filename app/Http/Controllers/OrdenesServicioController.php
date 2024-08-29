@@ -18,8 +18,10 @@ class OrdenesServicioController extends Controller
         $this->middleware('auth:api');
     }
 
-    public function lista(Request $request,$id_proyecto){
-        $query = OrdenesServicio::query()->where('id_proyecto',$id_proyecto);
+    public function lista(Request $request,$id_proyecto,$id_cliente){
+        $query = OrdenesServicio::query()
+                    ->where('id_proyecto',$id_proyecto)
+                    ->where('id_cliente',$id_cliente);
 
         if(isset($request->activo)){
             $query->where('activo', $request->activo);
@@ -38,6 +40,7 @@ class OrdenesServicioController extends Controller
 
         $validator = Validator::make($request->all(),[
             'id_proyecto' => 'required|exists:proyectos,id',
+            'id_cliente' => 'required|exists:clientes,id',
             'descripcion' => 'required|string|max:255',
             'notas' => 'nullable|string',
             'fecha_estimada_entrega' => 'required|date',

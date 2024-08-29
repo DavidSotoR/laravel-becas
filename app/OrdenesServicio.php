@@ -10,6 +10,7 @@ class OrdenesServicio extends Model
 
     protected $fillable = [
         'id_proyecto',
+        'id_cliente',
         'activo',
         'descripcion',
         'notas',

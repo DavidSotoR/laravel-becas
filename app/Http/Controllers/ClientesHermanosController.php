@@ -35,6 +35,31 @@ class ClientesHermanosController extends Controller
         return response()->json($elemento);
     }
 
+    public function listaHermanos(Request $request,$id_cliente){
+
+        $cliente= Clientes::find($id_cliente);
+
+        if (!$cliente) {
+            return response()->json(['error' => 'Cliente no encontrado'], 404);
+        }
+
+        if (!$cliente->id_clientes_hermanos) {
+            return response()->json(['error' => 'Cliente no tiene colegios comunes'], 404);
+        }
+
+        $id_hermanos = $cliente->id_clientes_hermanos;
+
+        $clientesHermanos = ClientesHermanos::find($id_hermanos);
+
+        if (!$clientesHermanos) {
+            return response()->json(['error' => 'Clientes hermanos no encontrado'], 404);
+        }
+
+        $elementos = $clientesHermanos->listaHemanos($id_cliente)->get();
+
+        return response()->json($elementos);
+    }
+
     public function nuevo(Request $request){
 
         $validator = Validator::make($request->all(),[

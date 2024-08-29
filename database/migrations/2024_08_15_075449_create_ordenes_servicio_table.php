@@ -16,6 +16,7 @@ class CreateOrdenesServicioTable extends Migration
         Schema::create('ordenes_servicio', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_proyecto');
+            $table->unsignedBigInteger('id_cliente');
             $table->boolean('activo')->default(true);
             $table->string('descripcion');
             $table->text('notas')->nullable();
@@ -27,6 +28,7 @@ class CreateOrdenesServicioTable extends Migration
 
             // Foreign key constraint
             $table->foreign('id_proyecto')->references('id')->on('proyectos')->onDelete('cascade');
+            $table->foreign('id_cliente')->references('id')->on('clientes')->onDelete('cascade');
         });
     }
 

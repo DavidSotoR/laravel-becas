@@ -41,6 +41,7 @@ Route::group([
 
     //Clientes Hermanos
     Route::get('clientes/hermanos', 'ClientesHermanosController@lista');
+    Route::get('clientes/{id_cliente}/hermanos', 'ClientesHermanosController@listaHermanos');
     Route::get('clientes/hermanos/{id}', 'ClientesHermanosController@id');
     Route::post('clientes/hermanos/{id}', 'ClientesHermanosController@nuevosHermanos');
     Route::post('clientes/hermanos', 'ClientesHermanosController@nuevo');
@@ -67,14 +68,17 @@ Route::group([
     Route::put('proyectos', 'ProyectosController@eliminar');
     //Proyectos Clientes
     Route::get('proyectos/{id_proyecto}/clientes', 'ProyectosClientesController@lista');
+    Route::get('proyectos/{id_proyecto}/clientes-encuestas', 'ProyectosClientesController@clientesEncuestaLista');
     Route::get('proyectos/clientes/{id}', 'ProyectosClientesController@id');
-    Route::post('proyectos/clientes', 'ProyectosClientesController@nuevo');
+    Route::post('proyectos/{id_proyecto}/clientes', 'ProyectosClientesController@nuevo');
     Route::delete('proyectos/clientes/{id}', 'ProyectosClientesController@eliminar');
+    //Proyectos Clientes Ordenes de servicio
+    //Route::get('proyectos/{id_proyecto}/clientes/{id_cliente}/ordenes-servicio', 'OrdenesServicioController@listaProyectoCliente');
     //Proyectos Ordenes de servicio
-    Route::get('proyectos/{id_proyecto}/ordenes-servicio', 'OrdenesServicioController@lista');
-    Route::get('proyectos/ordenes-servicio/{id}', 'OrdenesServicioController@id');
-    Route::post('proyectos/ordenes-servicio', 'OrdenesServicioController@nuevo');
-    Route::put('proyectos/ordenes-servicio/{id}', 'OrdenesServicioController@editar');
+    Route::get('proyectos/{id_proyecto}/clientes/{id_cliente}/ordenes-servicio', 'OrdenesServicioController@lista');
+    Route::get('proyectos/clientes/ordenes-servicio/{id}', 'OrdenesServicioController@id');
+    Route::post('proyectos/clientes/ordenes-servicio', 'OrdenesServicioController@nuevo');
+    Route::put('proyectos/clientes/ordenes-servicio/{id}', 'OrdenesServicioController@editar');
 
 
     //Familias
@@ -100,7 +104,6 @@ Route::group([
 
     //Encuestas
 
-
     Route::get('catalogos/encuestas/parametros/items/{id}', 'CatalogoEncuestasPreguntasParametrosClasificacionItemsController@id');
     Route::get('catalogos/encuestas/parametros/items', 'CatalogoEncuestasPreguntasParametrosClasificacionItemsController@lista');
     Route::get('catalogos/encuestas/parametros/{id_parametros}/items', 'CatalogoEncuestasPreguntasParametrosClasificacionItemsController@lista');
@@ -125,13 +128,23 @@ Route::group([
     Route::get('catalogos/encuestas/{id_encuesta}/preguntas', 'CatalogoEncuestasPreguntasController@lista');
     Route::get('catalogos/encuestas/preguntas/{id}', 'CatalogoEncuestasPreguntasController@id');
 
+    Route::get('catalogos/encuestas/preguntas/{id_preguntas}/items', 'CatalogoEncuestasPreguntasItemsController@lista');
+    Route::post('catalogos/encuestas/preguntas/{id_preguntas}/items', 'CatalogoEncuestasPreguntasItemsController@nuevo');
+    Route::put('catalogos/encuestas/preguntas/{id_preguntas}/items', 'CatalogoEncuestasPreguntasItemsController@editar');
+    Route::delete('catalogos/encuestas/preguntas/{id_preguntas}/items', 'CatalogoEncuestasPreguntasItemsController@eliminar');
+
     Route::get('catalogos/encuestas', 'CatalogoEncuestasController@lista');
     Route::get('catalogos/encuestas/{id}', 'CatalogoEncuestasController@id');
     Route::post('catalogos/encuestas', 'CatalogoEncuestasController@nuevo');
     Route::put('catalogos/encuestas', 'CatalogoEncuestasController@editar');
 
-});
+    Route::get('estudio/socioeconomico', 'ServicioEstudioController@lista');
+    Route::post('estudio/socioeconomico', 'ServicioEstudioController@nuevo');
 
+
+});
+/*
 Route::post('pwreturn',function(Request $request){
     return response()->json([bcrypt($request->password)],201);
 });
+*/

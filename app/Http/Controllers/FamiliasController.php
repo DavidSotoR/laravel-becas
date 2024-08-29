@@ -23,9 +23,9 @@ class FamiliasController extends Controller
         $query = Familias::query();
 
         //filtrat por siclo escolar id_ciclo_escolar
-        if(isset($request->id_ciclo_escolar)){
+        /*if(isset($request->id_ciclo_escolar)){
             $query->where('id_ciclo_escolar', $request->id_ciclo_escolar);
-        }
+        }*/
 
         $lista = $query->get();
         return response()->json($lista);
@@ -40,7 +40,7 @@ class FamiliasController extends Controller
 
         $validator = Validator::make($request->all(),[
             'nombre' => 'required',
-            'id_ciclo_escolar' => 'required|int',
+            //'id_ciclo_escolar' => 'required|int',
             'situacion_beca' => 'required',
         ]);
 
