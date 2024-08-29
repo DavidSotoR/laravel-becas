@@ -31,6 +31,19 @@ class UsuariosController extends Controller
             }
         }
 
+        if(isset($request->tipos)){
+            if($request->tipos == 'internos'){
+                $query->whereHas('perfil', function ($query) {
+                    $query->where('interno', true);
+                });
+            }
+            if($request->tipos == 'externos'){
+                $query->whereHas('perfil', function ($query) {
+                    $query->where('interno', false);
+                });
+            }
+        }
+
         $lista = $query->get();
         return response()->json($lista);
     }

@@ -20,9 +20,16 @@ class PerfilesController extends Controller
 
     public function lista(Request $request){
         $query = Perfiles::query();
-        if(isset($request->interno)){
-            $query->where('interno',$request->interno);
+
+        if(isset($request->tipos)){
+            if($request->tipos == 'internos'){
+                $query->where('interno', true);
+            }
+            if($request->tipos == 'externos'){
+                $query->where('interno', false);
+            }
         }
+
         $lista = $query->get();
         return response()->json($lista);
     }
