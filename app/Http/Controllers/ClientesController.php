@@ -100,12 +100,14 @@ class ClientesController extends Controller
         if(isset($request->id_clientes_hermanos)){
             $editar->id_clientes_hermanos = $request->id_clientes_hermanos;
         }
-
-
+        if(isset($request->requiere_facturar))
+            $editar->requiere_facturar = $request->requiere_facturar;
+        if(isset($request->rfc))
+            $editar->rfc = $request->rfc;
         if(isset($request->id_catalogo_encuesta))
             $editar->id_catalogo_encuesta = $request->id_catalogo_encuesta;
-            if(isset($request->documentacion_digital))
-                $editar->documentacion_digital = $request->documentacion_digital;
+        if(isset($request->documentacion_digital))
+            $editar->documentacion_digital = $request->documentacion_digital;
         if(isset($request->rso))
             $editar->rso = $request->rso;
         if(isset($request->nombre_uno))
