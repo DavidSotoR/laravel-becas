@@ -9,6 +9,7 @@ class ServicioEstudio extends Model
     protected $table = 'servicios_estudios';
     protected $fillable = [
                             'id_servicio_estado',
+                            'id_proyecto',
                             'id_cliente',
                             'id_orden_servicio',
                             'id_colaborador',

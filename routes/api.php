@@ -139,7 +139,7 @@ Route::group([
     Route::put('catalogos/encuestas', 'CatalogoEncuestasController@editar');
 
     Route::get('estudio/socioeconomico', 'ServicioEstudioController@lista');
-    Route::post('estudio/socioeconomico', 'ServicioEstudioController@nuevo');
+    Route::post('estudio/socioeconomico', 'ServicioEstudioController@rejistroSocioeconomico');
 
 
 });
