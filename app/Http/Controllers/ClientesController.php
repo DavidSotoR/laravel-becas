@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use App\Clientes;
+use App\OrdenesServicio;
 
 class ClientesController extends Controller
 {
@@ -49,6 +50,24 @@ class ClientesController extends Controller
     public function id($id){
         $elemento = Clientes::with("tipoCliente")->where('id',$id)->first();
         return response()->json($elemento);
+    }
+
+    public function ordenesServicio(Request $request,$id_cleinte = 0){
+        if(!$id_cleinte){
+            return response()->json([]);
+        }
+
+        $query = OrdenesServicio::query();
+
+        $query->where('id_cliente', $request->id_cliente);
+
+        if(isset($request->id_tipo_cliente)){
+            $query->where('id_tipo_cliente', $request->id_tipo_cliente);
+        }
+
+        $lista = $query ->get();
+
+        return response()->json($lista);
     }
 
     public function usuarios($id){

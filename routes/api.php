@@ -54,6 +54,7 @@ Route::group([
     Route::get('clientes/{id}', 'ClientesController@id');
     Route::post('clientes', 'ClientesController@nuevo');
     Route::put('clientes', 'ClientesController@editar');
+    Route::get('clientes/{id_cleinte}/ordenes-servicio', 'ClientesController@ordenesServicio');
 
     //Ciclos Escolares
     Route::get('ciclos', 'CicloEscolarController@lista');
