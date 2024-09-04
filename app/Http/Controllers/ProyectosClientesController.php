@@ -28,9 +28,19 @@ class ProyectosClientesController extends Controller
         $proyectos = Proyectos::findOrFail($id_proyecto);
 
         if ($request->has('no_enlazados') && $request->no_enlazados) {
-            $lista = Clientes::whereDoesntHave('proyectos', function($query) use ($id_proyecto) {
+
+            $queryClientes = Clientes::query();
+
+            $queryClientes->whereDoesntHave('proyectos', function($query) use ($id_proyecto) {
                 $query->where('id_proyecto', $id_proyecto);
-            })->get();
+            });
+
+            if(isset($request->id_tipo_cliente)){
+                $queryClientes->where('id_tipo_cliente', $request->id_tipo_cliente);
+            }
+
+            $lista = $queryClientes->get();
+
         } else {
             $lista = $proyectos->clientes()->get();
         }
