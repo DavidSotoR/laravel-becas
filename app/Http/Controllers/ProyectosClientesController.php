@@ -39,6 +39,8 @@ class ProyectosClientesController extends Controller
                 $queryClientes->where('id_tipo_cliente', $request->id_tipo_cliente);
             }
 
+            $queryClientes->whereNotNull('id_catalogo_encuesta');
+
             $lista = $queryClientes->get();
 
         } else {
