@@ -14,7 +14,7 @@ class AddFourUsers extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('password_temporal');
+            $table->string('password_temporal')->nullable();
         });
     }
 

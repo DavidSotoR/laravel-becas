@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use App\Familias;
+use App\ServicioEstudio;
 
 class FamiliasController extends Controller
 {
@@ -29,6 +30,12 @@ class FamiliasController extends Controller
 
         $lista = $query->get();
         return response()->json($lista);
+    }
+
+    public function estudioSocioeconomico($id_familia = 0){
+        //$id_familia = Auth::user()->id;
+        $elemento = ServicioEstudio::with(['cliente','proyecto'])->where('id_familia',$id_familia)->first();
+        return response()->json($elemento);
     }
 
     public function id($id){

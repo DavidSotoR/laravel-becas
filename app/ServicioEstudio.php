@@ -11,6 +11,7 @@ class ServicioEstudio extends Model
                             'id_servicio_estado',
                             'id_proyecto',
                             'id_cliente',
+                            'id_familia',
                             'id_orden_servicio',
                             'id_colaborador',
                             'es_cliente_comun',
@@ -31,6 +32,9 @@ class ServicioEstudio extends Model
 
     public function cliente(){
         return $this->belongsTo('App\Clientes', 'id_cliente');
+    }
+    public function proyecto(){
+        return $this->belongsTo('App\Proyectos', 'id_proyecto');
     }
 
     public function ordenServicio(){

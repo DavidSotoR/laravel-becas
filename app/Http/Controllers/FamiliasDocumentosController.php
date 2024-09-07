@@ -54,10 +54,10 @@ class FamiliasDocumentosController extends Controller
         //Storage::disk('local')->put('example.txt', 'Contents');
 
         $validator = Validator::make($request->all(),[
-            'id_familia' => 'required|int',
+            'id_familia' => 'required|int|exists:familias,id',
             'id_familias_documentos_tipo' => 'required|int',
-            'id_servicio_estudio' => 'required|int',
-            'file' => 'required|mimes:csv,txt,xlx,xls,pdf,png|max:2048',
+            'id_servicio_estudio' => 'required|int|exists:servicios_estudios,id',
+            'file' => 'required|mimes:csv,txt,xlx,xls,pdf,png,jpg|max:2048',
         ]);
 
         if($validator->fails()){
@@ -69,7 +69,10 @@ class FamiliasDocumentosController extends Controller
 
         $documentoName = $request->file->getClientOriginalName();
         $documentoAlias = time().'_'.$request->file->getClientOriginalName();
-        $documentoPath = $request->file('file')->storeAs('uploads', $documentoAlias, 'public');
+
+        $carpeta_guardar = 'uploads/'.$request->id_servicio_estudio;
+
+        $documentoPath = $request->file('file')->storeAs($carpeta_guardar, $documentoAlias,'public' );
 
 
         $elemento = FamiliasDocumentos::create([
