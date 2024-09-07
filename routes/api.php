@@ -32,6 +32,7 @@ Route::group([
     Route::get('usuarios', 'UsuariosController@lista');
     Route::put('usuarios', 'UsuariosController@editar');
     Route::get('usuarios/{id}', 'UsuariosController@id');
+    Route::delete('usuarios/{id}', 'UsuariosController@disableOrEnable');
     //Perfiles
     Route::get('perfiles', 'PerfilesController@lista');
     Route::get('perfiles/{id}', 'PerfilesController@id');
