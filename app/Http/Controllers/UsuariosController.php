@@ -77,4 +77,12 @@ class UsuariosController extends Controller
 
         return response()->json(['message' => 'Usuario modificado', 'data' => $editar], 201);
     }
+    public function disableOrEnable(Request $request){
+        $id = $request->id;
+        $editar = User::where('id',$id)->first();
+        $editar->active = !$editar->active;
+        $editar->save();
+        
+        return response()->json(['message' => 'Usuario modificado', 'data' => $editar], 201);
+    }
 }
