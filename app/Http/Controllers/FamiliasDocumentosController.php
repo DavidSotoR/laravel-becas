@@ -22,7 +22,18 @@ class FamiliasDocumentosController extends Controller
     }
 
     public function lista($id_familia){
-        $lista = FamiliasDocumentos::where('id_familia',$id_familia)->get();
+        //$lista = FamiliasDocumentos::where('id_familia',$id_familia)->get();
+        //return response()->json($lista);
+
+        $query = FamiliasDocumentos::query();
+        $query->where('id_familia',$id_familia);
+
+        if(isset($request->id_servicio_estudio)){
+            $query->where('id_servicio_estudio', $request->id_servicio_estudio);
+        }
+
+        $lista = $query->get();
+
         return response()->json($lista);
     }
 
@@ -45,7 +56,7 @@ class FamiliasDocumentosController extends Controller
         $validator = Validator::make($request->all(),[
             'id_familia' => 'required|int',
             'id_familias_documentos_tipo' => 'required|int',
-            'id_ciclo_escolar' => 'required|int',
+            'id_servicio_estudio' => 'required|int',
             'file' => 'required|mimes:csv,txt,xlx,xls,pdf,png|max:2048',
         ]);
 
@@ -64,7 +75,7 @@ class FamiliasDocumentosController extends Controller
         $elemento = FamiliasDocumentos::create([
             "id_familia" => $request->id_familia,
             "id_familias_documentos_tipo" => $request->id_familias_documentos_tipo,
-            "id_ciclo_escolar" => $request->id_ciclo_escolar,
+            "id_servicio_estudio" => $request->id_servicio_estudio,
             'nombre' => $documentoName,
             'directorio' => $documentoPath,
             'alias' => $documentoAlias
