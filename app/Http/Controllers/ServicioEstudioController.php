@@ -6,6 +6,7 @@ use App\ServicioEstudio;
 use App\ServiciosEstudiosClientesComunes;
 use App\Proyectos;
 use App\FamiliasPadres;
+use App\User;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -110,11 +111,15 @@ class ServicioEstudioController extends Controller
 
     public function rejistroSocioeconomico(Request $request){
 
+        $contacto_por_defecto = array();
+        $id_familia = null;
+
         $messages = [
             'candidato.required' => 'El nombrede familia es requerido.',
             'padre.nombre.required' => 'El nombre del padre es requerido.',
             'madre.nombre.required' => 'El nombre del madre es requerido.'
           ];
+
 
         $validator = Validator::make($request->all(),[
             //Validar datos de solicitud
@@ -126,6 +131,7 @@ class ServicioEstudioController extends Controller
             'es_familia_comun' => 'nullable|boolean',
             'candidato' => 'required|string|max:255',
             'situacion' => 'required|string|max:500',
+            'generar_usuario_automaticamente' => 'nullable|boolean',
 
             //Validar datos de padrre
             'padre' => 'required|array',
@@ -160,13 +166,46 @@ class ServicioEstudioController extends Controller
             return response()->json(["errors"=>$validator->errors()], 400);
         }
 
-        $elemento = ServicioEstudio::create($validator->validate());
+        if($request->padre["contecto_principal"]){
+            $contacto_por_defecto = $request->padre;
+        } else if($request->madre["contecto_principal"]){
+            $contacto_por_defecto = $request->madre;
+        }else{
+            return response()->json([
+                "errors"=>[
+                    'padre.contecto_principal' => 'Seleccione un Contacto principal',
+                    'madre.contecto_principal' => 'Seleccione un Contacto principal',
+                    ]
+            ], 400);
+        }
+
+        if($request->generar_usuario_automaticamente == true){
+            $password_temposral =  $this -> generarContraseñaTemporal();
+
+            $usuario_familia = User::create([
+                    'name' => $contacto_por_defecto["nombre"]
+                    ,'email' => $contacto_por_defecto["email"]
+                    ,'id_cliente' => $request->id_cliente
+                    ,'id_perfil' => 5
+                    ,'password' => bcrypt($password_temposral)
+                    ,'password_temporal' => $password_temposral
+            ]);
+
+            $id_familia =  $usuario_familia->id;
+        }
+
+
+        $elemento = ServicioEstudio::create(array_merge(
+            $validator->validate(),
+            ['id_familia' => $id_familia]
+        ));
 
         $id_servicio_estudio = $elemento->id;
         $colegios_comunes= $request->colegios_comunes;
 
         $padre = array();
         $madre = array();
+
 
         if(isset($colegios_comunes) AND isset($id_servicio_estudio)){
             foreach($colegios_comunes AS $id_colegio_comun){
@@ -194,5 +233,13 @@ class ServicioEstudioController extends Controller
         }
 
         return response()->json(['message' => 'Nuevo elemento creado', 'data' => $elemento], 201);
+    }
+
+
+    private function generarContraseñaTemporal(){
+        $dataSetCaracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        $mesclar = str_shuffle($dataSetCaracteres);
+        $nuevaContraseña = substr($mesclar,0,8);
+        return $nuevaContraseña;
     }
 }

@@ -18,7 +18,7 @@ class CatalogoEncuestasPreguntasTiposController extends Controller
     }
 
     public function lista(Request $request){
-        $lista = CatalogoEncuestasPreguntasTipos::get();
+        $lista = CatalogoEncuestasPreguntasTipos::orderBy('nombre')->get();
         return response()->json($lista);
     }
 
