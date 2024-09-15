@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 //use Illuminate\Support\Facades\Storage;
 use App\FamiliasDocumentos;
+use App\FamiliasDocumentosTipos;
+use App\ServicioEstados;
+use App\ServicioEstudio;
 use File;
 
 class FamiliasDocumentosController extends Controller
@@ -53,8 +56,12 @@ class FamiliasDocumentosController extends Controller
     public function nuevo(Request $request){
         //Storage::disk('local')->put('example.txt', 'Contents');
 
+        $idse = ServicioEstudio::where('id_familia', '=', auth()->id())->first();
+        $idEstudio = FamiliasDocumentosTipos::where('id', '=', $request->id_familias_documentos_tipo)->first();
+        //return $idse['directorio'];
+        //return $idEstudio;
         $validator = Validator::make($request->all(),[
-            'id_familia' => 'required|int|exists:familias,id',
+            'id_familia' => 'required|int|exists:servicios_estudios,id_familia',
             'id_familias_documentos_tipo' => 'required|int',
             'id_servicio_estudio' => 'required|int|exists:servicios_estudios,id',
             'file' => 'required|mimes:csv,txt,xlx,xls,pdf,png,jpg|max:2048',
@@ -70,7 +77,7 @@ class FamiliasDocumentosController extends Controller
         $documentoName = $request->file->getClientOriginalName();
         $documentoAlias = time().'_'.$request->file->getClientOriginalName();
 
-        $carpeta_guardar = 'uploads/'.$request->id_servicio_estudio;
+        $carpeta_guardar = $idse['directorio'].$idEstudio['nombre'];
 
         $documentoPath = $request->file('file')->storeAs($carpeta_guardar, $documentoAlias,'public' );
 

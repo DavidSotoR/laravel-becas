@@ -34,6 +34,7 @@ class FamiliasController extends Controller
 
     public function estudioSocioeconomico($id_familia = 0){
         //$id_familia = Auth::user()->id;
+        //return $id_familia;
         $elemento = ServicioEstudio::with(['cliente','proyecto'])->where('id_familia',$id_familia)->first();
         return response()->json($elemento);
     }
