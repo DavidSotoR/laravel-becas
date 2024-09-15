@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\ServicioEstudio;
 use App\ServiciosEstudiosClientesComunes;
 use App\Proyectos;
+use App\OrdenesServicio;
 use App\FamiliasPadres;
 use App\User;
 
@@ -51,7 +52,16 @@ class ServicioEstudioController extends Controller
     }
 
     public function id($id){
-        $elemento = ServicioEstudio::where('id',$id)->first();
+        $elemento = ServicioEstudio::with([
+            'cliente',
+            'proyecto',
+            'ordenServicio',
+            'colaborador',
+            'familia',
+            'padre',
+            'madre'
+        ])->where('id',$id)->first();
+
         return response()->json($elemento);
     }
 
@@ -160,7 +170,7 @@ class ServicioEstudioController extends Controller
             'madre.contecto_principal' => 'required|boolean',
 
         ],$messages);
-        //FamiliasPadres
+
 
         if($validator->fails()){
             return response()->json(["errors"=>$validator->errors()], 400);
@@ -232,6 +242,12 @@ class ServicioEstudioController extends Controller
             $elemento['madre'] = $madre;
         }
 
+
+        $directorio = $this->setDirectorioEstudio($elemento->id);
+        if($directorio != ''){
+            $elemento['directorio'] = $directorio;
+        }
+
         return response()->json(['message' => 'Nuevo elemento creado', 'data' => $elemento], 201);
     }
 
@@ -241,5 +257,36 @@ class ServicioEstudioController extends Controller
         $mesclar = str_shuffle($dataSetCaracteres);
         $nuevaContraseña = substr($mesclar,0,8);
         return $nuevaContraseña;
+    }
+
+    private function setDirectorioEstudio($id){
+        $directorio = '';
+
+        $editar = ServicioEstudio::where('id',$id)->first();
+        if(!$editar){
+            return '';
+        }
+
+        $proyecto = Proyectos::where('id',$editar->id_proyecto)->first();
+        $directorio .= $this->limpiarCadena($proyecto->nombre);
+        $ordenServicio = OrdenesServicio::where('id',$editar->id_orden_servicio)->first();
+        $directorio .= "/".$ordenServicio->id.'_'.$this->limpiarCadena($ordenServicio->descripcion);
+        $directorio .= "/".$id.'_'.$this->limpiarCadena($editar->candidato) ;
+
+
+        $editar->directorio = $directorio."/";
+        $editar->save();
+
+        return $directorio;
+    }
+
+    function limpiarCadena($cadena) {
+        // Convertir los espacios en guiones bajos
+        $cadena = str_replace(' ', '_', $cadena);
+
+        // Eliminar todos los caracteres que no sean letras o números (quitar caracteres especiales)
+        $cadena = preg_replace('/[^a-zA-Z0-9_]/', '', $cadena);
+
+        return $cadena;
     }
 }

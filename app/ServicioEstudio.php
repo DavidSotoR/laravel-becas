@@ -28,11 +28,13 @@ class ServicioEstudio extends Model
                             'anterior_puesto',
                             'anterior_empresa',
                             'anterior_antiguedad',
+                            'directorio',
                           ];
 
     public function cliente(){
         return $this->belongsTo('App\Clientes', 'id_cliente');
     }
+
     public function proyecto(){
         return $this->belongsTo('App\Proyectos', 'id_proyecto');
     }
@@ -41,4 +43,29 @@ class ServicioEstudio extends Model
         return $this->belongsTo('App\OrdenesServicio', 'id_orden_servicio');
     }
 
+    // Relación con FamiliasPadres
+    public function familiasPadres()
+    {
+        return $this->hasMany('App\FamiliasPadres', 'id_servicio_estudio');
+    }
+
+    // Obtener padre
+    public function padre()
+    {
+        return $this->hasOne('App\FamiliasPadres', 'id_servicio_estudio')->where('id_familias_padres_tipo', 1);
+    }
+
+    // Obtener madre
+    public function madre()
+    {
+        return $this->hasOne('App\FamiliasPadres', 'id_servicio_estudio')->where('id_familias_padres_tipo', 2);
+    }
+
+    public function colaborador(){
+        return $this->belongsTo('App\User', 'id_colaborador');
+    }
+
+    public function familia(){
+        return $this->belongsTo('App\User', 'id_familia');
+    }
 }

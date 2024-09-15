@@ -29,7 +29,10 @@ class AddFiveUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->dropColumn('operativo');
+            $table->dropColumn('latutud');
+            $table->dropColumn('longitud');
+            $table->dropColumn('direccion');
         });
     }
 }
