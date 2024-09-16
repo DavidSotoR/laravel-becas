@@ -8,6 +8,7 @@ use App\Proyectos;
 use App\OrdenesServicio;
 use App\FamiliasPadres;
 use App\User;
+use App\ProyectosClientes;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -61,6 +62,13 @@ class ServicioEstudioController extends Controller
             'padre',
             'madre'
         ])->where('id',$id)->first();
+
+        $proyectoCliente = ProyectosClientes::with('encuesta')->where('id_proyecto',$elemento->id_proyecto)->where('id_cliente',$elemento->id_cliente)->first();
+
+        //$elemento['proyecto_cliente'] = $proyectoCliente;
+        $encuesta = $proyectoCliente->encuesta;
+
+        $elemento['encuesta'] = $encuesta;
 
         return response()->json($elemento);
     }
@@ -127,7 +135,9 @@ class ServicioEstudioController extends Controller
         $messages = [
             'candidato.required' => 'El nombrede familia es requerido.',
             'padre.nombre.required' => 'El nombre del padre es requerido.',
-            'madre.nombre.required' => 'El nombre del madre es requerido.'
+            'madre.nombre.required' => 'El nombre del madre es requerido.',
+            'padre.nombre.regex' => 'El email del padre no puede contiener espacios.',
+            'madre.nombre.regex' => 'El email de la madre no puede contiener espacios.',
           ];
 
 
@@ -152,9 +162,9 @@ class ServicioEstudioController extends Controller
             'padre.direccion' => 'required|string|max:255',
             'padre.ocupacion_actual' => 'nullable|string|max:255',
             'padre.empresa_trabajo' => 'nullable|string|max:255',
-            'padre.email' => 'nullable|email|max:255',
-            'padre.telefono_casa' => 'nullable|string|max:15',
-            'padre.contecto_principal' => 'required|boolean',
+            'padre.email' => ['required','email:rfc','max:255','regex:/^\S*$/u'],
+            'padre.telefono_casa' => 'required|string|max:15',
+            'padre.contecto_principal' => 'nullable|boolean',
 
             //Validar datos de madre
             'madre' => 'required|array',
@@ -165,9 +175,9 @@ class ServicioEstudioController extends Controller
             'madre.direccion' => 'required|string|max:255',
             'madre.ocupacion_actual' => 'nullable|string|max:255',
             'madre.empresa_trabajo' => 'nullable|string|max:255',
-            'madre.email' => 'nullable|email|max:255',
-            'madre.telefono_casa' => 'nullable|string|max:15',
-            'madre.contecto_principal' => 'required|boolean',
+            'madre.email' => ['required','email:rfc','max:255','regex:/^\S*$/u'],
+            'madre.telefono_casa' => 'required|string|max:15',
+            'madre.contecto_principal' => 'nullable|boolean',
 
         ],$messages);
 
@@ -183,8 +193,8 @@ class ServicioEstudioController extends Controller
         }else{
             return response()->json([
                 "errors"=>[
-                    'padre.contecto_principal' => 'Seleccione un Contacto principal',
-                    'madre.contecto_principal' => 'Seleccione un Contacto principal',
+                    'padre.contecto_principal' => ['Seleccione un contacto principal'],
+                    'madre.contecto_principal' => ['Seleccione un contacto principal'],
                     ]
             ], 400);
         }

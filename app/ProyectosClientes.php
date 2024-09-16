@@ -22,4 +22,9 @@ class ProyectosClientes extends Model
      {
          return $this->belongsTo('App\Proyectos', 'id_proyecto');
      }
+
+    public function serviciosEstudios()
+    {
+        return $this->hasMany(ServiciosEstudios::class, 'id_proyecto', 'id_proyecto');
+    }
 }
