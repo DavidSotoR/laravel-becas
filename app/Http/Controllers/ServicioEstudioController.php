@@ -199,20 +199,27 @@ class ServicioEstudioController extends Controller
             ], 400);
         }
 
-        if($request->generar_usuario_automaticamente == true){
-            $password_temposral =  $this -> generarContraseñaTemporal();
+        $user = User::where('email',$contacto_por_defecto["email"])->first();
 
-            $usuario_familia = User::create([
-                    'name' => $contacto_por_defecto["nombre"]
-                    ,'email' => $contacto_por_defecto["email"]
-                    ,'id_cliente' => $request->id_cliente
-                    ,'id_perfil' => 5
-                    ,'password' => bcrypt($password_temposral)
-                    ,'password_temporal' => $password_temposral
-            ]);
+        if($user){
+            $id_familia = $user->id;
+        }else{
+            if($request->generar_usuario_automaticamente == true){
+                $password_temposral =  $this -> generarContraseñaTemporal();
 
-            $id_familia =  $usuario_familia->id;
+                $usuario_familia = User::create([
+                        'name' => $contacto_por_defecto["nombre"]
+                        ,'email' => $contacto_por_defecto["email"]
+                        ,'id_cliente' => $request->id_cliente
+                        ,'id_perfil' => 5
+                        ,'password' => bcrypt($password_temposral)
+                        ,'password_temporal' => $password_temposral
+                ]);
+
+                $id_familia =  $usuario_familia->id;
+            }
         }
+
 
 
         $elemento = ServicioEstudio::create(array_merge(
