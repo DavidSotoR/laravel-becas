@@ -26,7 +26,7 @@ class User extends Authenticatable implements JWTSubject
         'id_cliente',
         'password_temporal',
         'operativo',
-        'latutud',
+        'latitud',
         'longitud',
         'direccion',
     ];
