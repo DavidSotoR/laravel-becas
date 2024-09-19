@@ -61,6 +61,7 @@ class ServicioEstudioController extends Controller
 
     public function id($id){
         $elemento = ServicioEstudio::with([
+            'estado',
             'cliente',
             'proyecto',
             'ordenServicio',
@@ -161,6 +162,9 @@ class ServicioEstudioController extends Controller
             'candidato' => 'required|string|max:255',
             'situacion' => 'required|string|max:500',
             'generar_usuario_automaticamente' => 'nullable|boolean',
+            'direccion' => 'nullable|string|max:255',
+            'latutud' => 'nullable|string|max:255',
+            'longitud' => 'nullable|string|max:255',
 
             //Validar datos de padrre
             'padre' => 'required|array',

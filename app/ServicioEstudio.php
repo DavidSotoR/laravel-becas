@@ -40,6 +40,10 @@ class ServicioEstudio extends Model
         'es_cliente_comun' => 'boolean',
     ];
 
+    public function estado(){
+        return $this->belongsTo('App\ServicioEstados', 'id_servicio_estado');
+    }
+
     public function cliente(){
         return $this->belongsTo('App\Clientes', 'id_cliente');
     }
