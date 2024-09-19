@@ -82,7 +82,26 @@ class UsuariosController extends Controller
         $editar = User::where('id',$id)->first();
         $editar->active = !$editar->active;
         $editar->save();
-        
+
         return response()->json(['message' => 'Usuario modificado', 'data' => $editar], 201);
+    }
+
+    public function colaboradores(Request $request){
+        $query = User::query()->with('perfil');
+
+        $query->where('active',1);
+        $query->whereHas('perfil', function($queryPerfilInterno) {
+            $queryPerfilInterno->where('interno', '=', 1); //
+        });
+
+        $query->where(function($queryOR) {
+            $queryOR->whereHas('perfil', function($query) {
+                $query->where('id', '=', 4);
+            })
+                ->orWhere('asignar_estudios', '=', 1);
+        });
+
+        $lista = $query->get();
+        return response()->json($lista);
     }
 }

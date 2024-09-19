@@ -30,7 +30,15 @@ class ServicioEstudio extends Model
                             'anterior_empresa',
                             'anterior_antiguedad',
                             'directorio',
+                            'direccion',
+                            'latutud',
+                            'longitud',
                           ];
+
+
+    protected $casts = [
+        'es_cliente_comun' => 'boolean',
+    ];
 
     public function cliente(){
         return $this->belongsTo('App\Clientes', 'id_cliente');
@@ -42,6 +50,27 @@ class ServicioEstudio extends Model
 
     public function ordenServicio(){
         return $this->belongsTo('App\OrdenesServicio', 'id_orden_servicio');
+    }
+
+    public function colegiosComunes(){
+        return $this->belongsToMany(
+            Clientes::class,  // El modelo relacionado
+            'servicios_estudios_clientes_comunes',  // Tabla pivote
+            'id_servicio_estudio',  // Foreign key en la tabla pivote (para servicios_estudios)
+            'id_cliente'  // Foreign key en la tabla pivote (para clientes)
+        );
+        //return $this->hasMany('App\ServiciosEstudiosClientesComunes', 'id_servicio_estudio','id');
+        //return $this->belongsTo('App\OrdenesServicio', 'id_orden_servicio');
+        /*return $this->hasOneThrough(
+            CatalogoEncuestas::class,    // El modelo final al que quieres llegar (CatalogoEncuestas)
+            ProyectosClientes::class,    // El modelo intermedio (ProyectosClientes)
+            'id_proyecto',               // Foreign key en ProyectosClientes (id_proyecto)
+            'id',                        // Foreign key en CatalogoEncuestas (id)
+            'id_proyecto',               // Local key en ServiciosEstudios (id_proyecto)
+            'id_encuesta'                // Local key en ProyectosClientes que se refiere a CatalogoEncuestas (id_encuesta)
+        )->where(function ($query) {
+            $query->where('proyectos_clientes.id_cliente', $this->id_cliente);
+        });*/
     }
 
     // Relación con FamiliasPadres

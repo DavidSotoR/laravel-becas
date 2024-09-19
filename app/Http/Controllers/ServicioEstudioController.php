@@ -26,7 +26,14 @@ class ServicioEstudioController extends Controller
     }
 
     public function lista(Request $request){
-        $query = ServicioEstudio::query();
+        $query = ServicioEstudio::query()->with([
+            'cliente',
+            'proyecto',
+            'ordenServicio',
+            'colaborador',
+            'padre',
+            'madre'
+        ]);
 
         if(isset($request->id_proyecto)){
 
@@ -60,7 +67,8 @@ class ServicioEstudioController extends Controller
             'colaborador',
             'familia',
             'padre',
-            'madre'
+            'madre',
+            'colegiosComunes'
         ])->where('id',$id)->first();
 
         $proyectoCliente = ProyectosClientes::with('encuesta')->where('id_proyecto',$elemento->id_proyecto)->where('id_cliente',$elemento->id_cliente)->first();
@@ -130,6 +138,7 @@ class ServicioEstudioController extends Controller
     public function rejistroSocioeconomico(Request $request){
 
         $contacto_por_defecto = array();
+        $contacto_por_defecto_es = '';
         $id_familia = null;
 
         $messages = [
@@ -164,7 +173,7 @@ class ServicioEstudioController extends Controller
             'padre.empresa_trabajo' => 'nullable|string|max:255',
             'padre.email' => ['required','email:rfc','max:255','regex:/^\S*$/u'],
             'padre.telefono_casa' => 'required|string|max:15',
-            'padre.contecto_principal' => 'nullable|boolean',
+            'padre.contecto_principal' => 'required|boolean',
 
             //Validar datos de madre
             'madre' => 'required|array',
@@ -177,7 +186,7 @@ class ServicioEstudioController extends Controller
             'madre.empresa_trabajo' => 'nullable|string|max:255',
             'madre.email' => ['required','email:rfc','max:255','regex:/^\S*$/u'],
             'madre.telefono_casa' => 'required|string|max:15',
-            'madre.contecto_principal' => 'nullable|boolean',
+            'madre.contecto_principal' => 'required|boolean',
 
         ],$messages);
 
@@ -188,8 +197,10 @@ class ServicioEstudioController extends Controller
 
         if($request->padre["contecto_principal"]){
             $contacto_por_defecto = $request->padre;
+            $contacto_por_defecto_es = 'padre';
         } else if($request->madre["contecto_principal"]){
             $contacto_por_defecto = $request->madre;
+            $contacto_por_defecto_es = 'madre';
         }else{
             return response()->json([
                 "errors"=>[
@@ -198,6 +209,21 @@ class ServicioEstudioController extends Controller
                     ]
             ], 400);
         }
+        //validar si ya esisite un contacot con en la orden de servicio con el mismo email
+        $estudio_contacto = ServicioEstudio::with(['familiasPadres' => function($query) use ($contacto_por_defecto){
+            $query
+                ->where('email',$contacto_por_defecto["email"]);
+                //->where('contecto_principal',true);
+        }])->where('id_orden_servicio',$request->id_orden_servicio)->first();
+
+        if(!$estudio_contacto){
+            return response()->json([
+                "errors"=>[
+                    $contacto_por_defecto_es.'.contecto_principal' => ['Contacto principal ya registrado en esta orden de servicio'],
+                    ]
+            ], 400);
+        }
+
 
         $user = User::where('email',$contacto_por_defecto["email"])->first();
 
@@ -211,7 +237,7 @@ class ServicioEstudioController extends Controller
                         'name' => $contacto_por_defecto["nombre"]
                         ,'email' => $contacto_por_defecto["email"]
                         ,'id_cliente' => $request->id_cliente
-                        ,'id_perfil' => 5
+                        ,'id_perfil' => 6
                         ,'password' => bcrypt($password_temposral)
                         ,'password_temporal' => $password_temposral
                 ]);
@@ -305,5 +331,26 @@ class ServicioEstudioController extends Controller
         $cadena = preg_replace('/[^a-zA-Z0-9_]/', '', $cadena);
 
         return $cadena;
+    }
+
+    public function asignarColaborador($id_estudio = 0,Request $request){
+        if(!$id_estudio){
+            return response()->json([
+                "errors"=>[
+                    'estudio' => ['No se recibió estudio'],
+                    ]
+            ], 400);
+        }
+
+        $validator = Validator::make($request->all(),[
+            'id_colaborador' => 'required|exists:user,id',
+            ]
+        );
+
+        $elemento = ServicioEstudio::where('id',$id_estudio)->first();
+        $elemento->id_colaborador = $request->id_colaborador;
+        $elemento->save();
+
+        return response()->json(['message' => 'Elemento guardado', 'data' => $elemento], 201);
     }
 }

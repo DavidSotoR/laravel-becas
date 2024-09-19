@@ -16,6 +16,11 @@ class FamiliasPadres extends Model
         'ocupacion_actual',
         'empresa_trabajo',
         'email',
-        'telefono_casa'
+        'telefono_casa',
+        'contecto_principal'
+    ];
+
+    protected $casts = [
+        'contecto_principal' => 'boolean',
     ];
 }
