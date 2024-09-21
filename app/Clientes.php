@@ -14,6 +14,7 @@ class Clientes extends Model
         'notificaciones_email',
         'id_tipo_cliente',
         'id_clientes_hermanos',
+        'rfc',
         'rso',
         'nombre_uno',
         'telefono_uno',
