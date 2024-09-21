@@ -82,6 +82,11 @@ class ServicioEstudio extends Model
     {
         return $this->hasMany('App\FamiliasPadres', 'id_servicio_estudio');
     }
+    // Obtener contacto principal
+    public function contactoPrincipal()
+    {
+        return $this->hasOne('App\FamiliasPadres', 'id_servicio_estudio')->where('contecto_principal', 1);
+    }
 
     // Obtener padre
     public function padre()

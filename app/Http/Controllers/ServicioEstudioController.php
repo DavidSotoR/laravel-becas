@@ -27,12 +27,14 @@ class ServicioEstudioController extends Controller
 
     public function lista(Request $request){
         $query = ServicioEstudio::query()->with([
+            'estado',
             'cliente',
             'proyecto',
             'ordenServicio',
             'colaborador',
             'padre',
-            'madre'
+            'madre',
+            'contactoPrincipal',
         ]);
 
         if(isset($request->id_proyecto)){
@@ -69,7 +71,8 @@ class ServicioEstudioController extends Controller
             'familia',
             'padre',
             'madre',
-            'colegiosComunes'
+            'colegiosComunes',
+            'contactoPrincipal',
         ])->where('id',$id)->first();
 
         $proyectoCliente = ProyectosClientes::with('encuesta')->where('id_proyecto',$elemento->id_proyecto)->where('id_cliente',$elemento->id_cliente)->first();
@@ -354,6 +357,25 @@ class ServicioEstudioController extends Controller
         $elemento = ServicioEstudio::where('id',$id_estudio)->first();
         $elemento->id_colaborador = $request->id_colaborador;
         $elemento->save();
+
+        return response()->json(['message' => 'Elemento guardado', 'data' => $elemento], 201);
+    }
+
+    public function asignarColaboradores(Request $request){
+
+        $messages = [
+            'id_servicios_estudio.array' => 'Seleccione un estudio.',
+            'id_colaborador.required' => 'Seleccione un colaborador.',
+            'id_colaborador.exists' => 'El colaborador no exsiste.',
+        ];
+
+        $validator = Validator::make($request->all(),[
+            'id_colaborador' => 'required|exists:user,id',
+            'id_servicios_estudio' => 'required|array',
+            ]
+        ,$messages);
+
+        $elemento = ServicioEstudio::whereIn('id', $request->id_servicios_estudio)->update(['id_colaborador' => $request->id_colaborador]);
 
         return response()->json(['message' => 'Elemento guardado', 'data' => $elemento], 201);
     }
