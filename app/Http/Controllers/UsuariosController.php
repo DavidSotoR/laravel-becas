@@ -61,6 +61,9 @@ class UsuariosController extends Controller
             'email' => 'required',
             'id_perfil' => 'required|int',
             'id_cliente' => 'nullable|int',
+            'latiud' => 'nullable|string',
+            'longitud' => 'nullable|string',
+            'externo' => 'boolean'
         ]);
 
         if($validator->fails()){
@@ -72,6 +75,9 @@ class UsuariosController extends Controller
         $editar->email = $request->email;
         $editar->id_perfil = $request->id_perfil;
         $editar->id_cliente = $request->id_cliente;
+        $editar->latitud = $request->latitud;
+        $editar->longitud = $request->longitud;
+        $editar->externo = $request->externo;
         $editar->save();
 
 

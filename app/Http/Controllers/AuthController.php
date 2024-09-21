@@ -130,6 +130,9 @@ class AuthController extends Controller
             'password' => 'required|string|min:6|confirmed',
             'id_perfil' => 'required|int',
             'id_cliente' => 'nullable|int',
+            'latitud' => 'nullable|string',
+            'longitud' => 'nullable|string',
+            'externo' => 'boolean'
         ]);
 
 
