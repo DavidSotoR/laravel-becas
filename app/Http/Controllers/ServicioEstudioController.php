@@ -9,6 +9,7 @@ use App\OrdenesServicio;
 use App\FamiliasPadres;
 use App\User;
 use App\ProyectosClientes;
+use App\CatalogoEncuestas;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -378,5 +379,23 @@ class ServicioEstudioController extends Controller
         $elemento = ServicioEstudio::whereIn('id', $request->id_servicios_estudio)->update(['id_colaborador' => $request->id_colaborador]);
 
         return response()->json(['message' => 'Elemento guardado', 'data' => $elemento], 201);
+    }
+    public function encuesta($id_estudio = 0){
+        if(!$id_estudio){
+            return response()->json([], 201);
+        }
+
+        $estudio = ServicioEstudio::where('id',$id_estudio)->first();
+
+
+        $id_proyecto = $estudio->id_proyecto;
+        $id_cliente = $estudio->id_cliente;
+
+        $preoyecto_cliente = ProyectosClientes::where('id_proyecto',$id_proyecto)->where('id_cliente',$id_cliente)->first();
+        $id_encuesta = $preoyecto_cliente->id_encuesta;
+
+        $encuesta = CatalogoEncuestas::where('id',$id_encuesta)->first();
+
+        return response()->json($encuesta);
     }
 }

@@ -143,6 +143,7 @@ Route::group([
 
     Route::get('estudio/colaboradores', 'UsuariosController@colaboradores');
     Route::post('estudio/{id_estudio}/colaboradores', 'ServicioEstudioController@asignarColaborador');
+    Route::get('estudio/{id_estudio}/encuesta', 'ServicioEstudioController@encuesta');
     Route::post('estudio/colaboradores', 'ServicioEstudioController@asignarColaboradores');
     Route::get('estudio/socioeconomico', 'ServicioEstudioController@lista');
     Route::get('estudio/socioeconomico/{id}', 'ServicioEstudioController@id');
