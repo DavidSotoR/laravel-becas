@@ -132,6 +132,7 @@ class AuthController extends Controller
             'id_cliente' => 'nullable|int',
             'latitud' => 'nullable|string',
             'longitud' => 'nullable|string',
+            'direccion' =>'nullable|string',
             'externo' => 'boolean'
         ]);
 
