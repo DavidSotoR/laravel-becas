@@ -167,8 +167,8 @@ class ServicioEstudioController extends Controller
             'situacion' => 'required|string|max:500',
             'generar_usuario_automaticamente' => 'nullable|boolean',
             'direccion' => 'nullable|string|max:255',
-            'latutud' => 'nullable|string|max:255',
-            'longitud' => 'nullable|string|max:255',
+            'latutud' => 'nullable|integer|max:255',
+            'longitud' => 'nullable|integer|max:255',
 
             //Validar datos de padrre
             'padre' => 'required|array',
