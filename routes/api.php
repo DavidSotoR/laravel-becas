@@ -144,10 +144,16 @@ Route::group([
     Route::get('estudio/colaboradores', 'UsuariosController@colaboradores');
     Route::post('estudio/{id_estudio}/colaboradores', 'ServicioEstudioController@asignarColaborador');
     Route::get('estudio/{id_estudio}/encuesta', 'ServicioEstudioController@encuesta');
-    Route::post('estudio/colaboradores', 'ServicioEstudioController@asignarColaboradores');
     Route::get('estudio/socioeconomico', 'ServicioEstudioController@lista');
     Route::get('estudio/socioeconomico/{id}', 'ServicioEstudioController@id');
     Route::post('estudio/socioeconomico', 'ServicioEstudioController@rejistroSocioeconomico');
+
+    Route::post('estudio/preasignacion', 'ServicioEstudioController@preasignarEstudios');
+    Route::post('estudio/asignar', 'ServicioEstudioController@asignarEstudios');
+    Route::post('estudio/calidad', 'ServicioEstudioController@asignarCalidad');
+
+    Route::get('estudios/enproceso/estados', 'ServicioEstadosController@listaEnProceso');
+    Route::get('estudios/enproceso', 'ServicioEstudioController@listaEnProceso');
 
 
 });

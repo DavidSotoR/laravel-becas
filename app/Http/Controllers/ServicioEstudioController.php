@@ -62,6 +62,73 @@ class ServicioEstudioController extends Controller
         return response()->json($lista);
     }
 
+    public function listaEnProceso(Request $request){
+        $query = ServicioEstudio::query()->with([
+            'estado',
+            'cliente',
+            'proyecto',
+            'ordenServicio',
+            'colaborador',
+            'padre',
+            'madre',
+            'contactoPrincipal',
+        ]);
+
+        $user = auth()->user();
+        $id_perfil = $user->perfil->id;
+        //$query->where('id_colaborador',$user->id);
+        switch($id_perfil){
+            case 1:
+                //Administrador
+                $query->where('id_colaborador',$user->id);
+                break;
+            case 2:
+                //Gerencia
+                $query->where('id_colaborador',$user->id);
+                break;
+            case 3:
+                //Calidad
+                $query->where('id_colaborador',$user->id);
+                break;
+            case 4:
+                //Colaboradores
+                $query->where('id_colaborador',$user->id);
+                break;
+            case 5:
+                //Empresas
+                return response()->json([]);
+                break;
+            case 6:
+                //Familias
+                return response()->json([]);
+                break;
+            default:
+            return response()->json([]);
+        }
+
+        if(isset($request->id_proyecto)){
+
+            $query->where('id_proyecto',$request->id_proyecto);
+
+            if(isset($request->id_cliente)){
+                if($request->id_cliente)
+                $query->where('id_cliente',$request->id_cliente);
+
+                if(isset($request->id_orden_servicio)){
+                    if($request->id_orden_servicio)
+                    $query->where('id_orden_servicio',$request->id_orden_servicio);
+                }
+            }
+        }
+        $query->where('id_servicio_estado','!=',1);
+        if(isset($request->id_servicio_estado)){
+            $query->where('id_servicio_estado',$request->id_servicio_estado);
+        }
+
+        $lista = $query->get();
+        return response()->json($lista);
+    }
+
     public function id($id){
         $elemento = ServicioEstudio::with([
             'estado',
@@ -362,7 +429,7 @@ class ServicioEstudioController extends Controller
         return response()->json(['message' => 'Elemento guardado', 'data' => $elemento], 201);
     }
 
-    public function asignarColaboradores(Request $request){
+    public function preasignarEstudios(Request $request){
 
         $messages = [
             'id_servicios_estudio.array' => 'Seleccione un estudio.',
@@ -379,6 +446,61 @@ class ServicioEstudioController extends Controller
         $elemento = ServicioEstudio::whereIn('id', $request->id_servicios_estudio)->update(['id_colaborador' => $request->id_colaborador]);
 
         return response()->json(['message' => 'Elemento guardado', 'data' => $elemento], 201);
+    }
+    public function asignarEstudios(Request $request){
+
+        $messages = [
+            'id_servicios_estudio.array' => 'Seleccione un estudio.',
+        ];
+
+        $validator = Validator::make($request->all(),[
+            'id_servicios_estudio' => 'required|array',
+            ]
+        ,$messages);
+
+        $total = 0;
+        $total = count($request->id_servicios_estudio);
+
+        $elementos = ServicioEstudio::
+            whereIn('id', $request->id_servicios_estudio)
+            ->whereNotNull('id_colaborador')
+            ->update(['id_servicio_estado' => 2]);
+
+        $message = 'Elemenost asignados';
+        if($total != $elementos){
+            $message = 'Elemenost asignados '.$elementos.' de '.$total.', '.($total-$elementos).' sin colaborador asignado';
+        }
+
+        return response()->json(['message' => $message, 'data' => $elementos], 201);
+    }
+    public function asignarCalidad(Request $request){
+
+        $messages = [
+            'id_servicios_estudio.array' => 'Seleccione un estudio.',
+            'id_calidad.required' => 'Seleccione un colaborador.',
+            'id_calidad.exists' => 'El colaborador no exsiste.',
+        ];
+
+        $validator = Validator::make($request->all(),[
+            'id_calidad' => 'required|exists:user,id',
+            'id_servicios_estudio' => 'required|array',
+            ]
+        ,$messages);
+
+        $total = 0;
+        $total = count($request->id_servicios_estudio);
+
+        $elementos = ServicioEstudio::
+            whereIn('id', $request->id_servicios_estudio)
+            ->whereNotNull('id_servicio_estado', 2)
+            ->update(['id_servicio_estado' => 3,'id_calidad' => $request->id_calidad]);
+
+        $message = 'Elementos enviados a calidad';
+        if($total != $elementos){
+            $message = 'Elementos enviados a calidad '.$elementos.' de '.$total.', '.($total-$elementos).' aun requieren infomracion';
+        }
+
+        return response()->json(['message' => $message, 'data' => $elementos], 201);
     }
     public function encuesta($id_estudio = 0){
         if(!$id_estudio){

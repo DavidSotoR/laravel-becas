@@ -15,6 +15,8 @@ class ServicioEstudio extends Model
                             'id_familia',
                             'id_orden_servicio',
                             'id_colaborador',
+                            'id_calidad',
+                            'id_gerencia',
                             'es_cliente_comun',
                             'candidato',
                             'situacion',
