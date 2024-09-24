@@ -63,6 +63,7 @@ class UsuariosController extends Controller
             'id_cliente' => 'nullable|int',
             'latiud' => 'nullable|string',
             'longitud' => 'nullable|string',
+            'direccion' => 'nullable|string',
             'externo' => 'boolean'
         ]);
 
@@ -78,6 +79,7 @@ class UsuariosController extends Controller
         $editar->latitud = $request->latitud;
         $editar->longitud = $request->longitud;
         $editar->externo = $request->externo;
+        $editar->direccion = $request->direccion;
         $editar->save();
 
 
