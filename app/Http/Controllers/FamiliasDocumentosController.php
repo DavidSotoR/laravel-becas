@@ -54,44 +54,53 @@ class FamiliasDocumentosController extends Controller
     }
 
     public function nuevo(Request $request){
-        //Storage::disk('local')->put('example.txt', 'Contents');
-
-        $idse = ServicioEstudio::where('id_familia', '=', auth()->id())->first();
-        $idEstudio = FamiliasDocumentosTipos::where('id', '=', $request->id_familias_documentos_tipo)->first();
-        //return $idse['directorio'];
-        //return $idEstudio;
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'id_familia' => 'required|int|exists:servicios_estudios,id_familia',
             'id_familias_documentos_tipo' => 'required|int',
             'id_servicio_estudio' => 'required|int|exists:servicios_estudios,id',
-            'file' => 'required|mimes:csv,txt,xlx,xls,pdf,png,jpg|max:2048',
+            'files.*' => 'required' // Validación para archivos múltiples
         ]);
-
-        if($validator->fails()){
+    
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
+    
+        // Obtener los detalles del estudio y del tipo de documento
+        $idse = ServicioEstudio::where('id_familia', '=', auth()->id())->first();
+        $idEstudio = FamiliasDocumentosTipos::where('id', '=', $request->id_familias_documentos_tipo)->first();
+    
+        // Verificar que los archivos existan en la solicitud
+        if ($request->hasFile('files')) {
+            // Recorrer y procesar cada archivo
+            foreach ($request->file('files') as $file) {
+                // Obtener el nombre original y el alias para cada archivo
+                $documentoName = $file->getClientOriginalName();
+                $documentoAlias = time() . '_' . $file->getClientOriginalName();
+    
+                // Definir la carpeta donde se guardarán los archivos
+                $nombreEstudio = strtoupper(str_replace(' ', '_', $idEstudio['nombre']));
+                $carpeta_guardar = $idse['directorio'] . $nombreEstudio;
+    
+                // Almacenar el archivo en la carpeta especificada en el disco 'public'
+                $documentoPath = $file->storeAs($carpeta_guardar, $documentoAlias, 'public');
+    
+                // Crear el registro en la base de datos
+                $elemento = FamiliasDocumentos::create([
+                    "id_familia" => $request->id_familia,
+                    "id_familias_documentos_tipo" => $request->id_familias_documentos_tipo,
+                    "id_servicio_estudio" => $request->id_servicio_estudio,
+                    'nombre' => $documentoName,
+                    'directorio' => $documentoPath,
+                    'alias' => $documentoAlias
+                ]);
+            }
+    
+            // Retornar la respuesta exitosa
+            return response()->json(['message' => 'Archivos subidos y guardados correctamente'], 201);
+        }
+    
+        return response()->json(['message' => 'No se encontraron archivos para subir'], 400);
 
-
-        $documento = new File;
-
-        $documentoName = $request->file->getClientOriginalName();
-        $documentoAlias = time().'_'.$request->file->getClientOriginalName();
-
-        $carpeta_guardar = $idse['directorio'].$idEstudio['nombre'];
-
-        $documentoPath = $request->file('file')->storeAs($carpeta_guardar, $documentoAlias,'public' );
-
-
-        $elemento = FamiliasDocumentos::create([
-            "id_familia" => $request->id_familia,
-            "id_familias_documentos_tipo" => $request->id_familias_documentos_tipo,
-            "id_servicio_estudio" => $request->id_servicio_estudio,
-            'nombre' => $documentoName,
-            'directorio' => $documentoPath,
-            'alias' => $documentoAlias
-        ]);
-
-        return response()->json(['message' => 'Nuevo documento añadidio', 'data' => $elemento], 201);
 
     }
     //Storage::delete('file.jpg');
