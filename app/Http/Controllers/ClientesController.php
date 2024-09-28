@@ -83,7 +83,7 @@ class ClientesController extends Controller
             'notificaciones_email' => 'required',
             'id_tipo_cliente' => 'required',
             'id_clientes_hermanos' => 'nullable|int',
-            'requiere_facturar' => 'nullable|boolean',
+            'requiere_facturar' => 'boolean',
             'rfc' => 'nullable|string',
             'rso' => 'nullable|string',
             'nombre_uno' => 'nullable|string',
@@ -92,6 +92,7 @@ class ClientesController extends Controller
             'telefono_dos' => 'nullable|string',
             'telefono_mobil' => 'nullable|string',
             'calle' => 'nullable|string',
+            'tipo_persona' => 'string',
             'entre_cale' => 'nullable|string',
             'colonia' => 'nullable|string',
             'codigo_postal' => 'nullable|string',
@@ -136,6 +137,9 @@ class ClientesController extends Controller
         $editar->id_tipo_cliente = $request->id_tipo_cliente;
         if(isset($request->id_clientes_hermanos)){
             $editar->id_clientes_hermanos = $request->id_clientes_hermanos;
+        }
+        if(isset($request->tipo_persona)){
+            $editar->tipo_persona = $request->tipo_persona;
         }
         if(isset($request->requiere_facturar))
             $editar->requiere_facturar = $request->requiere_facturar;

@@ -15,6 +15,7 @@ class Clientes extends Model
         'id_tipo_cliente',
         'id_clientes_hermanos',
         'rfc',
+        'tipo_persona',
         'rso',
         'nombre_uno',
         'telefono_uno',
