@@ -520,4 +520,39 @@ class ServicioEstudioController extends Controller
 
         return response()->json($encuesta);
     }
+
+    public function addFechaVisita(Request $request, $id = 0){
+
+        // Validar los datos entrantes
+        $validator = Validator::make($request->all(), [
+            'visita_fecha' => 'nullable|date',
+            'visita_hora' => 'nullable|date_format:H:i',
+            'visita_recordatorio' => 'nullable|string|max:1200',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $solicitud = ServicioEstudio::find($id);
+
+        if(!$solicitud){
+            return response()->json([
+                "errors"=>[
+                    'estudio' => ['Solicitud de estudio no encontrada.'],
+                    ]
+            ], 400);
+        }
+
+        $solicitud->visita_fecha = $request->visita_fecha;
+        $solicitud->visita_hora = $request->visita_hora;
+        $solicitud->visita_recordatorio = $request->visita_recordatorio;
+
+        $solicitud->save();
+
+        return response()->json([
+            'message' => 'Solicitud de estudio actualizada exitosamente.',
+            'data' => $solicitud
+        ], 200);
+    }
 }

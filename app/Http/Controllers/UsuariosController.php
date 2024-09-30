@@ -112,4 +112,17 @@ class UsuariosController extends Controller
         $lista = $query->get();
         return response()->json($lista);
     }
+
+    public function calidad(Request $request){
+        $query = User::query()->with('perfil');
+
+        $query->where('active',1);
+        $query->whereHas('perfil', function($queryPerfilInterno) {
+            $queryPerfilInterno->where('interno', '=', 1);
+            $queryPerfilInterno->where('id', '=', 3);
+        });
+
+        $lista = $query->get();
+        return response()->json($lista);
+    }
 }

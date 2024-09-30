@@ -142,11 +142,13 @@ Route::group([
     Route::put('catalogos/encuestas', 'CatalogoEncuestasController@editar');
 
     Route::get('estudio/colaboradores', 'UsuariosController@colaboradores');
+    Route::get('estudio/calidad', 'UsuariosController@calidad');
     Route::post('estudio/{id_estudio}/colaboradores', 'ServicioEstudioController@asignarColaborador');
     Route::get('estudio/{id_estudio}/encuesta', 'ServicioEstudioController@encuesta');
     Route::get('estudio/socioeconomico', 'ServicioEstudioController@lista');
     Route::get('estudio/socioeconomico/{id}', 'ServicioEstudioController@id');
     Route::post('estudio/socioeconomico', 'ServicioEstudioController@rejistroSocioeconomico');
+    Route::post('estudio/socioeconomico/{id}/visita', 'ServicioEstudioController@addFechaVisita');
 
     Route::post('estudio/preasignacion', 'ServicioEstudioController@preasignarEstudios');
     Route::post('estudio/asignar', 'ServicioEstudioController@asignarEstudios');

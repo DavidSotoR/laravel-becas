@@ -35,7 +35,11 @@ class ServicioEstudio extends Model
                             'direccion',
                             'latutud',
                             'longitud',
+                            'visita_fecha' ,
+                            'visita_hora',
+                            'visita_recordatorio',
                           ];
+
 
 
     protected $casts = [
