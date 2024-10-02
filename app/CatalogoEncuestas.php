@@ -13,6 +13,6 @@ class CatalogoEncuestas extends Model
         return $this->hasOne('App\TiposClientes','id','id_tipo_cliente');
     }
     public function preguntas(){
-        return $this->hasMany('App\CatalogoEncuestasPreguntas','id','id_tipo_cliente');
+        return $this->hasMany('App\CatalogoEncuestasPreguntas','id_catalogo_encuesta','id');
     }
 }

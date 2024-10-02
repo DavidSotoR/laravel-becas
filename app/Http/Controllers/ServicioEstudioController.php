@@ -555,4 +555,19 @@ class ServicioEstudioController extends Controller
             'data' => $solicitud
         ], 200);
     }
+
+    public function estudioSocioeconomico($id){
+
+        /*with(['estado','cliente','proyecto','ordenServicio','colaborador','colegiosComunes',])->*/
+        //$elemento['encuesta'] = $encuesta;
+
+        $elemento = ServicioEstudio::where('id',$id)->first();
+
+        $proyectoCliente = ProyectosClientes::with(['encuesta','encuesta.preguntas'])->where('id_proyecto',$elemento->id_proyecto)->where('id_cliente',$elemento->id_cliente)->first();
+
+        $encuesta = $proyectoCliente->encuesta;
+        $encuesta['estudio'] = $elemento;
+
+        return response()->json($encuesta);
+    }
 }

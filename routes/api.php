@@ -157,6 +157,8 @@ Route::group([
     Route::get('estudios/enproceso/estados', 'ServicioEstadosController@listaEnProceso');
     Route::get('estudios/enproceso', 'ServicioEstudioController@listaEnProceso');
 
+    Route::get('estudio/socioeconomico/{id}/encuesta', 'ServicioEstudioController@estudioSocioeconomico');
+
 
 });
 /*
