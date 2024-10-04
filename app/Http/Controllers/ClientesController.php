@@ -142,7 +142,12 @@ class ClientesController extends Controller
             $editar->tipo_persona = $request->tipo_persona;
         }
         if(isset($request->requiere_facturar))
-            $editar->requiere_facturar = $request->requiere_facturar;
+            if ($request->requiere_facturar) {
+                $editar->requiere_facturar = 1;
+            } else {
+                $editar->requiere_facturar = 0;
+            }
+            
         if(isset($request->rfc))
             $editar->rfc = $request->rfc;
         if(isset($request->id_catalogo_encuesta))
