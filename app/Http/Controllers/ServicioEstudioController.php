@@ -233,6 +233,15 @@ class ServicioEstudioController extends Controller
             'candidato' => 'required|string|max:255',
             'situacion' => 'required|string|max:500',
             'generar_usuario_automaticamente' => 'nullable|boolean',
+
+            'calle' => 'nullable|string|max:120',
+            'numero_exterior' => 'nullable|string|max:10',
+            'colonia' => 'nullable|string|max:60',
+            'municipio' => 'nullable|string|max:60',
+            'estado' => 'nullable|string|max:60',
+            'codigo_postal' => 'nullable|string|max:5',
+            'pais' => 'nullable|string|max:60',
+
             'direccion' => 'nullable|string|max:255',
             'latutud' => 'nullable|numeric|max:255',
             'longitud' => 'nullable|numeric|max:255',
@@ -291,7 +300,7 @@ class ServicioEstudioController extends Controller
                 //->where('contecto_principal',true);
         }])->where('id_orden_servicio',$request->id_orden_servicio)->first();
 
-        if($estudio_contacto){
+        if($estudio_contacto->familias_padres){
             return response()->json([
                 "errors"=>[
                     $contacto_por_defecto_es.'.contecto_principal' => ['Contacto principal ya registrado en esta orden de servicio'],
@@ -443,7 +452,11 @@ class ServicioEstudioController extends Controller
             ]
         ,$messages);
 
-        $elemento = ServicioEstudio::whereIn('id', $request->id_servicios_estudio)->update(['id_colaborador' => $request->id_colaborador]);
+        $elemento = ServicioEstudio::
+                        whereIn('id', $request->id_servicios_estudio)
+                        //->whereNotNull('id_servicio_estado', 2)
+                        ->update(['id_servicio_estado' => 2,'id_colaborador' => $request->id_colaborador]);
+
 
         return response()->json(['message' => 'Elemento guardado', 'data' => $elemento], 201);
     }
