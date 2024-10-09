@@ -29,6 +29,13 @@ class User extends Authenticatable implements JWTSubject
         'latitud',
         'longitud',
         'direccion',
+        'calle',
+        'numero_exterior',
+        'colonia',
+        'municipio',
+        'estado',
+        'codigo_postal',
+        'pais',
     ];
 
     /**

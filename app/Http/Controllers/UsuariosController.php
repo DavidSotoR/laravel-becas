@@ -64,7 +64,14 @@ class UsuariosController extends Controller
             'latiud' => 'nullable|string',
             'longitud' => 'nullable|string',
             'direccion' => 'nullable|string',
-            'externo' => 'boolean'
+            'externo' => 'boolean',
+            'calle' => 'nullable|string',
+            'numero_exterior' => 'nullable|string',
+            'colonia' => 'nullable|string',
+            'municipio' => 'nullable|string',
+            'estado' => 'nullable|string',
+            'codigo_postal' => 'nullable|string',
+            'pais' => 'nullable|string',
         ]);
 
         if($validator->fails()){
@@ -80,6 +87,13 @@ class UsuariosController extends Controller
         $editar->longitud = $request->longitud;
         $editar->externo = $request->externo;
         $editar->direccion = $request->direccion;
+        $editar->calle = $request->calle;
+        $editar->numero_exterior = $request->numero_exterior;
+        $editar->colonia = $request->colonia;
+        $editar->municipio = $request->municipio;
+        $editar->estado = $request->estado;
+        $editar->codigo_postal = $request->codigo_postal;
+        $editar->pais = $request->pais;
         $editar->save();
 
 
