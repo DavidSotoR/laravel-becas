@@ -159,6 +159,10 @@ Route::group([
 
     Route::get('estudio/socioeconomico/{id}/encuesta', 'ServicioEstudioController@estudioSocioeconomico');
 
+    Route::get('estudio/{id_estudio}/pregunta/{id_pregunta}/respuestas', 'ServiciosEstudiosRespuestasController@lista');
+    Route::post('estudio/respuestas', 'ServiciosEstudiosRespuestasController@nuevo');
+
+
 
 });
 /*
