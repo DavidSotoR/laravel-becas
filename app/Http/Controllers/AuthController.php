@@ -133,7 +133,14 @@ class AuthController extends Controller
             'latitud' => 'nullable|string',
             'longitud' => 'nullable|string',
             'direccion' =>'nullable|string',
-            'externo' => 'boolean'
+            'externo' => 'boolean',
+            'calle' => 'nullable|string',
+            'numero_exterior' => 'nullable|string',
+            'colonia' => 'nullable|string',
+            'municipio' => 'nullable|string',
+            'estado' => 'nullable|string',
+            'codigo_postal' => 'nullable|string',
+            'pais' => 'nullable|string',
         ]);
 
 
