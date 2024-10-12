@@ -9,6 +9,7 @@ class ServiciosEstudiosRespuestas extends Model
     protected $fillable = [
                             'id_servicio_estudio',
                             'id_catalogo_encuestas_pregunta',
+                            'seccion',
                             'parentesco',
                             'nombre',
                             'texto',

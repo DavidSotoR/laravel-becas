@@ -48,6 +48,7 @@ class ServiciosEstudiosRespuestasController extends Controller
                 return $this -> respuestaTipoUno($request->respuestas);
             break;
             case 11:
+            case 12:
             case 6:
                 return $this -> respuestaTipoSeis($request->respuestas);
             break;

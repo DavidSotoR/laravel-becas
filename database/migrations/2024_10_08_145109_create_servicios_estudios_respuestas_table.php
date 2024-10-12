@@ -23,6 +23,7 @@ class CreateServiciosEstudiosRespuestasTable extends Migration
             $table->foreign('id_catalogo_encuestas_pregunta','id_catalogo_encuestas_preguntas_ser_fk')->references('id')->on('catalogo_encuestas_preguntas')->onDelete('cascade');
             //$table->unsignedBigInteger('id_item');
 
+            $table->string('seccion',120)->nullable();
             $table->string('parentesco',1200)->nullable();
             $table->string('nombre',1200)->nullable();
             $table->string('texto',1200)->nullable();
