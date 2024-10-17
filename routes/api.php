@@ -101,7 +101,7 @@ Route::group([
     Route::get('familias/{id_familia}/estudio/socioeconomico', 'FamiliasController@estudioSocioeconomico');
     Route::get('familias/documentos/tipos', 'FamiliasDocumentosTiposController@lista');
     Route::get('familias/{id_familia}/documentos', 'FamiliasDocumentosController@lista');
-    Route::get('familias/documentos/file/{alias}', 'FamiliasDocumentosController@file');
+    Route::get('familias/documentos/file/{id}', 'FamiliasDocumentosController@file');
     Route::get('familias/documentos/{id}', 'FamiliasDocumentosController@id');
     Route::post('familias/documentos', 'FamiliasDocumentosController@nuevo');
 
@@ -160,6 +160,8 @@ Route::group([
     Route::get('estudio/socioeconomico/{id}/encuesta', 'ServicioEstudioController@estudioSocioeconomico');
 
     Route::get('estudio/{id_estudio}/pregunta/{id_pregunta}/respuestas', 'ServiciosEstudiosRespuestasController@lista');
+    Route::get('estudio/{id_estudio}/documentos/', 'FamiliasDocumentosController@listaFilesEstudio');
+
     Route::post('estudio/respuestas', 'ServiciosEstudiosRespuestasController@nuevo');
 
 

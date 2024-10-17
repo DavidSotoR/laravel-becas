@@ -49,9 +49,11 @@ class ServiciosEstudiosRespuestasController extends Controller
             break;
             case 11:
             case 12:
+            case 13:
             case 6:
                 return $this -> respuestaTipoSeis($request->respuestas);
             break;
+            case 20:
             case 7:
                 return $this -> respuestaTipoSiete($request->respuestas);
             break;
