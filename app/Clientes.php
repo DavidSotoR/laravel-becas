@@ -32,6 +32,7 @@ class Clientes extends Model
         'rason_social',
         'id_catalogo_encuesta',
         'documentacion_digital',
+        'terminos'
     ];
 
     public function tipoCliente(){

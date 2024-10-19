@@ -102,6 +102,7 @@ class ClientesController extends Controller
             'rason_social' => 'nullable|string',
             'id_catalogo_encuesta' => 'nullable|int',
             'documentacion_digital' => 'nullable|boolean',
+            'terminos'=> 'nullable|string', 
         ]);
 
         if($validator->fails()){
@@ -137,6 +138,9 @@ class ClientesController extends Controller
         $editar->id_tipo_cliente = $request->id_tipo_cliente;
         if(isset($request->id_clientes_hermanos)){
             $editar->id_clientes_hermanos = $request->id_clientes_hermanos;
+        }
+        if(isset($request->terminos)){
+            $editar->terminos = $request->terminos;
         }
         if(isset($request->tipo_persona)){
             $editar->tipo_persona = $request->tipo_persona;
