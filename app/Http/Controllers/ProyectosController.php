@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Proyectos;
+use App\Clientes;
+use App\OrdenesServicio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -81,5 +83,58 @@ class ProyectosController extends Controller
         $editar->save();
 
         return response()->json(['message' => 'Elemento modificado', 'data' => $editar], 201);
+    }
+    public function listaProyectosXPerfil(Request $request){
+
+        $user = auth()->user();
+        $id_cliente = $user->id_cliente;
+        $perfil_nombre = $user->perfil->nombre;
+
+        if($perfil_nombre !== "Empresas"){
+            return response()->json([]);
+        }
+
+        $cliente = Clientes::find($id_cliente);
+
+        if (!$cliente) {
+            return response()->json(['message' => 'Cliente no encontrado'], 404);
+        }
+
+        $lista = $cliente->proyectos()
+            //->where('activo', 1)
+            ->where('id_tipo_cliente', 1)
+            ->get();
+
+            foreach($lista as &$proyecto){
+                $ordenesDeServicio = OrdenesServicio::where('id_proyecto',$proyecto->id)->where('id_cliente',$id_cliente)->get();
+                $proyecto['ordenes_de_servicio'] = $ordenesDeServicio;
+            }
+
+
+
+        return response()->json($lista);
+    }
+
+    public function proyectoIDEmpresa($id_proyecto){
+        $user = auth()->user();
+        $id_cliente = $user->id_cliente;
+        $perfil_nombre = $user->perfil->nombre;
+
+        if($perfil_nombre !== "Empresas"){
+            return response()->json([]);
+        }
+
+        $cliente = Clientes::find($id_cliente);
+
+        if (!$cliente) {
+            return response()->json(['message' => 'Cliente no encontrado'], 404);
+        }
+
+        $elemento = $cliente->proyectos()
+            ->where('proyectos.id', $id_proyecto)
+            //->where('activo', 1)
+            ->where('id_tipo_cliente', 1)
+            ->first();
+        return response()->json($elemento);
     }
 }

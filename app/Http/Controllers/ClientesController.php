@@ -147,7 +147,7 @@ class ClientesController extends Controller
             } else {
                 $editar->requiere_facturar = 0;
             }
-            
+
         if(isset($request->rfc))
             $editar->rfc = $request->rfc;
         if(isset($request->id_catalogo_encuesta))
@@ -192,5 +192,20 @@ class ClientesController extends Controller
 
 
         return response()->json(['message' => 'Cliente modificado', 'data' => $editar], 201);
+    }
+
+    public function clienteUsuarioEmpresa(Request $request){
+
+        $user = auth()->user();
+        $id_cliente = $user->id_cliente;
+        $perfil_nombre = $user->perfil->nombre;
+
+        if($perfil_nombre !== "Empresas"){
+            return response()->json([]);
+        }
+
+        $cliente = Clientes::find($id_cliente);
+
+        return  response()->json($cliente);
     }
 }

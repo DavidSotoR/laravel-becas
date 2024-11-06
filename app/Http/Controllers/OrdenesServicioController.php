@@ -86,4 +86,26 @@ class OrdenesServicioController extends Controller
 
         return response()->json(['message' => 'Elemento modificado', 'data' => $editar], 201);
     }
+
+    public function listaODPEmpresa(Request $request,$id_proyecto){
+
+        $user = auth()->user();
+        $id_cliente = $user->id_cliente;
+        $perfil_nombre = $user->perfil->nombre;
+
+        if($perfil_nombre !== "Empresas"){
+            return response()->json([]);
+        }
+
+        $query = OrdenesServicio::query()
+                    ->where('id_proyecto',$id_proyecto)
+                    ->where('id_cliente',$id_cliente);
+
+        if(isset($request->activo)){
+            $query->where('activo', $request->activo);
+        }
+
+        $lista = $query->get();
+        return response()->json($lista);
+    }
 }

@@ -10,6 +10,9 @@ use App\FamiliasPadres;
 use App\User;
 use App\ProyectosClientes;
 use App\CatalogoEncuestas;
+use App\CatalogoEncuestasPreguntasParametrosClasificacions;
+use App\ServiciosEstudiosRespuestas;
+use App\CatalogoEncuestasPreguntasParametrosClasificacionItems;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -123,6 +126,76 @@ class ServicioEstudioController extends Controller
         $query->where('id_servicio_estado','!=',1);
         if(isset($request->id_servicio_estado)){
             $query->where('id_servicio_estado',$request->id_servicio_estado);
+        }
+
+        $lista = $query->get();
+        return response()->json($lista);
+    }
+    public function listaConcluidos(Request $request,int $id_proyecto){
+
+        $user = auth()->user();
+        $id_perfil = $user->perfil->id;
+
+        $query = ServicioEstudio::query()->with([
+            'estado',
+            'cliente',
+            'proyecto',
+            'ordenServicio',
+            'colaborador',
+            'padre',
+            'madre',
+            'contactoPrincipal',
+        ]);
+
+        //$query->where('id_colaborador',$user->id);
+        switch($id_perfil){
+            //Administrador
+            case 1:
+            //Gerencia
+            case 2:
+            //Calidad
+            case 3:
+            //Colaboradores
+            case 4:
+
+                if(isset($request->id_cliente)){
+                    if($request->id_cliente)
+                    $query->where('id_cliente',$request->id_cliente);
+                }
+
+                $query->where('id_colaborador',$user->id);
+
+
+                $query->where('id_servicio_estado','!=',1);
+                if(isset($request->id_servicio_estado)){
+                    $query->where('id_servicio_estado',$request->id_servicio_estado);
+                }
+
+                break;
+            case 5:
+                //Empresas
+                $id_cliente = $user->id_cliente;
+                $query->where('id_cliente',$id_cliente);
+
+                $query->where('id_servicio_estado','!=',1);
+
+                break;
+            case 6:
+                //Familias
+                return response()->json([]);
+                break;
+            default:
+            return response()->json([]);
+        }
+
+
+
+        $query->where('id_proyecto',$id_proyecto);
+
+
+        if(isset($request->id_orden_servicio)){
+            if($request->id_orden_servicio)
+            $query->where('id_orden_servicio',$request->id_orden_servicio);
         }
 
         $lista = $query->get();
@@ -581,6 +654,159 @@ class ServicioEstudioController extends Controller
         $encuesta = $proyectoCliente->encuesta;
         $encuesta['estudio'] = $elemento;
 
+        $parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta',$encuesta->id)->get();
+
+        foreach($parametros AS &$parametro){
+            $parametro['puntos'] = $this -> puntosPrecuntaSeccion($parametro,$id,$encuesta->preguntas);
+        }
+        $encuesta['parametros'] = $parametros;
+
+
+
         return response()->json($encuesta);
     }
+
+    public function estudioParametrosPuntos($id){
+
+        $elemento = ServicioEstudio::where('id',$id)->first();
+
+        $proyectoCliente = ProyectosClientes::with(['encuesta.preguntas'])->where('id_proyecto',$elemento->id_proyecto)->where('id_cliente',$elemento->id_cliente)->first();
+
+        $encuesta = $proyectoCliente->encuesta;
+
+        $parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta',$encuesta->id)->get();
+
+        foreach($parametros AS &$parametro){
+            $parametro['puntos'] = $this -> puntosPrecuntaSeccion($parametro,$id,$encuesta->preguntas);
+        }
+
+        //$parametros;
+
+        return response()->json($parametros);
+    }
+
+    private function puntosPrecuntaSeccion($parametro,$id_estudio,$preguntas){
+
+        $puntos = 0;
+
+        $lista_respuestas = array();
+
+        foreach($preguntas AS $pregunta){
+
+            if($parametro->id == $pregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion){
+
+                $respuestas = ServiciosEstudiosRespuestas::
+                                where('id_servicio_estudio',$id_estudio)
+                                ->where('id_catalogo_encuestas_pregunta',$pregunta->id)
+                                ->get();
+
+                $respuestas_array = $respuestas->toArray();
+
+                if(!count($lista_respuestas)){
+                    $lista_respuestas = $respuestas_array;
+                }else{
+                    if(count($respuestas_array)){
+                        $lista_respuestas = array_merge($lista_respuestas, $respuestas_array);
+                    }
+                }
+                //$respuestas;//$this -> calculoDePuntosPorTipo($pregunta,$respuestas);
+                //$lista_respuestas[] = ["id_servicio_estudio"=>$id_estudio,"id_catalogo_encuestas_pregunta"=>$pregunta->id,'respuestas'=>$respuestas_array]; // $this -> sumatoriaRespuesta($respuestas);
+
+            }
+
+
+
+        }
+
+        //return $lista_respuestas;
+
+        $sumatorias_por_seccion = $this -> sumatoriaRespuesta($lista_respuestas);
+        $total = 0;
+
+        switch($parametro->id_catalogo_encuestas_preguntas_parametros_clasificaciones_tipos){
+            case 1:
+                foreach($sumatorias_por_seccion AS $seccion){
+                    $total += $seccion['padre_monto'];
+                    $total += $seccion['madre_monto'];
+                    $total += $seccion['monto'];
+                }
+            break;
+            default:
+                $puntos = null;
+            break;
+        }
+        $puntos = $this -> obtenerRango($parametro->id,$total);
+        $puntos["sumatoria"] = $total;
+        //$items = CatalogoEncuestasPreguntasParametrosClasificacionItems::where('id_catalogo_encuestas_preguntas_parametro_clasificacion',$parametro->id)->get();
+
+        return $puntos;
+
+    }
+
+    private function sumatoriaRespuesta($respuestas){
+        $resultado = [];
+
+        foreach ($respuestas as $item) {
+            // Si la sección es null, lo ignoramos o puedes manejarlo de otra forma
+            if ($item['seccion'] === null) {
+                $item['seccion'] ="";
+            }
+
+            // Si la sección no está inicializada en el resultado, la creamos
+            if (!isset($resultado[$item['seccion']])) {
+                $resultado[$item['seccion']] = [
+                    'padre_monto' => 0,
+                    'madre_monto' => 0,
+                    'monto' => 0,
+                    'vive' => 0,
+                    'activo' => 0,
+                    'valor' => 0
+                ];
+            }
+
+            // Sumar los valores correspondientes a la sección
+            $resultado[$item['seccion']]['padre_monto'] += $item['padre_monto'];
+            $resultado[$item['seccion']]['madre_monto'] += $item['madre_monto'];
+            $resultado[$item['seccion']]['monto'] += $item['monto'];
+
+            // Contar los true en 'vive' y 'activo'
+            if ($item['vive']) {
+                $resultado[$item['seccion']]['vive'] += 1;
+            }
+
+            if ($item['activo']) {
+                $resultado[$item['seccion']]['activo'] += 1;
+            }
+
+            // Convertir el valor a entero y sumarlo
+            $resultado[$item['seccion']]['valor'] += (int)$item['valor'];
+        }
+
+        return $resultado;
+    }
+    function obtenerRango($idParametros,$puntos) {
+        return CatalogoEncuestasPreguntasParametrosClasificacionItems::where(function($query) use ($puntos) {
+            $query->where(function($q) use ($puntos) {
+                // Caso 1: Limite inferior es 0 (todos los menores a limite superior)
+                $q->where('limiten_inferior', 0)
+                  ->where('limite_superior', '>', $puntos);
+            })
+            ->orWhere(function($q) use ($puntos) {
+                // Caso 2: Limite superior es 0 (todos los mayores a limite inferior)
+                $q->where('limite_superior', 0)
+                  ->where('limiten_inferior', '<', $puntos);
+            })
+            ->orWhere(function($q) use ($puntos) {
+                // Caso 3: Rango entre limite inferior y limite superior
+                $q->where('limiten_inferior', '<=', $puntos)
+                  ->where('limite_superior', '>=', $puntos);
+            });
+        })
+        ->where('id_catalogo_encuestas_preguntas_parametro_clasificacion',$idParametros)->first(); // Devolvemos el primer resultado que coincida
+    }
+
+
+    /*private function calculoDePuntosPorTipo($idPreguntaTipo,$respuestas){
+
+    }*/
 }

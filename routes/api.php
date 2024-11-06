@@ -156,6 +156,7 @@ Route::group([
 
     Route::get('estudios/enproceso/estados', 'ServicioEstadosController@listaEnProceso');
     Route::get('estudios/enproceso', 'ServicioEstudioController@listaEnProceso');
+    Route::get('estudios/concluidos/proyecto/{id_proyecto}', 'ServicioEstudioController@listaConcluidos');
 
     Route::get('estudio/socioeconomico/{id}/encuesta', 'ServicioEstudioController@estudioSocioeconomico');
 
@@ -163,6 +164,13 @@ Route::group([
     Route::get('estudio/{id_estudio}/documentos/', 'FamiliasDocumentosController@listaFilesEstudio');
 
     Route::post('estudio/respuestas', 'ServiciosEstudiosRespuestasController@nuevo');
+    Route::get('estudio/{id_estudio}/parametros/puntos', 'ServicioEstudioController@estudioParametrosPuntos');
+
+    Route::get('estudios/proyectos', 'ProyectosController@listaProyectosXPerfil');
+    Route::get('estudios/proyectos/{id_proyecto}', 'ProyectosController@proyectoIDEmpresa');
+    Route::get('estudios/proyectos/{id_proyecto}/ordenesdeservicio', 'OrdenesServicioController@listaODPEmpresa');
+    Route::get('usuario/cliente', 'ClientesController@clienteUsuarioEmpresa');
+
 
 
 
