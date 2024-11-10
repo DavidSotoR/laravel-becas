@@ -647,12 +647,18 @@ class ServicioEstudioController extends Controller
         /*with(['estado','cliente','proyecto','ordenServicio','colaborador','colegiosComunes',])->*/
         //$elemento['encuesta'] = $encuesta;
 
-        $elemento = ServicioEstudio::where('id',$id)->first();
+        $elemento = ServicioEstudio::with(['cliente'])->where('id',$id)->first();
 
-        $proyectoCliente = ProyectosClientes::with(['encuesta','encuesta.preguntas'])->where('id_proyecto',$elemento->id_proyecto)->where('id_cliente',$elemento->id_cliente)->first();
+        $proyectoCliente = ProyectosClientes::with(['encuesta','encuesta.preguntas','proyecto'])->where('id_proyecto',$elemento->id_proyecto)->where('id_cliente',$elemento->id_cliente)->first();
+
+        foreach($proyectoCliente->encuesta->preguntas AS &$pregunta){
+            $pregunta['respuestas'] = ServiciosEstudiosRespuestas::where('id_servicio_estudio',$elemento->id)->where('id_catalogo_encuestas_pregunta',$pregunta->id)->get();
+        }
 
         $encuesta = $proyectoCliente->encuesta;
         $encuesta['estudio'] = $elemento;
+        $encuesta['proyecto'] = $proyectoCliente->proyecto;
+        //$encuesta['cliente'] = $elemento->cliente;
 
         $parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta',$encuesta->id)->get();
 
