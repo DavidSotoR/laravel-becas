@@ -85,7 +85,7 @@ class UsuariosController extends Controller
         $editar->id_cliente = $request->id_cliente;
         $editar->latitud = $request->latitud;
         $editar->longitud = $request->longitud;
-        $editar->externo = $request->externo;
+        //$editar->externo = $request->externo;
         $editar->direccion = $request->direccion;
         $editar->calle = $request->calle;
         $editar->numero_exterior = $request->numero_exterior;
