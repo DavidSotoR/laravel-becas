@@ -374,6 +374,8 @@ class ServicioEstudioController extends Controller
                 //->where('contecto_principal',true);
         }])->where('id_orden_servicio',$request->id_orden_servicio)->first();
 
+        return response()->json($estudio_contacto, 400);
+
         if(count($estudio_contacto->familias_padres)){
             return response()->json([
                 "errors"=>[
