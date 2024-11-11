@@ -16,6 +16,7 @@ use App\CatalogoEncuestasPreguntasParametrosClasificacionItems;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use PDF;
 
 class ServicioEstudioController extends Controller
 {
@@ -373,7 +374,7 @@ class ServicioEstudioController extends Controller
                 //->where('contecto_principal',true);
         }])->where('id_orden_servicio',$request->id_orden_servicio)->first();
 
-        if($estudio_contacto->familias_padres){
+        if(count($estudio_contacto->familias_padres)){
             return response()->json([
                 "errors"=>[
                     $contacto_por_defecto_es.'.contecto_principal' => ['Contacto principal ya registrado en esta orden de servicio'],
@@ -815,4 +816,42 @@ class ServicioEstudioController extends Controller
     /*private function calculoDePuntosPorTipo($idPreguntaTipo,$respuestas){
 
     }*/
+
+    public function estudioSocioeconomicoPDF($id){
+        if(!$id){
+            return response()->json([
+                "errors"=>[
+                    'estudio' => ['No se recibió estudio'],
+                    ]
+            ], 400);
+        }
+
+        // Obtener los datos
+        $elemento = ServicioEstudio::with(['cliente'])->where('id',$id)->first();
+
+        $proyectoCliente = ProyectosClientes::with(['encuesta','encuesta.preguntas','proyecto'])->where('id_proyecto',$elemento->id_proyecto)->where('id_cliente',$elemento->id_cliente)->first();
+
+        foreach($proyectoCliente->encuesta->preguntas AS &$pregunta){
+            $pregunta['respuestas'] = ServiciosEstudiosRespuestas::where('id_servicio_estudio',$elemento->id)->where('id_catalogo_encuestas_pregunta',$pregunta->id)->get();
+        }
+
+        $encuesta = $proyectoCliente->encuesta;
+        $encuesta['estudio'] = $elemento;
+        $encuesta['proyecto'] = $proyectoCliente->proyecto;
+        //$encuesta['cliente'] = $elemento->cliente;
+
+        $parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta',$encuesta->id)->get();
+
+        foreach($parametros AS &$parametro){
+            $parametro['puntos'] = $this -> puntosPrecuntaSeccion($parametro,$id,$encuesta->preguntas);
+        }
+        $encuesta['parametros'] = $parametros;
+
+        // Cargar la vista y pasar los datos
+        $pdf = PDF::loadView('pdf.estudio_socioeconomico', compact('encuesta'))->setPaper('A4', 'landscape');
+
+        // Descargar el archivo PDF
+        return $pdf->download("Estudio_{$id}.pdf");
+
+    }
 }
