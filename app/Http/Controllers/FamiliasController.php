@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use App\Familias;
 use App\ServicioEstudio;
-
+use App\FamiliasPadres;
 class FamiliasController extends Controller
 {
     /**
@@ -37,6 +37,14 @@ class FamiliasController extends Controller
         //return $id_familia;
         $elemento = ServicioEstudio::with(['cliente','proyecto'])->where('id_familia',$id_familia)->first();
         return response()->json($elemento);
+    }
+
+    public function estudioSocioeconomicoPadres($id_familia = 0){
+        //$id_familia = Auth::user()->id;
+        //return $id_familia;
+        $elemento = ServicioEstudio::where('id_familia',$id_familia)->first();
+        $padres  = FamiliasPadres::where('id_servicio_estudio', $elemento->id)->get();
+        return response()->json($padres);
     }
 
     public function id($id){

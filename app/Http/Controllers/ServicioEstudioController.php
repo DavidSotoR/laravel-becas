@@ -374,14 +374,14 @@ class ServicioEstudioController extends Controller
                 //->where('contecto_principal',true);
         }])->where('id_orden_servicio',$request->id_orden_servicio)->first();
 
-        if($estudio_contacto && count($estudio_contacto->familias_padres)){
+        /* if($estudio_contacto && count($estudio_contacto->familias_padres)){
             return response()->json([
                 "errors"=>[
                     $contacto_por_defecto_es.'.contecto_principal' => ['Contacto principal ya registrado en esta orden de servicio'],
                     ]
             ], 400);
         }
-
+ */
 
         $user = User::where('email',$contacto_por_defecto["email"])->first();
 
