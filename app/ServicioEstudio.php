@@ -33,7 +33,7 @@ class ServicioEstudio extends Model
                             'anterior_antiguedad',
                             'directorio',
                             'direccion',
-                            'latutud',
+                            'latitud',
                             'longitud',
                             'calle',
                             'numero_exterior',

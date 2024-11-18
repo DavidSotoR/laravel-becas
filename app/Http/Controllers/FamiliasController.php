@@ -47,6 +47,93 @@ class FamiliasController extends Controller
         return response()->json($padres);
     }
 
+    public function estudioSocioeconomicoPadresUpdate(Request $request){
+        $idESE = $request->input('idESE', 0);  // Usando 0 como valor por defecto
+        $padre = $request->input('padre');
+        $madre = $request->input('madre');
+        $direccion = $request->input('direccion');
+        $lon = $request->input('lon');
+        $lat = $request->input('lan');
+
+        if ($idESE === 0) {
+            $padreCreado = FamiliasPadres::create([
+                'nombre' => $padre['nombre'],
+                'edad' => $padre['edad'],
+                'vive' => $padre['vive'],
+                'direccion' => $padre['direccion'],
+                'ocupacion_actual' => $padre['ocupacion_actual'],
+                'empresa_trabajo' => $padre['empresa_trabajo'],
+                'email' => $padre['email'],
+                'telefono_casa' => $padre['telefono_casa'],
+                'contecto_principal' => $padre['contecto_principal'],
+            ]);
+    
+            $madreCreada = FamiliasPadres::create([
+                'nombre' => $madre['nombre'],
+                'edad' => $madre['edad'],
+                'vive' => $madre['vive'],
+                'direccion' => $madre['direccion'],
+                'ocupacion_actual' => $madre['ocupacion_actual'],
+                'empresa_trabajo' => $madre['empresa_trabajo'],
+                'email' => $madre['email'],
+                'telefono_casa' => $madre['telefono_casa'],
+                'contecto_principal' => $madre['contecto_principal'],
+            ]);
+        } else {
+            $padreESE = FamiliasPadres::find($padre['id']);
+            if ($padreESE) {
+                $padreESE->update([
+                    'nombre' => $padre['nombre'],
+                    'edad' => $padre['edad'],
+                    'vive' => $padre['vive'],
+                    'direccion' => $padre['direccion'],
+                    'ocupacion_actual' => $padre['ocupacion_actual'],
+                    'empresa_trabajo' => $padre['empresa_trabajo'],
+                    'email' => $padre['email'],
+                    'telefono_casa' => $padre['telefono_casa'],
+                    'contecto_principal' => $padre['contecto_principal'],
+                ]);
+            }
+
+            $madreESE = FamiliasPadres::find($madre['id']);
+            if ($madreESE) {
+                $madreESE->update([
+                    'nombre' => $madre['nombre'],
+                    'edad' => $madre['edad'],
+                    'vive' => $madre['vive'],
+                    'direccion' => $madre['direccion'],
+                    'ocupacion_actual' => $madre['ocupacion_actual'],
+                    'empresa_trabajo' => $madre['empresa_trabajo'],
+                    'email' => $madre['email'],
+                    'telefono_casa' => $madre['telefono_casa'],
+                    'contecto_principal' => $madre['contecto_principal'],
+                ]);
+            }
+        }
+        $servicioEstudio = ServicioEstudio::find($idESE); // Usamos el idESE para buscar el registro del servicio
+        $dataPost = [
+            "a" => $idESE,
+            "b" => $padre,
+            "c" => $direccion,
+            "d" => $lon,
+            "e" => $lat,
+            "f" => $madre,
+        ];
+        if ($servicioEstudio) {
+            $servicioEstudio->update([
+                'direccion' => $direccion,
+                'latitud' => $lat,
+                'longitud' => $lon,
+            ]);
+
+            return response()->json(['message' => 'Registro se ha guardado correctamente', 'data' => $dataPost]);
+        } else {
+            return response()->json(['message' => 'No se encontro registro del Estudio Socioeconomico.', 'data' => $dataPost]);
+        }
+        
+        
+    }
+
     public function id($id){
         $elemento = Familias::where('id',$id)->first();
         return response()->json($elemento);
