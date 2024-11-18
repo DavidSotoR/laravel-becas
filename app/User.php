@@ -36,6 +36,7 @@ class User extends Authenticatable implements JWTSubject
         'estado',
         'codigo_postal',
         'pais',
+        'externo'
     ];
 
     /**

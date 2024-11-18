@@ -398,6 +398,7 @@ class ServicioEstudioController extends Controller
                         ,'id_perfil' => 6
                         ,'password' => bcrypt($password_temposral)
                         ,'password_temporal' => $password_temposral
+                        ,'externo'=> 1
                 ]);
 
                 $id_familia =  $usuario_familia->id;

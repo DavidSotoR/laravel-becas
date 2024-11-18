@@ -60,7 +60,7 @@ class FamiliasController extends Controller
                 'nombre' => $padre['nombre'],
                 'edad' => $padre['edad'],
                 'vive' => $padre['vive'],
-                'direccion' => $padre['direccion'],
+                'direccion' => $padre['direccion'] ?? '',
                 'ocupacion_actual' => $padre['ocupacion_actual'],
                 'empresa_trabajo' => $padre['empresa_trabajo'],
                 'email' => $padre['email'],
@@ -72,7 +72,7 @@ class FamiliasController extends Controller
                 'nombre' => $madre['nombre'],
                 'edad' => $madre['edad'],
                 'vive' => $madre['vive'],
-                'direccion' => $madre['direccion'],
+                'direccion' => $madre['direccion'] ?? '',
                 'ocupacion_actual' => $madre['ocupacion_actual'],
                 'empresa_trabajo' => $madre['empresa_trabajo'],
                 'email' => $madre['email'],
@@ -86,7 +86,7 @@ class FamiliasController extends Controller
                     'nombre' => $padre['nombre'],
                     'edad' => $padre['edad'],
                     'vive' => $padre['vive'],
-                    'direccion' => $padre['direccion'],
+                    'direccion' => $padre['direccion'] ?? 'PENDIENTE',
                     'ocupacion_actual' => $padre['ocupacion_actual'],
                     'empresa_trabajo' => $padre['empresa_trabajo'],
                     'email' => $padre['email'],
@@ -101,7 +101,7 @@ class FamiliasController extends Controller
                     'nombre' => $madre['nombre'],
                     'edad' => $madre['edad'],
                     'vive' => $madre['vive'],
-                    'direccion' => $madre['direccion'],
+                    'direccion' => $madre['direccion'] ?? 'PENDIENTE',
                     'ocupacion_actual' => $madre['ocupacion_actual'],
                     'empresa_trabajo' => $madre['empresa_trabajo'],
                     'email' => $madre['email'],
@@ -121,9 +121,9 @@ class FamiliasController extends Controller
         ];
         if ($servicioEstudio) {
             $servicioEstudio->update([
-                'direccion' => $direccion,
-                'latitud' => $lat,
-                'longitud' => $lon,
+                'direccion' => $direccion ?? 'PENDIENTE',
+                'latitud' => $lat ?? null,
+                'longitud' => $lon ?? null,
             ]);
 
             return response()->json(['message' => 'Registro se ha guardado correctamente', 'data' => $dataPost]);
