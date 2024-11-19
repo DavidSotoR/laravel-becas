@@ -13,9 +13,10 @@ use App\CatalogoEncuestas;
 use App\CatalogoEncuestasPreguntasParametrosClasificacions;
 use App\ServiciosEstudiosRespuestas;
 use App\CatalogoEncuestasPreguntasParametrosClasificacionItems;
-
+use App\Mail\NotificacionCorreo;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use PDF;
 
 class ServicioEstudioController extends Controller
@@ -281,6 +282,19 @@ class ServicioEstudioController extends Controller
         return response()->json(['message' => 'Elemento modificado', 'data' => $editar], 201);
     }
 
+    public function enviarCorreo($data)
+    {
+        // Datos a pasar al correo
+        /* $data = [
+            'familia' => 'Juan Pérez',
+        ];
+ */
+        // Enviar el correo
+        Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreo($data));
+
+        return 'Correo enviado con éxito';
+    }
+
     public function rejistroSocioeconomico(Request $request){
 
         $contacto_por_defecto = array();
@@ -402,6 +416,8 @@ class ServicioEstudioController extends Controller
                 ]);
 
                 $id_familia =  $usuario_familia->id;
+
+                $this->enviarCorreo($usuario_familia);
             }
         }
 
