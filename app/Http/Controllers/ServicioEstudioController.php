@@ -13,9 +13,10 @@ use App\CatalogoEncuestas;
 use App\CatalogoEncuestasPreguntasParametrosClasificacions;
 use App\ServiciosEstudiosRespuestas;
 use App\CatalogoEncuestasPreguntasParametrosClasificacionItems;
-
+use App\Mail\NotificacionCorreo;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use PDF;
 
 class ServicioEstudioController extends Controller
@@ -302,6 +303,13 @@ class ServicioEstudioController extends Controller
         return response()->json(['message' => 'Elemento modificado', 'data' => $editar], 201);
     }
 
+    public function enviarCorreo($data)
+    {
+        // Enviar el correo
+        Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreo($data));
+    }
+
+    
     public function rejistroSocioeconomico(Request $request){
 
         $contacto_por_defecto = array();
@@ -395,14 +403,14 @@ class ServicioEstudioController extends Controller
                 //->where('contecto_principal',true);
         }])->where('id_orden_servicio',$request->id_orden_servicio)->first();
 
-        if($estudio_contacto && count($estudio_contacto->familias_padres)){
+        /* if($estudio_contacto && count($estudio_contacto->familias_padres)){
             return response()->json([
                 "errors"=>[
                     $contacto_por_defecto_es.'.contecto_principal' => ['Contacto principal ya registrado en esta orden de servicio'],
                     ]
             ], 400);
         }
-
+ */
 
         $user = User::where('email',$contacto_por_defecto["email"])->first();
 
@@ -419,9 +427,12 @@ class ServicioEstudioController extends Controller
                         ,'id_perfil' => 6
                         ,'password' => bcrypt($password_temposral)
                         ,'password_temporal' => $password_temposral
+                        ,'externo'=> 1
                 ]);
 
                 $id_familia =  $usuario_familia->id;
+
+                $this->enviarCorreo($usuario_familia);
             }
         }
 

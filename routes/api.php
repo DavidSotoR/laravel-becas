@@ -99,11 +99,14 @@ Route::group([
     Route::post('familias/alumnos', 'AlumnosController@nuevo');
     //Familias documentos
     Route::get('familias/{id_familia}/estudio/socioeconomico', 'FamiliasController@estudioSocioeconomico');
+    Route::get('familias/{id_familia}/estudio/socioeconomico/padres', 'FamiliasController@estudioSocioeconomicoPadres');
     Route::get('familias/documentos/tipos', 'FamiliasDocumentosTiposController@lista');
     Route::get('familias/{id_familia}/documentos', 'FamiliasDocumentosController@lista');
     Route::get('familias/documentos/file/{id}', 'FamiliasDocumentosController@file');
     Route::get('familias/documentos/{id}', 'FamiliasDocumentosController@id');
     Route::post('familias/documentos', 'FamiliasDocumentosController@nuevo');
+    Route::post('familias/{id_familia}/estudio/socioeconomico/padres/update', 'FamiliasController@estudioSocioeconomicoPadresUpdate');
+    Route::post('familias/{id_familia}/estudio/socioeconomico/correo', 'FamiliasController@estudioSocioeconomicoEnviarCorreo');
 
     //Encuestas
 
