@@ -284,17 +284,11 @@ class ServicioEstudioController extends Controller
 
     public function enviarCorreo($data)
     {
-        // Datos a pasar al correo
-        /* $data = [
-            'familia' => 'Juan Pérez',
-        ];
- */
         // Enviar el correo
         Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreo($data));
-
-        return 'Correo enviado con éxito';
     }
 
+    
     public function rejistroSocioeconomico(Request $request){
 
         $contacto_por_defecto = array();

@@ -106,6 +106,7 @@ Route::group([
     Route::get('familias/documentos/{id}', 'FamiliasDocumentosController@id');
     Route::post('familias/documentos', 'FamiliasDocumentosController@nuevo');
     Route::post('familias/{id_familia}/estudio/socioeconomico/padres/update', 'FamiliasController@estudioSocioeconomicoPadresUpdate');
+    Route::post('familias/{id_familia}/estudio/socioeconomico/correo', 'FamiliasController@estudioSocioeconomicoEnviarCorreo');
 
     //Encuestas
 

@@ -8,6 +8,10 @@ use Illuminate\Validation\Rule;
 use App\Familias;
 use App\ServicioEstudio;
 use App\FamiliasPadres;
+use App\Mail\NotificacionCorreo;
+use App\User;
+use Illuminate\Support\Facades\Mail;
+
 class FamiliasController extends Controller
 {
     /**
@@ -19,6 +23,14 @@ class FamiliasController extends Controller
     {
         $this->middleware('auth:api');
     }
+
+    public function estudioSocioeconomicoEnviarCorreo($id){
+        $usuarioF = User::find($id);
+        $resp = Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreo($usuarioF));
+
+        return response()->json(['message'=> 'se envio correctamente el correo.']);
+    }
+
 
     public function lista(Request $request){
         $query = Familias::query();

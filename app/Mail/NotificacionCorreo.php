@@ -28,8 +28,9 @@ class NotificacionCorreo extends Mailable
      */
     public function build()
     {
+
         return $this->view('emails.nuevousuario')
-                    ->subject('Notificación de Laravel')
+                    ->subject('Notificación de SINERGIA')
                     ->with('data', $this->data);
     }
 }
