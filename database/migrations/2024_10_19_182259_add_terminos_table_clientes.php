@@ -15,6 +15,7 @@ class AddTerminosTableClientes extends Migration
     {
         Schema::table('clientes', function (Blueprint $table) {
             $table->text('terminos')->nullable();
+            $table->string('requiere_facturar',120)->nullable();
         });
     }
 
@@ -27,6 +28,7 @@ class AddTerminosTableClientes extends Migration
     {
         Schema::table('clientes', function (Blueprint $table) {
             $table->dropColumn('terminos');
+            $table->dropColumn('requiere_facturar');
         });
     }
 }

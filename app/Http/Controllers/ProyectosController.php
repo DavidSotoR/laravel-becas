@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Proyectos;
 use App\Clientes;
 use App\OrdenesServicio;
+use App\ProyectosClientes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -135,6 +136,14 @@ class ProyectosController extends Controller
             //->where('activo', 1)
             ->where('id_tipo_cliente', 1)
             ->first();
+
+        $proyectoCliente = ProyectosClientes::
+                                        where('id_proyecto', $id_proyecto)
+                                        ->where('id_cliente', $id_cliente)
+                                        ->first();
+
+        $elemento['id_encuesta'] = $proyectoCliente->id_encuesta;
+
         return response()->json($elemento);
     }
 }

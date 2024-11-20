@@ -200,6 +200,27 @@ class ServicioEstudioController extends Controller
         }
 
         $lista = $query->get();
+
+        /*$proyectoCliente = ProyectosClientes::
+                            with(['encuesta','encuesta.preguntas','proyecto'])
+                            ->where('id_proyecto',$id_proyecto)
+                            ->where('id_cliente',$user->id_cliente)
+                            ->first();
+        $encuesta = $proyectoCliente->encuesta;*/
+
+
+        foreach($lista AS &$estudio){
+            /*$parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta',$encuesta->id)->get();
+
+            foreach($parametros AS &$parametro){
+                $parametro['puntos'] = $this -> puntosPrecuntaSeccion($parametro,$estudio->id,$encuesta->preguntas);
+            }
+            */
+            $parametros = $this->estudioParametrosPuntos($estudio->id);
+            $estudio['parametros'] = $parametros;
+        }
+
+
         return response()->json($lista);
     }
 
@@ -673,7 +694,7 @@ class ServicioEstudioController extends Controller
         return response()->json($encuesta);
     }
 
-    public function estudioParametrosPuntos($id){
+    public function estudioSocioeconomicoParametrosPuntos($id){
 
         $elemento = ServicioEstudio::where('id',$id)->first();
 
@@ -690,6 +711,25 @@ class ServicioEstudioController extends Controller
         //$parametros;
 
         return response()->json($parametros);
+    }
+
+    public function estudioParametrosPuntos($id){
+
+        $elemento = ServicioEstudio::where('id',$id)->first();
+
+        $proyectoCliente = ProyectosClientes::with(['encuesta.preguntas'])->where('id_proyecto',$elemento->id_proyecto)->where('id_cliente',$elemento->id_cliente)->first();
+
+        $encuesta = $proyectoCliente->encuesta;
+
+        $parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta',$encuesta->id)->get();
+
+        foreach($parametros AS &$parametro){
+            $parametro['puntos'] = $this -> puntosPrecuntaSeccion($parametro,$id,$encuesta->preguntas);
+        }
+
+        //$parametros;
+
+        return $parametros;
     }
 
     private function puntosPrecuntaSeccion($parametro,$id_estudio,$preguntas){
@@ -848,7 +888,7 @@ class ServicioEstudioController extends Controller
         $encuesta['parametros'] = $parametros;
 
         // Cargar la vista y pasar los datos
-        $pdf = PDF::loadView('pdf.estudio_socioeconomico', compact('encuesta'))->setPaper('A4', 'landscape');
+        $pdf = PDF::loadView('pdf.estudio_socioeconomico', compact('encuesta'))->setPaper('A4', 'portrait');
 
         // Descargar el archivo PDF
         return $pdf->download("Estudio_{$id}.pdf");
