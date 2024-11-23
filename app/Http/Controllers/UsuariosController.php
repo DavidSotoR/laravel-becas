@@ -99,6 +99,36 @@ class UsuariosController extends Controller
 
         return response()->json(['message' => 'Usuario modificado', 'data' => $editar], 201);
     }
+
+    public function editarPassword($id,Request $request){
+
+        $validator = Validator::make($request->all(),[
+            'password' => 'required|string|min:6',
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'message' => 'El campo password es requerido o no cumple con las validaciones.',
+                'confirmado' => false,
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+
+        if ($request->password === $request->password_confirmar) {
+            $id = $request->id;
+            $editar = User::where('id',$id)->first();
+            $editar->password = bcrypt($request->password);
+            $editar->password_temporal = null;
+            //return response()->json($editar);
+            $editar->save();
+
+            return response()->json(['message' => 'Password modificado, vuelva a iniciar sesión.', 'confirmado' => true], 201);
+        } else {
+            return response()->json(['message' => 'Contraseñas no coinciden.', 'confirmado' => false], 400);
+        }
+        
+    }
+
     public function disableOrEnable(Request $request){
         $id = $request->id;
         $editar = User::where('id',$id)->first();
