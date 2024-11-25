@@ -16,8 +16,8 @@ class CreateCicloEscolarsTable extends Migration
         Schema::create('ciclo_escolar', function (Blueprint $table) {
             $table->id();
             $table->boolean('activo')->default(false);
-            $table->date('inicio')->default(DB::raw('CURRENT_DATE()'));
-            $table->date('fin')->default(DB::raw('CURRENT_DATE()'));
+            $table->date('inicio')->now();
+            $table->date('fin')->now();
             $table->timestamps();
         });
     }

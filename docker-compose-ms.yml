@@ -1,0 +1,20 @@
+networks:
+  encuestas:
+    driver: bridge
+
+services:
+
+  mysql_db:
+    image: bitnami/mysql:8.0
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_USER=admin
+      - MYSQL_ROOT_PASSWORD=admin
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=admin
+      - MYSQL_DATABASE=encuestas
+    networks:
+      - encuestas
+    # (this is just an example, not intended to be a production configuration)

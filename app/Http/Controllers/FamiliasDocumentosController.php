@@ -54,6 +54,7 @@ class FamiliasDocumentosController extends Controller
     }
 
     public function nuevo(Request $request){
+        $idFamiliaReq = $request->id_familia;
         $user = auth()->user();
         $id_perfil = $user->perfil->id;
         $idse = array();
@@ -110,7 +111,7 @@ class FamiliasDocumentosController extends Controller
 
                 // Crear el registro en la base de datos
                 $elemento = FamiliasDocumentos::create([
-                    "id_familia" => $request->id_familia,
+                    "id_familia" => $idFamiliaReq,
                     "id_familias_documentos_tipo" => $request->id_familias_documentos_tipo,
                     "id_servicio_estudio" => $request->id_servicio_estudio,
                     'nombre' => $documentoName,
