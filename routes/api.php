@@ -33,6 +33,7 @@ Route::group([
     Route::put('usuarios', 'UsuariosController@editar');
     Route::get('usuarios/{id}', 'UsuariosController@id');
     Route::delete('usuarios/{id}', 'UsuariosController@disableOrEnable');
+    Route::put('usuarios/lista/activar', 'UsuariosController@disableOrEnableList');
     Route::put('usuarios/{id}/password', 'UsuariosController@editarPassword');
     
     //Perfiles

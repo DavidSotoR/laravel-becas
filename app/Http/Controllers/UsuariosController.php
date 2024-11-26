@@ -138,6 +138,20 @@ class UsuariosController extends Controller
         return response()->json(['message' => 'Usuario modificado', 'data' => $editar], 201);
     }
 
+    public function disableOrEnableList(Request $request){
+        $lista = $request->lista_usuarios;
+        foreach($lista as $user){
+            $editar = User::where('id',$user['id'])->first();
+            $editar->active = !$editar->active;
+            $editar->save();
+        }
+        /* $editar = User::where('id',$id)->first();
+        $editar->active = !$editar->active;
+        $editar->save(); */
+
+        return response()->json(['message' => 'Usuarios modificados'], 201);
+    }
+
     public function colaboradores(Request $request){
         $query = User::query()->with('perfil');
 
