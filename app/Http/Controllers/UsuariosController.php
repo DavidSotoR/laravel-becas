@@ -142,7 +142,7 @@ class UsuariosController extends Controller
         $lista = $request->lista_usuarios;
         foreach($lista as $user){
             $editar = User::where('id',$user['id'])->first();
-            $editar->active = !$editar->active;
+            $editar->active = $request->opcion === 1 ? true : false; //!$editar->active;
             $editar->save();
         }
         /* $editar = User::where('id',$id)->first();
