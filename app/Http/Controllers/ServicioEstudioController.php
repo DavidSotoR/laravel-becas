@@ -281,6 +281,10 @@ class ServicioEstudioController extends Controller
         return response()->json(['message' => 'Nuevo elemento creado', 'data' => $elemento], 201);
     }
 
+    public function cargaMasivaFamilias(Request $request){
+        return response()->json(['msg'=>'llego el mensaje']);
+    }
+
     public function editar(Request $request,$id){
 
         $servicio = ServicioEstudio::findOrFail($id);

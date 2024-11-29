@@ -155,6 +155,7 @@ Route::group([
     Route::get('estudio/socioeconomico/{id}', 'ServicioEstudioController@id');
     Route::post('estudio/socioeconomico', 'ServicioEstudioController@rejistroSocioeconomico');
     Route::post('estudio/socioeconomico/{id}/visita', 'ServicioEstudioController@addFechaVisita');
+    Route::post('estudio/socioeconomico/carga/familias', 'ServicioEstudioController@cargaMasivaFamilias');
 
     Route::post('estudio/preasignacion', 'ServicioEstudioController@preasignarEstudios');
     Route::post('estudio/asignar', 'ServicioEstudioController@asignarEstudios');
