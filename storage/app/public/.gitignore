@@ -1,2 +1,9 @@
+# Ignorar todo en la carpeta public
 *
+
+# Permitir el archivo .gitignore
 !.gitignore
+
+# Permitir el contenido de file_system
+!/file_system/
+!/file_system/**
