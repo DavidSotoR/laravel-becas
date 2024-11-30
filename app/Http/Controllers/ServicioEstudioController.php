@@ -309,7 +309,7 @@ class ServicioEstudioController extends Controller
         Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreo($data));
     }
 
-    
+
     public function rejistroSocioeconomico(Request $request){
 
         $contacto_por_defecto = array();
@@ -904,5 +904,29 @@ class ServicioEstudioController extends Controller
         // Descargar el archivo PDF
         return $pdf->download("Estudio_{$id}.pdf");
 
+    }
+
+    public function estudioSocioeconomicoRangos($id_estudio){
+        $rango_pordentaje =[
+            ["rango" => 20, "nombre" => 'de 0 a 20%',    "porcentaje"=> 5],
+            ["rango" => 40, "nombre" => 'de 20 a 40%',   "porcentaje"=> 10],
+            ["rango" => 60, "nombre" => 'de 40 a 60%',   "porcentaje"=> 15],
+            ["rango" => 80, "nombre" => 'de 60 a 80%',   "porcentaje"=> 20],
+            ["rango" => 100,"nombre" => 'de 80 a 100%',  "porcentaje"=> 25]
+        ];
+        return response()->json($rango_pordentaje);
+    }
+    public function estudioSocioeconomicoProcentaje(Request $request,$id_estudio){
+
+        $elemento = ServicioEstudio::where('id',$id_estudio)->first();
+
+        if(!$elemento){
+            return response()->json(["errors"=>"Elemento no exsiste"], 404);
+        }
+
+        $elemento->porcentaje_otorgado = $request->porcentaje_otorgado;
+        $elemento->save();
+
+        return response()->json(['message' => 'Elemento actualizado', 'data' => $elemento], 200);
     }
 }

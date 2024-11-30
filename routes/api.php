@@ -35,7 +35,7 @@ Route::group([
     Route::delete('usuarios/{id}', 'UsuariosController@disableOrEnable');
     Route::put('usuarios/lista/activar', 'UsuariosController@disableOrEnableList');
     Route::put('usuarios/{id}/password', 'UsuariosController@editarPassword');
-    
+
     //Perfiles
     Route::get('perfiles', 'PerfilesController@lista');
     Route::get('perfiles/{id}', 'PerfilesController@id');
@@ -172,6 +172,8 @@ Route::group([
 
     Route::post('estudio/respuestas', 'ServiciosEstudiosRespuestasController@nuevo');
     Route::get('estudio/{id_estudio}/parametros/puntos', 'ServicioEstudioController@estudioSocioeconomicoParametrosPuntos');
+    Route::get('estudio/{id_estudio}/rangos', 'ServicioEstudioController@estudioSocioeconomicoRangos');
+    Route::post('estudio/{id_estudio}/procentaje', 'ServicioEstudioController@estudioSocioeconomicoProcentaje');
 
     Route::get('estudios/proyectos', 'ProyectosController@listaProyectosXPerfil');
     Route::get('estudios/proyectos/{id_proyecto}', 'ProyectosController@proyectoIDEmpresa');

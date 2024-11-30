@@ -45,6 +45,7 @@ class ServicioEstudio extends Model
                             'visita_fecha',
                             'visita_hora',
                             'visita_recordatorio',
+                            'porcentaje_otorgado',
                           ];
 
 
