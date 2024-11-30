@@ -282,7 +282,26 @@ class ServicioEstudioController extends Controller
     }
 
     public function cargaMasivaFamilias(Request $request){
-        return response()->json(['msg'=>'llego el mensaje']);
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt',
+        ]);
+    
+        $file = $request->file('file'); // Obtener el archivo
+        $data = [];
+    
+        // Abrir el archivo en modo lectura
+        if (($handle = fopen($file->getPathname(), 'r')) !== false) {
+            $headers = fgetcsv($handle); // Leer la primera fila como encabezados
+    
+            while (($row = fgetcsv($handle)) !== false) {
+                $data[] = array_combine($headers, $row); // Combinar encabezados con valores
+            }
+    
+            fclose($handle);
+        }
+    
+        // Devolver el array procesado como respuesta JSON (para pruebas)
+        return response()->json(['data' => $data]);
     }
 
     public function editar(Request $request,$id){
