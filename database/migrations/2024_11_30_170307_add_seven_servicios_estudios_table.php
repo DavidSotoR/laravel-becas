@@ -15,6 +15,7 @@ class AddSevenServiciosEstudiosTable extends Migration
     {
         Schema::table('servicios_estudios', function (Blueprint $table) {
             $table->integer('porcentaje_otorgado')->nullable();
+            $table->string('clave_familia_colegio', 120)->nullable();
         });
     }
 
@@ -27,6 +28,7 @@ class AddSevenServiciosEstudiosTable extends Migration
     {
         Schema::table('servicios_estudios', function (Blueprint $table) {
             $table->dropColumn('porcentaje_otorgado');
+            $table->dropColumn('clave_familia_colegio');
         });
     }
 }

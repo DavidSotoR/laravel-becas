@@ -174,7 +174,7 @@ Route::group([
     Route::post('estudio/respuestas', 'ServiciosEstudiosRespuestasController@nuevo');
     Route::get('estudio/{id_estudio}/parametros/puntos', 'ServicioEstudioController@estudioSocioeconomicoParametrosPuntos');
     Route::get('estudio/{id_estudio}/rangos', 'ServicioEstudioController@estudioSocioeconomicoRangos');
-    Route::post('estudio/{id_estudio}/procentaje', 'ServicioEstudioController@estudioSocioeconomicoProcentaje');
+    Route::post('estudio/{id_estudio}/porcentaje', 'ServicioEstudioController@estudioSocioeconomicoProcentaje');
 
     Route::get('estudios/proyectos', 'ProyectosController@listaProyectosXPerfil');
     Route::get('estudios/proyectos/{id_proyecto}', 'ProyectosController@proyectoIDEmpresa');
