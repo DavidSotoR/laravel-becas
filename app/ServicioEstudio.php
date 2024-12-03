@@ -46,6 +46,7 @@ class ServicioEstudio extends Model
                             'visita_hora',
                             'visita_recordatorio',
                             'porcentaje_otorgado',
+                            'clave_familia_colegio',
                           ];
 
 

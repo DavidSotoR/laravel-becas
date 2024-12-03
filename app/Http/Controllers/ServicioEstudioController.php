@@ -285,21 +285,21 @@ class ServicioEstudioController extends Controller
         $request->validate([
             'file' => 'required|file|mimes:csv,txt',
         ]);
-    
+
         $file = $request->file('file'); // Obtener el archivo
         $data = [];
-    
+
         // Abrir el archivo en modo lectura
         if (($handle = fopen($file->getPathname(), 'r')) !== false) {
             $headers = fgetcsv($handle); // Leer la primera fila como encabezados
-    
+
             while (($row = fgetcsv($handle)) !== false) {
                 $data[] = array_combine($headers, $row); // Combinar encabezados con valores
             }
-    
+
             fclose($handle);
         }
-    
+
         // Devolver el array procesado como respuesta JSON (para pruebas)
         return response()->json(['data' => $data]);
     }
@@ -948,6 +948,20 @@ class ServicioEstudioController extends Controller
         }
 
         $elemento->porcentaje_otorgado = $request->porcentaje_otorgado;
+        $elemento->save();
+
+        return response()->json(['message' => 'Elemento actualizado', 'data' => $elemento], 200);
+    }
+
+    public function estudioSocioeconomicoClaveFamilia(Request $request,$id_estudio){
+
+        $elemento = ServicioEstudio::where('id',$id_estudio)->first();
+
+        if(!$elemento){
+            return response()->json(["errors"=>"Elemento no exsiste"], 404);
+        }
+
+        $elemento->clave_familia_colegio = $request->clave_familia_colegio;
         $elemento->save();
 
         return response()->json(['message' => 'Elemento actualizado', 'data' => $elemento], 200);
