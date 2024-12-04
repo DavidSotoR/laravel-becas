@@ -16,6 +16,7 @@ use App\CatalogoEncuestasPreguntasParametrosClasificacionItems;
 use App\Mail\NotificacionCorreo;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use PDF;
 
@@ -285,10 +286,16 @@ class ServicioEstudioController extends Controller
         $request->validate([
             'file' => 'required|file|mimes:csv,txt',
         ]);
-
+        $id_cliente = $request->id_cliente;
+        $id_proyecto = $request->id_proyecto;
+        $id_orden_servicio = $request->id_orden_servicio;
         $file = $request->file('file'); // Obtener el archivo
         $data = [];
 
+        $usuariosExistentes = [];
+
+        
+    
         // Abrir el archivo en modo lectura
         if (($handle = fopen($file->getPathname(), 'r')) !== false) {
             $headers = fgetcsv($handle); // Leer la primera fila como encabezados
@@ -300,8 +307,110 @@ class ServicioEstudioController extends Controller
             fclose($handle);
         }
 
+        
+        DB::beginTransaction();
+        try {
+            foreach($data as $familiaPorCrear){
+                $existe = User::select('*')->where('email', $familiaPorCrear['Email_cuenta'])->first();
+                //return response()->json(['message' => count($existe)]);
+                if ($existe !== null) {
+                    array_push($usuariosExistentes, [ "error"=> "Email previamente registrado", "familia"=> $existe ]);
+                    //return response()->json(['message' => 'Existe el suser ' . $familiaPorCrear['Email_cuenta']]);
+                } else {
+                    // enpieza el insert
+                    //1. crear USUARIO
+    
+                    $newUser = $familiaPorCrear;
+                    $newUser['id_perfil'] = 6;
+                    $newUser['id_cliente'] = $id_cliente;
+                    $newUser['password_temporal'] = $this -> generarContraseñaTemporal();
+                    $newUser['externo'] = 1;
+    
+                    $pass = $this->generarContraseñaTemporal();
+    
+                    $newUser = [
+                        'name' => $familiaPorCrear['Nombre'],
+                        'email' => $familiaPorCrear['Email_cuenta'],
+                        'id_perfil' => 6,
+                        'id_cliente' => $id_cliente,
+                        'password' => bcrypt($pass),
+                        'password_temporal' => $pass,
+                        'latitud' => $familiaPorCrear['latitud'] ?? null,
+                        'longitud' => $familiaPorCrear['longitud'] ?? null,
+                        'direccion' => $familiaPorCrear['direccion'] ?? null,
+                        'calle' => $familiaPorCrear['Calle'] ?? null,
+                        'numero_exterior' => $familiaPorCrear['Numero_exterior'] ?? null,
+                        'colonia' => $familiaPorCrear['Colonia'] ?? null,
+                        'municipio' => $familiaPorCrear['Municipio'] ?? null,
+                        'estado' => $familiaPorCrear['Estado'] ?? null,
+                        'codigo_postal' => $familiaPorCrear['Codigo_postal'] ?? null,
+                        'pais' => $familiaPorCrear['Pais'] ?? null,
+                        'externo' => 1,
+                    ];
+    
+                    $validator = Validator::make($newUser, [
+                        'name' => 'required|string|max:255',
+                        'email' => ['required', 'email:rfc', 'max:100', 'unique:users', 'regex:/^\S*$/u'],
+                        'id_perfil' => 'required|int',
+                        'id_cliente' => 'nullable|int',
+                        'latitud' => 'nullable|string',
+                        'longitud' => 'nullable|string',
+                        'direccion' => 'nullable|string',
+                        'calle' => 'nullable|string',
+                        'numero_exterior' => 'nullable|string',
+                        'colonia' => 'nullable|string',
+                        'municipio' => 'nullable|string',
+                        'estado' => 'nullable|string',
+                        'codigo_postal' => 'nullable|string',
+                        'pais' => 'nullable|string',
+                        'externo' => 'boolean',
+                    ]);
+    
+                    if($validator->fails()){
+                        array_push($usuariosExistentes, [ "error"=> "Validar los datos ingresados de la familia. Formato no valido.", "familia"=> $existe ]);
+                    }
+            
+                    $user = User::create($newUser);
+                    $userID = $user->id;
+    
+                    //2. crear Caso Servicio Estudio
+                    $directorio = $this->setDirectorioEstudio($userID);
+                    
+                    $newServicioEconomico = [
+                        'id_servicio_estado' => 1,
+                        'id_proyecto' => $id_proyecto,
+                        'id_cliente' => $id_cliente,
+                        'id_familia' => $userID,
+                        'id_orden_servicio' => $id_orden_servicio,
+                        'es_cliente_comun' => 0,
+                        'directorio' => $directorio,
+                        'candidato' => $familiaPorCrear['Familia'],
+                        'situacion' => 'EN PROCESO',
+                        'email' => $familiaPorCrear['Email_cuenta'],
+                        'direccion' => 'PENDIENTE',
+                        'calle' => $familiaPorCrear['Calle'],
+                        'numero_exterior' => $familiaPorCrear['Numero_exterior'],
+                        'colonia' => $familiaPorCrear['Colonia'],
+                        'municipio' => $familiaPorCrear['Municipio'] ,
+                        'estado' => $familiaPorCrear['Estado'],
+                        'codigo_postal' => $familiaPorCrear['Codigo_postal'],
+                        'pais' => $familiaPorCrear['Pais'],
+                    ];
+    
+                    $servNew = ServicioEstudio::create($newServicioEconomico);
+                    
+                }
+                
+            }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack(); // Deshace todos los cambios si ocurre un error
+
+            // Puedes manejar el error aquí, como registrar un log o devolver un mensaje de error
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
         // Devolver el array procesado como respuesta JSON (para pruebas)
-        return response()->json(['data' => $data]);
+        return response()->json(['data' => $data, 'errors' => $usuariosExistentes]);
     }
 
     public function editar(Request $request,$id){

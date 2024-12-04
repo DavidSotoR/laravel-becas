@@ -1,2 +1,3 @@
-Familia,email_cuenta,Padre_Madre,Situacion_estudio,Calle,Numero_exterior,Colonia,Municipio,Estado,Codigo_postal,Pais
-Ramirez Perez,ramires.p@gmail.com,Misael Ramirez Tames,En proceso,huerta,207,Los portales,Santa Catarina,Nuevo Leon,66120,Mexico
+Familia,Email_cuenta,Padre_Madre,Nombre,Situacion_estudio,Calle,Numero_exterior,Colonia,Municipio,Estado,Codigo_postal,Pais
+Ramirez Perez,ramires.p@gmail.com,Padre,Misael Ramirez Tames,En proceso,huerta,207,Los portales,Santa Catarina,Nuevo Leon,66120,Mexico
+Soto Resendiz,davidsotord93@gmail.com,Padre,David Isai Soto Resendiz,En proceso,huerta,207,Los portales,Santa Catarina,Nuevo Leon,66120,Mexico
