@@ -1143,7 +1143,7 @@ function preguntaPorTipoPregunta($idPreguntaTipo,$respuestas) {
 
         // 13 .- Distribución de la casa
         case 13:
-            return distrubucionDeLaCasa($respuestas);
+            return distribucionDeLaCasa($respuestas);
 
         // 14 .- Deudas
         case 14:
