@@ -1169,34 +1169,4 @@ function preguntaPorTipoPregunta($idPreguntaTipo,$respuestas) {
             break;
     }
 }
-
-
-
-
-/*
-
-    <h1>Invoice #{{ $invoice->id }}</h1>
-    <p>Fecha: {{ $invoice->date }}</p>
-    <p>Cliente: {{ $invoice->client_name }}</p>
-    <table>
-        <thead>
-            <tr>
-                <th>Descripción</th>
-                <th>Cantidad</th>
-                <th>Precio</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($invoice->items as $item)
-            <tr>
-                <td>{{ $item->description }}</td>
-                <td>{{ $item->quantity }}</td>
-                <td>{{ $item->price }}</td>
-                <td>{{ $item->quantity * $item->price }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-*/
 ?>

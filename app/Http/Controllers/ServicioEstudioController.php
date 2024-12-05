@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use PDF;
+use Illuminate\Support\Facades\Storage;
+use ZipArchive;
 
 class ServicioEstudioController extends Controller
 {
@@ -238,6 +240,10 @@ class ServicioEstudioController extends Controller
             'colegiosComunes',
             'contactoPrincipal',
         ])->where('id',$id)->first();
+
+        if(!$elemento){
+            return response()->json(["errors"=>["id" => ["Encuesta no exsiste"]]], 400);
+        }
 
         $proyectoCliente = ProyectosClientes::with('encuesta')->where('id_proyecto',$elemento->id_proyecto)->where('id_cliente',$elemento->id_cliente)->first();
 
@@ -891,14 +897,7 @@ class ServicioEstudioController extends Controller
 
     }*/
 
-    public function estudioSocioeconomicoPDF($id){
-        if(!$id){
-            return response()->json([
-                "errors"=>[
-                    'estudio' => ['No se recibió estudio'],
-                    ]
-            ], 400);
-        }
+    private function generateEstudioSocioeconomicoPDF($id){
 
         // Obtener los datos
         $elemento = ServicioEstudio::with(['cliente'])->where('id',$id)->first();
@@ -923,7 +922,19 @@ class ServicioEstudioController extends Controller
 
         // Cargar la vista y pasar los datos
         $pdf = PDF::loadView('pdf.estudio_socioeconomico', compact('encuesta'))->setPaper('A4', 'portrait');
+        return $pdf;
+    }
 
+    public function estudioSocioeconomicoPDF($id){
+        if(!$id){
+            return response()->json([
+                "errors"=>[
+                    'estudio' => ['No se recibió estudio'],
+                    ]
+            ], 400);
+        }
+
+        $pdf = $this->generateEstudioSocioeconomicoPDF($id);
         // Descargar el archivo PDF
         return $pdf->download("Estudio_{$id}.pdf");
 
@@ -965,5 +976,66 @@ class ServicioEstudioController extends Controller
         $elemento->save();
 
         return response()->json(['message' => 'Elemento actualizado', 'data' => $elemento], 200);
+    }
+
+    public function estudioSocioeconomicoDownloadZip(Request $request){
+
+        $messages = [
+            'lista_encuestas.array' => 'Seleccione un estudio.',
+        ];
+
+        $validator = Validator::make($request->all(),[
+            'lista_encuestas' => 'required|array',
+            ]
+        ,$messages);
+
+        if($validator->fails()){
+            return response()->json(["errors"=>$validator->errors()], 400);
+        }
+
+        $dataSets =  $request->lista_encuestas;
+
+        $id_encuesta = $dataSets[0];
+
+        $elemento = ServicioEstudio::with('cliente')->where('id',$id_encuesta)->first();
+        $dir_nombre = $elemento->cliente->nombre;
+        $dir_id = $elemento->cliente->id;
+
+
+        // Crear una carpeta temporal para almacenar los PDFs
+        $tempFolder = storage_path('app/temp_pdfs/'.$dir_id.$dir_nombre);
+        if (!is_dir($tempFolder)) {
+            mkdir($tempFolder, 0755, true);
+        }
+
+        // Generar cada PDF y guardarlo en la carpeta temporal
+        foreach ($dataSets as  $id) {
+            $pdf = $this->generateEstudioSocioeconomicoPDF($id);
+            $filePath = $tempFolder . "/file_{$id}.pdf";
+            $pdf->save($filePath);
+        }
+
+        // Crear el archivo ZIP
+        $zipPath = storage_path('app/public/'.$dir_nombre.'.zip'); // Ruta del ZIP a generar
+        $zip = new ZipArchive;
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
+            foreach (glob($tempFolder . '/*.pdf') as $pdfFile) {
+                $zip->addFile($pdfFile, basename($pdfFile));
+            }
+            $zip->close();
+        } else {
+            return response()->json(['error' => 'No se pudo crear el archivo ZIP'], 500);
+        }
+
+        // Eliminar los archivos temporales
+        array_map('unlink', glob($tempFolder . '/*.pdf'));
+        rmdir($tempFolder);
+
+        // Retornar el archivo ZIP como respuesta
+        return response()->download($zipPath, $dir_nombre.'.zip', [
+            'Content-Type' => 'application/zip',
+            'Content-Disposition' => 'attachment; filename="'.$dir_nombre.'.zip"',
+        ])->deleteFileAfterSend(true);
+        return response()->download($zipPath)->deleteFileAfterSend(true);
     }
 }

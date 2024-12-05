@@ -152,6 +152,7 @@ Route::group([
     Route::post('estudio/{id_estudio}/colaboradores', 'ServicioEstudioController@asignarColaborador');
     Route::get('estudio/{id_estudio}/encuesta', 'ServicioEstudioController@encuesta');
     Route::get('estudio/socioeconomico', 'ServicioEstudioController@lista');
+    Route::get('estudio/socioeconomico/pdf', 'ServicioEstudioController@estudioSocioeconomicoDownloadZip');
     Route::get('estudio/socioeconomico/{id}', 'ServicioEstudioController@id');
     Route::post('estudio/socioeconomico', 'ServicioEstudioController@rejistroSocioeconomico');
     Route::post('estudio/socioeconomico/{id}/visita', 'ServicioEstudioController@addFechaVisita');
