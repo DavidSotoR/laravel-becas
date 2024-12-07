@@ -288,6 +288,14 @@ class ServicioEstudioController extends Controller
         return response()->json(['message' => 'Nuevo elemento creado', 'data' => $elemento], 201);
     }
 
+    public function descargarFormatoAltaFamiliasMasiva(){
+        $filePath = 'file_system/formato_test.csv'; // Ruta relativa en storage/app/public
+        if (Storage::disk('public')->exists($filePath)) {
+            return response()->download(storage_path("app/public/{$filePath}"));
+        }
+        return response()->json(['message' => 'Archivo no encontrado'], 404);
+    }
+
     public function cargaMasivaFamilias(Request $request){
         $request->validate([
             'file' => 'required|file|mimes:csv,txt',
@@ -295,6 +303,8 @@ class ServicioEstudioController extends Controller
         $id_cliente = $request->id_cliente;
         $id_proyecto = $request->id_proyecto;
         $id_orden_servicio = $request->id_orden_servicio;
+        $altaFamilia = false;
+        $asignarColaborador = false;
         $file = $request->file('file'); // Obtener el archivo
         $data = [];
 
