@@ -300,23 +300,25 @@ class ServicioEstudioController extends Controller
         $request->validate([
             'file' => 'required|file|mimes:csv,txt',
         ]);
+        $totalInserts = 0;
         $id_cliente = $request->id_cliente;
         $id_proyecto = $request->id_proyecto;
         $id_orden_servicio = $request->id_orden_servicio;
-        $altaFamilia = false;
-        $asignarColaborador = false;
+        $altaFamilia = $request->enableAltaFamilia == 'true' ? true : false;// false;
+        $asignarColaborador = $request->enableAsignarColaborador == 'true' ? true : false; //false;
         $file = $request->file('file'); // Obtener el archivo
         $data = [];
 
         $usuariosExistentes = [];
 
-        
+        //return response()->json(['alta'=> $altaFamilia, 'colab' => $asignarColaborador]);
     
         // Abrir el archivo en modo lectura
         if (($handle = fopen($file->getPathname(), 'r')) !== false) {
             $headers = fgetcsv($handle); // Leer la primera fila como encabezados
 
             while (($row = fgetcsv($handle)) !== false) {
+                $row = array_pad($row, count($headers), 'SIN DATO');
                 $data[] = array_combine($headers, $row); // Combinar encabezados con valores
             }
 
@@ -330,7 +332,7 @@ class ServicioEstudioController extends Controller
                 $existe = User::select('*')->where('email', $familiaPorCrear['Email_cuenta'])->first();
                 //return response()->json(['message' => count($existe)]);
                 if ($existe !== null) {
-                    array_push($usuariosExistentes, [ "error"=> "Email previamente registrado", "familia"=> $existe ]);
+                    array_push($usuariosExistentes, [ "error"=> "Email previamente registrado", 'tipo' => 'existe', "familia"=> $existe ]);
                     //return response()->json(['message' => 'Existe el suser ' . $familiaPorCrear['Email_cuenta']]);
                 } else {
                     // enpieza el insert
@@ -345,8 +347,8 @@ class ServicioEstudioController extends Controller
                     $pass = $this->generarContraseñaTemporal();
     
                     $newUser = [
-                        'name' => $familiaPorCrear['Nombre'],
-                        'email' => $familiaPorCrear['Email_cuenta'],
+                        'name' => $familiaPorCrear['Nombre'] === '' ? null : $familiaPorCrear['Nombre'],
+                        'email' => $familiaPorCrear['Email_cuenta'] === '' ? null : $familiaPorCrear['Email_cuenta'],
                         'id_perfil' => 6,
                         'id_cliente' => $id_cliente,
                         'password' => bcrypt($pass),
@@ -365,8 +367,8 @@ class ServicioEstudioController extends Controller
                     ];
     
                     $validator = Validator::make($newUser, [
-                        'name' => 'required|string|max:255',
-                        'email' => ['required', 'email:rfc', 'max:100', 'unique:users', 'regex:/^\S*$/u'],
+                        'name' => 'required|present|string|max:255',
+                        'email' => ['required', 'email:rfc,dns', 'max:100', 'unique:users', 'present'],
                         'id_perfil' => 'required|int',
                         'id_cliente' => 'nullable|int',
                         'latitud' => 'nullable|string',
@@ -382,8 +384,13 @@ class ServicioEstudioController extends Controller
                         'externo' => 'boolean',
                     ]);
     
-                    if($validator->fails()){
-                        array_push($usuariosExistentes, [ "error"=> "Validar los datos ingresados de la familia. Formato no valido.", "familia"=> $existe ]);
+                    if ($validator->fails()) {
+                        array_push($usuariosExistentes, [
+                            "error" => "Formato no válido. Revisar datos ingresados de las familias.",
+                            'tipo' => 'validador',
+                            "familia" => $newUser
+                        ]);
+                        continue; // Detiene el flujo si hay errores de validación
                     }
             
                     $user = User::create($newUser);
@@ -414,9 +421,13 @@ class ServicioEstudioController extends Controller
                     ];
     
                     $servNew = ServicioEstudio::create($newServicioEconomico);
-                    
+                    $totalInserts++;
                 }
                 
+            }
+            if (empty($usuariosExistentes)) {
+                DB::rollBack();
+                return response()->json(['data' => $data, 'total_insert' => $totalInserts, 'errors' => $usuariosExistentes]);
             }
             DB::commit();
         } catch (\Exception $e) {
@@ -426,7 +437,7 @@ class ServicioEstudioController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
         // Devolver el array procesado como respuesta JSON (para pruebas)
-        return response()->json(['data' => $data, 'errors' => $usuariosExistentes]);
+        return response()->json(['data' => $data, 'total_insert' => $totalInserts, 'errors' => $usuariosExistentes]);
     }
 
     public function editar(Request $request,$id){
