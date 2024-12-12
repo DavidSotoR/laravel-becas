@@ -17,6 +17,7 @@ use App\Mail\NotificacionCorreo;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use PDF;
 use Illuminate\Support\Facades\Storage;
@@ -296,6 +297,25 @@ class ServicioEstudioController extends Controller
         return response()->json(['message' => 'Archivo no encontrado'], 404);
     }
 
+    public function crearDireccion($data) {// FUNCION PARA GENERAR DIRECCION PARA BUSCAR EN API
+        $numero_exterior = $data['numero_exterior'] ?? null;
+        $calle = $data['calle'] ?? null;
+        $colonia = $data['colonia'] ?? null;
+        $municipio = $data['municipio'] ?? null;
+        $estado = $data['estado'] ?? null;
+        $codigo_postal = $data['codigo_postal'] ?? null;
+        $pais = $data['pais'] ?? null;
+    
+        return 
+            ($numero_exterior ? $numero_exterior . "," : "") .
+            ($calle ? $calle . "," : "") .
+            ($colonia ? $colonia . "," : "") .
+            ($municipio ? $municipio . "," : "") .
+            ($estado ? $estado . "," : "") .
+            ($codigo_postal ? $codigo_postal . "," : "") .
+            ($pais ? $pais : "");
+    }
+
     public function cargaMasivaFamilias(Request $request){
         $request->validate([
             'file' => 'required|file|mimes:csv,txt',
@@ -304,10 +324,11 @@ class ServicioEstudioController extends Controller
         $id_cliente = $request->id_cliente;
         $id_proyecto = $request->id_proyecto;
         $id_orden_servicio = $request->id_orden_servicio;
-        $altaFamilia = $request->enableAltaFamilia == 'true' ? true : false;// false;
-        $asignarColaborador = $request->enableAsignarColaborador == 'true' ? true : false; //false;
+        //$altaFamilia = $request->enableAltaFamilia == 'true' ? true : false;// false;
+        $asignarColaboradorReq = $request->enableAsignarColaborador == 'true' ? true : false; //false;
         $file = $request->file('file'); // Obtener el archivo
         $data = [];
+        $dataToInsert = [];
 
         $usuariosExistentes = [];
 
@@ -345,6 +366,54 @@ class ServicioEstudioController extends Controller
                     $newUser['externo'] = 1;
     
                     $pass = $this->generarContraseñaTemporal();
+                    $dataDireccion = [
+                        'numero_exterior' => $familiaPorCrear['Numero_exterior'],
+                        'calle' => $familiaPorCrear['Calle'],
+                        'colonia' => $familiaPorCrear['Colonia'],
+                        'municipio' => $familiaPorCrear['Municipio'],
+                        'estado' => $familiaPorCrear['Estado'],
+                        'codigo_postal' => $familiaPorCrear['Codigo_postal'],
+                        'pais'=> $familiaPorCrear['Pais'],
+                    ];
+                    
+
+                    $direccion = $this->crearDireccion($dataDireccion);
+
+                    //$url = "https://nominatim.openstreetmap.org/search?q=". str_replace(' ', '%', $direccion) . "&format=json&addressdetails=1";
+                    //return response()->json($url);
+                    // Realiza la petición GET
+                    //$response = Http::get($url);
+                    /* $response = Http::get('https://nominatim.openstreetmap.org/search', [
+                        'q' => $direccion,
+                        'format' => 'json',
+                        'addressdetails' => 1,
+                    ]); */
+
+                    $response = Http::withHeaders([
+                        'User-Agent' => 'SinergiaEstudiosMX/1.0', // Configuración del User-Agent
+                    ])->get('https://nominatim.openstreetmap.org/search', [
+                        'q' => $direccion,
+                        'format' => 'json',
+                        'addressdetails' => 1,
+                    ]);
+
+                    if ($response->successful()) {
+                        $dataResp = json_decode($response->body());
+                        if (empty($dataResp)) {
+                            //return response()->json(['data' => 'No contiene datos']);
+                            $lat = null;
+                            $lon = null;
+                        } else {
+                            //return response()->json(['datos' => $dataResp, 'estatus' => true]);
+                            $direccion = $dataResp[0]->display_name;//$display_name;// = $dataResp[0]->display_name;
+                            //return response()->json(['direccion' => $display_name, 'estatus' => true]);
+                            $lat = $dataResp[0]->lat;
+                            $lon = $dataResp[0]->lon;
+                        }
+                        
+                        
+                    }
+                    
     
                     $newUser = [
                         'name' => $familiaPorCrear['Nombre'] === '' ? null : $familiaPorCrear['Nombre'],
@@ -353,9 +422,9 @@ class ServicioEstudioController extends Controller
                         'id_cliente' => $id_cliente,
                         'password' => bcrypt($pass),
                         'password_temporal' => $pass,
-                        'latitud' => $familiaPorCrear['latitud'] ?? null,
-                        'longitud' => $familiaPorCrear['longitud'] ?? null,
-                        'direccion' => $familiaPorCrear['direccion'] ?? null,
+                        'latitud' => $lat ?? null,
+                        'longitud' => $lon ?? null,
+                        'direccion' => $direccion,
                         'calle' => $familiaPorCrear['Calle'] ?? null,
                         'numero_exterior' => $familiaPorCrear['Numero_exterior'] ?? null,
                         'colonia' => $familiaPorCrear['Colonia'] ?? null,
@@ -365,6 +434,8 @@ class ServicioEstudioController extends Controller
                         'pais' => $familiaPorCrear['Pais'] ?? null,
                         'externo' => 1,
                     ];
+
+                    array_push($dataToInsert, $newUser);
     
                     $validator = Validator::make($newUser, [
                         'name' => 'required|present|string|max:255',
@@ -425,9 +496,9 @@ class ServicioEstudioController extends Controller
                 }
                 
             }
-            if (empty($usuariosExistentes)) {
+            if (!empty($usuariosExistentes)) {
                 DB::rollBack();
-                return response()->json(['data' => $data, 'total_insert' => $totalInserts, 'errors' => $usuariosExistentes]);
+                return response()->json(['data' => $data, 'dataToInsert' => $dataToInsert, 'total_insert' => $totalInserts, 'errors' => $usuariosExistentes, 'estatus' => 'fallido']);
             }
             DB::commit();
         } catch (\Exception $e) {
@@ -437,7 +508,7 @@ class ServicioEstudioController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
         // Devolver el array procesado como respuesta JSON (para pruebas)
-        return response()->json(['data' => $data, 'total_insert' => $totalInserts, 'errors' => $usuariosExistentes]);
+        return response()->json(['data' => $data,'dataToInsert' => $dataToInsert, 'total_insert' => $totalInserts, 'errors' => $usuariosExistentes, 'estatus' => 'completo']);
     }
 
     public function editar(Request $request,$id){
