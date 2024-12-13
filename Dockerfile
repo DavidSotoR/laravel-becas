@@ -2,30 +2,32 @@
 FROM php:7.4-fpm
 
 # Instala extensiones de PHP necesarias
-RUN apt-get update && apt-get install -y \
-    zip unzip curl libpng-dev libjpeg-dev libfreetype6-dev libonig-dev \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libssl-dev \
+    zip \
+    unzip \
+    git \
+    curl \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd mysqli pdo pdo_mysql mbstring
+    && docker-php-ext-install gd mysqli pdo pdo_mysql \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instala Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copia los archivos de la aplicación
+# Establece el directorio de trabajo
+WORKDIR /var/www/html
+
+# Copia el contenido del proyecto Laravel
 COPY . /var/www/html
 
-# Asigna permisos
+# Asigna permisos a las carpetas necesarias
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Define el directorio de trabajo
-WORKDIR /var/www/html
+# Ejecuta comandos de Artisan en modo producción - Desarrollo entrar a container y ejecutar
+#RUN php artisan config:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
 
-# Copia el script de entrada
-COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-# Exponer el puerto del servidor de desarrollo
-EXPOSE 8000
-
-# Comando de inicio
-ENTRYPOINT ["docker-entrypoint.sh"]
