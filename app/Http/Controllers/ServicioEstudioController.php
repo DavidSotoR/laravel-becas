@@ -492,6 +492,11 @@ class ServicioEstudioController extends Controller
                     ];
     
                     $servNew = ServicioEstudio::create($newServicioEconomico);
+                    //if ($lat !== null && $lon !== null ) {// se asginan colaboradres
+                        DB::rollBack();
+                        $colabs = User::where('id_perfil', 4)->where('active', 1)->get();
+                        return response()->json(['colabs' => $colabs, 'servcreado' => $servNew]);
+                    //}
                     $totalInserts++;
                 }
                 
@@ -500,6 +505,9 @@ class ServicioEstudioController extends Controller
                 DB::rollBack();
                 return response()->json(['data' => $data, 'dataToInsert' => $dataToInsert, 'total_insert' => $totalInserts, 'errors' => $usuariosExistentes, 'estatus' => 'fallido']);
             }
+
+
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack(); // Deshace todos los cambios si ocurre un error
@@ -640,7 +648,7 @@ class ServicioEstudioController extends Controller
                     ]
             ], 400);
         }
- */
+        */
 
         $user = User::where('email',$contacto_por_defecto["email"])->first();
 
@@ -751,6 +759,31 @@ class ServicioEstudioController extends Controller
         $cadena = preg_replace('/[^a-zA-Z0-9_]/', '', $cadena);
 
         return $cadena;
+    }
+
+    public function calcularDistanciaColabFamilia($lat1, $lon1, $lat2, $lon2) {
+        //$lat_familia, $let_familia
+        $radioTierra = 6371; // Radio de la Tierra en kilómetros o millas
+
+        // Convertir grados a radianes
+        $lat1 = deg2rad($lat1);
+        $lon1 = deg2rad($lon1);
+        $lat2 = deg2rad($lat2);
+        $lon2 = deg2rad($lon2);
+
+        // Diferencias de latitud y longitud
+        $dLat = $lat2 - $lat1;
+        $dLon = $lon2 - $lon1;
+
+        // Fórmula del haversine
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+            cos($lat1) * cos($lat2) *
+            sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        // Distancia
+        return $radioTierra * $c;
     }
 
     public function asignarColaborador($id_estudio = 0,Request $request){
