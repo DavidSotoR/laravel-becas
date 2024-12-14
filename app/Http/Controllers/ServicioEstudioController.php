@@ -329,7 +329,7 @@ class ServicioEstudioController extends Controller
         $file = $request->file('file'); // Obtener el archivo
         $data = [];
         $dataToInsert = [];
-
+        $familiasNoAsignadas = [];
         $usuariosExistentes = [];
 
         //return response()->json(['alta'=> $altaFamilia, 'colab' => $asignarColaborador]);
@@ -492,18 +492,40 @@ class ServicioEstudioController extends Controller
                     ];
     
                     $servNew = ServicioEstudio::create($newServicioEconomico);
-                    //if ($lat !== null && $lon !== null ) {// se asginan colaboradres
-                        DB::rollBack();
-                        $colabs = User::where('id_perfil', 4)->where('active', 1)->get();
-                        return response()->json(['colabs' => $colabs, 'servcreado' => $servNew]);
-                    //}
+                    if ($asignarColaboradorReq) {
+                        if ($lat !== null && $lon !== null ) {// se asginan colaboradres
+                            //DB::rollBack();
+                            $colabs = User::where('id_perfil', 4)->where('active', 1)->get();
+                            $userFamiliaDistancia = [];
+                            foreach($colabs as $colab){
+                                if ($colab->latitud && $colab->longitud) {
+                                    $distancia = $this->calcularDistanciaColabFamilia(floatval($colab->latitud), floatval($colab->longitud), floatval($lat), floatval($lon));
+                                    array_push($userFamiliaDistancia, [ 'distancia' => $distancia, 'calab' => $colab->id, 'se' => $servNew->id ]);
+                                }
+                            }
+
+                            $minDistancia = collect($userFamiliaDistancia)->sortBy('distancia')->first();
+                            if ($minDistancia) {
+                                // Actualizar el registro en la base de datos
+                                $servNew->update([
+                                    'id_colaborador' => $minDistancia['calab']
+                                ]);
+                            }
+                        //return response()->json(['colabs' => $colabs, 'servcreado' => $servNew, 'comparacion' => $userFamiliaDistancia]);
+                        } else {
+                            array_push($familiasNoAsignadas, ['familia'=> $servNew]);
+                        }
+                    }
+                    
                     $totalInserts++;
                 }
                 
             }
+            //DB::rollBack();
+            //return response()->json(['comparacion' => $userFamiliaDistancia]);
             if (!empty($usuariosExistentes)) {
                 DB::rollBack();
-                return response()->json(['data' => $data, 'dataToInsert' => $dataToInsert, 'total_insert' => $totalInserts, 'errors' => $usuariosExistentes, 'estatus' => 'fallido']);
+                return response()->json(['data' => $data, 'dataToInsert' => $dataToInsert, 'total_insert' => $totalInserts, 'errors' => $usuariosExistentes, 'estatus' => 'fallido', 'no_asignadas' => $familiasNoAsignadas]);
             }
 
 
@@ -516,7 +538,7 @@ class ServicioEstudioController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
         // Devolver el array procesado como respuesta JSON (para pruebas)
-        return response()->json(['data' => $data,'dataToInsert' => $dataToInsert, 'total_insert' => $totalInserts, 'errors' => $usuariosExistentes, 'estatus' => 'completo']);
+        return response()->json(['data' => $data,'dataToInsert' => $dataToInsert, 'total_insert' => $totalInserts, 'errors' => $usuariosExistentes, 'estatus' => 'completo', 'no_asignadas' => $familiasNoAsignadas]);
     }
 
     public function editar(Request $request,$id){
