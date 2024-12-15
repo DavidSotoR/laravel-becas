@@ -343,7 +343,7 @@ class ServicioEstudioController extends Controller
         //return response()->json(['alta'=> $altaFamilia, 'colab' => $asignarColaborador]);
 
         // Abrir el archivo en modo lectura
-        if (($handle = fopen($file->getPathname(), 'r')) !== false) {
+        /* if (($handle = fopen($file->getPathname(), 'r')) !== false) {
             $headers = fgetcsv($handle); // Leer la primera fila como encabezados
 
             while (($row = fgetcsv($handle)) !== false) {
@@ -352,8 +352,58 @@ class ServicioEstudioController extends Controller
             }
 
             fclose($handle);
-        }
+        } */
+        /* if (($handle = fopen($file->getPathname(), 'r')) !== false) {
+            // Leer la primera fila como encabezados
+            $headers = fgetcsv($handle);
+        
+            // Verificar y convertir los encabezados a UTF-8
+            $headers = array_map(function($header) {
+                return mb_convert_encoding($header, 'UTF-8', 'auto');
+            }, $headers);
+        
+            while (($row = fgetcsv($handle)) !== false) {
+                // Verificar y convertir cada fila a UTF-8
+                $row = array_map(function($value) {
+                    return mb_convert_encoding($value, 'UTF-8', 'auto');
+                }, $row);
+        
+                // Asegurar que la cantidad de columnas coincida con los encabezados
+                $row = array_pad($row, count($headers), 'SIN DATO');
+        
+                // Combinar encabezados con valores
+                $data[] = array_combine($headers, $row);
+            }
+        
+            fclose($handle);
+        } */
 
+        if (($handle = fopen($file->getPathname(), 'r')) !== false) {
+            // Leer la primera fila como encabezados
+            $headers = fgetcsv($handle);
+        
+            // Asegurarte de que los encabezados estén correctamente codificados a UTF-8
+            $headers = array_map(function($header) {
+                return mb_convert_encoding($header, 'UTF-8', 'auto'); // Detecta y convierte a UTF-8
+            }, $headers);
+        
+            $data = []; // Aquí almacenaremos las filas procesadas
+        
+            while (($row = fgetcsv($handle)) !== false) {
+                // Asegurarte de que cada valor en la fila esté correctamente codificado
+                $row = array_map(function($value) {
+                    return mb_convert_encoding($value, 'UTF-8', 'auto'); // Detecta y convierte a UTF-8
+                }, $row);
+        
+                // Asegurar que las filas coincidan en tamaño con los encabezados
+                $row = array_pad($row, count($headers), 'SIN DATO');
+        
+                // Combinar encabezados con valores
+                $data[] = array_combine($headers, $row);
+            }
+        
+            fclose($handle);
+        }
 
         DB::beginTransaction();
         try {
@@ -502,6 +552,7 @@ class ServicioEstudioController extends Controller
                         'estado' => $familiaPorCrear['Estado'],
                         'codigo_postal' => $familiaPorCrear['Codigo_postal'],
                         'pais' => $familiaPorCrear['Pais'],
+                        'clave_familia_colegio'=> $familiaPorCrear['Clave_familia']
                     ];
 
                     $servNew = ServicioEstudio::create($newServicioEconomico);
@@ -533,8 +584,8 @@ class ServicioEstudioController extends Controller
                     $totalInserts++;
                 }
             }
-            //DB::rollBack();
-            //return response()->json(['comparacion' => $userFamiliaDistancia]);
+           /*  DB::rollBack();
+            return response()->json(['comparacion' => $userFamiliaDistancia]); */
             if (!empty($usuariosExistentes)) {
                 DB::rollBack();
                 return response()->json([

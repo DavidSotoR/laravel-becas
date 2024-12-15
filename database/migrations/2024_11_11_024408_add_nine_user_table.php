@@ -16,7 +16,7 @@ class AddNineUserTable extends Migration
         Schema::table('users', function (Blueprint $table) {
 
             if (!Schema::hasColumn('externo', 'requiere_facturar')) {
-                $table->boolean('externo')->nullable()->default(true);
+                //$table->boolean('externo')->nullable()->default(true);
             }
         });
     }
@@ -31,7 +31,7 @@ class AddNineUserTable extends Migration
         Schema::table('users', function (Blueprint $table) {
 
             if (Schema::hasColumn('externo', 'requiere_facturar')) {
-                $table->dropColumn('externo');
+                //$table->dropColumn('externo');
             }
         });
     }
