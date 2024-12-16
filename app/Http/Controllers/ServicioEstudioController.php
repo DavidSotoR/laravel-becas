@@ -340,59 +340,29 @@ class ServicioEstudioController extends Controller
         $usuariosExistentes = [];
         $userReactivados = [];
 
-        //return response()->json(['alta'=> $altaFamilia, 'colab' => $asignarColaborador]);
-
-        // Abrir el archivo en modo lectura
-        /* if (($handle = fopen($file->getPathname(), 'r')) !== false) {
-            $headers = fgetcsv($handle); // Leer la primera fila como encabezados
-
-            while (($row = fgetcsv($handle)) !== false) {
-                $row = array_pad($row, count($headers), 'SIN DATO');
-                $data[] = array_combine($headers, $row); // Combinar encabezados con valores
-            }
-
-            fclose($handle);
-        } */
-        /* if (($handle = fopen($file->getPathname(), 'r')) !== false) {
-            // Leer la primera fila como encabezados
-            $headers = fgetcsv($handle);
-        
-            // Verificar y convertir los encabezados a UTF-8
-            $headers = array_map(function($header) {
-                return mb_convert_encoding($header, 'UTF-8', 'auto');
-            }, $headers);
-        
-            while (($row = fgetcsv($handle)) !== false) {
-                // Verificar y convertir cada fila a UTF-8
-                $row = array_map(function($value) {
-                    return mb_convert_encoding($value, 'UTF-8', 'auto');
-                }, $row);
-        
-                // Asegurar que la cantidad de columnas coincida con los encabezados
-                $row = array_pad($row, count($headers), 'SIN DATO');
-        
-                // Combinar encabezados con valores
-                $data[] = array_combine($headers, $row);
-            }
-        
-            fclose($handle);
-        } */
-
         if (($handle = fopen($file->getPathname(), 'r')) !== false) {
             // Leer la primera fila como encabezados
             $headers = fgetcsv($handle);
         
             // Asegurarte de que los encabezados estén correctamente codificados a UTF-8
-            $headers = array_map(function($header) {
+            /* $headers = array_map(function($header) {
                 return mb_convert_encoding($header, 'UTF-8', 'auto'); // Detecta y convierte a UTF-8
+            }, $headers); */
+            $headers = array_map(function($header) {
+                $encoding = mb_detect_encoding($header, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
+                return mb_convert_encoding($header, 'UTF-8', $encoding ?: 'UTF-8');
             }, $headers);
         
             $data = []; // Aquí almacenaremos las filas procesadas
         
             while (($row = fgetcsv($handle)) !== false) {
                 // Asegurarte de que cada valor en la fila esté correctamente codificado
-                $row = array_map(function($value) {
+                /* $row = array_map(function($value) {
                     return mb_convert_encoding($value, 'UTF-8', 'auto'); // Detecta y convierte a UTF-8
+                }, $row); */
+                $row = array_map(function($value) {
+                    $encoding = mb_detect_encoding($value, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
+                    return mb_convert_encoding($value, 'UTF-8', $encoding ?: 'UTF-8');
                 }, $row);
         
                 // Asegurar que las filas coincidan en tamaño con los encabezados
@@ -502,7 +472,7 @@ class ServicioEstudioController extends Controller
 
                     $validator = Validator::make($newUser, [
                         'name' => 'required|present|string|max:255',
-                        'email' => ['required', 'email:rfc,dns', 'max:100', 'unique:users', 'present'],
+                        'email' => ['required', 'email:rfc,dns','regex:/^[^@]+@[^@]+\.[a-z]{2,}$/i', 'max:100', 'unique:users', 'present'],
                         'id_perfil' => 'required|int',
                         'id_cliente' => 'nullable|int',
                         'latitud' => 'nullable|string',
@@ -584,8 +554,8 @@ class ServicioEstudioController extends Controller
                     $totalInserts++;
                 }
             }
-           /*  DB::rollBack();
-            return response()->json(['comparacion' => $userFamiliaDistancia]); */
+            /* DB::rollBack();
+            return response()->json(['dataToInsert' => $dataToInsert]); */
             if (!empty($usuariosExistentes)) {
                 DB::rollBack();
                 return response()->json([

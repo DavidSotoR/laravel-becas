@@ -1,4 +1,4 @@
-Familia,Email_cuenta,Padre_Madre,Nombre,Situacion_estudio,Calle,Numero_exterior,Colonia,Municipio,Estado,Codigo_postal,Pais
-Ramirez Perez,ramires.p@gmail.com,Madre,Maira Ramirez,En proceso,huerta,207,Los portales,Santa Catarina,Nuevo Leon,66120,Mexico
-Soto Resendiz,davidsoto@gmail.com,Padre,David Soto,En proceso,huerta,207,Los portales,Santa Catarina,Nuevo Leon,66120,Mexico
-Perez Maraca,mara@ss,Madre,,En proceso,,,Los Portales,Santa Catarina,Nuevo Leon,66120,Mexico
+Familia,Email_cuenta,Padre_Madre,Nombre,Situacion_estudio,Clave_familia,Calle,Numero_exterior,Colonia,Municipio,Estado,Codigo_postal,Pais
+Ramirez Perez,ramires.p@gmail.com,Madre,Maira Ramirez,En proceso,9999999,huerta,207,Los portales,Santa Catarina,Nuevo Leon,66120,Mexico
+Soto Resendiz,davidsoto@gmail.com,Padre,David Soto,En proceso,8888888,huerta,207,Los portales,Santa Catarina,Nuevo Leon,66120,Mexico
+Perez Maraca,mara@ss,Madre,Mariana Perez,En proceso,2232323,huerta,207,Los Portales,Santa Catarina,Nuevo Leon,66120,Mexico
