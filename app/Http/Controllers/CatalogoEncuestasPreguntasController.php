@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use App\CatalogoEncuestasPreguntas;
+use App\CatalogoEncuestasPreguntasParametrosClasificacionItems;
 
 class CatalogoEncuestasPreguntasController extends Controller
 {
@@ -61,6 +62,25 @@ class CatalogoEncuestasPreguntasController extends Controller
         return response()->json(['message' => 'Nuevo cliente creado', 'data' => $elemento], 201);
     }
 
+
+    public function setTipoParametro(Request $request){
+
+        $validator = Validator::make($request->all(),[
+            'id'=>'required|int',
+            'id_parametro_clasificacion_tipo' => 'required|int',
+        ]);
+
+        if($validator->fails()){
+            return response()->json(["errors"=>$validator->errors()], 400);
+        }
+
+        $editar = CatalogoEncuestasPreguntas::where('id',$request->id)->first();
+        $editar->id_parametro_clasificacion_tipo = $request->id_parametro_clasificacion_tipo;
+        $editar->save();
+
+        return response()->json(['message' => 'Elemento Actualizado', 'data' => $editar], 201);
+    }
+
     public function editar(Request $request,$id_encuesta = 0,$id = 0){
 
         if(!$id_encuesta){
@@ -109,5 +129,24 @@ class CatalogoEncuestasPreguntasController extends Controller
 
 
         return response()->json(['message' => 'Encuesta modificada', 'data' => $editar], 201);
+    }
+
+
+    public function parametros(Request $request, $id_pregunta){
+        $id_parametro = CatalogoEncuestasPreguntas::where('id',$id_pregunta)
+            ->first()->id_catalogo_encuestas_preguntas_parametro_clasificacion;
+        if(!$id_parametro){
+            return response()->json([]);
+        }
+        $query = CatalogoEncuestasPreguntasParametrosClasificacionItems::query();
+        $query->where('id_catalogo_encuestas_preguntas_parametro_clasificacion',$id_parametro);
+
+        if(isset($request->id_catalogo_pregunta)){
+            $query->where('id_catalogo_encuestas_preguntas', $request->id_catalogo_pregunta);
+        }
+
+        $elementos = $query->get();
+
+        return response()->json($elementos);
     }
 }

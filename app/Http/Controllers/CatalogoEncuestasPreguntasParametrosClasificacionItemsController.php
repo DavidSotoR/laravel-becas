@@ -46,14 +46,40 @@ class CatalogoEncuestasPreguntasParametrosClasificacionItemsController extends C
     }
 
     public function nuevo(Request $request){
-        $validator = Validator::make($request->all(),[
+        $lista_validator= [
             'id_catalogo_encuestas_preguntas_parametro_clasificacion' => 'nullable|int',
             'id_catalogo_encuestas_preguntas' => 'nullable|int',
             'texto' => 'nullable|string',
             'limite_superior' => 'required|int',
-            'limiten_inferior' => 'required|int',
+            'limiten_inferior' =>'required|int',
             'valor' =>'required|string',
-        ]);
+        ];
+
+        if(isset($request->id_clasificacion_parametro)){
+            switch($request->id_clasificacion_parametro){
+                case 4:
+                    $lista_validator = [
+                        'id_catalogo_encuestas_preguntas_parametro_clasificacion' => 'nullable|int',
+                        'id_catalogo_encuestas_preguntas' => 'nullable|int',
+                        'texto' => 'nullable|string',
+                        'limite_superior' =>'required|int',
+                        'valor' =>'required|string',
+                    ];
+                break;
+                case 5:
+                    $lista_validator = [
+                        'id_catalogo_encuestas_preguntas_parametro_clasificacion' => 'nullable|int',
+                        'id_catalogo_encuestas_preguntas' => 'nullable|int',
+                        'texto' => 'nullable|string',
+                        'valor' =>'required|string',
+                    ];
+                break;
+                default;
+                break;
+            }
+        }
+
+        $validator = Validator::make($request->all(),$lista_validator);
 
         if($validator->fails()){
             return response()->json(["errors"=>$validator->errors()], 400);
@@ -71,14 +97,37 @@ class CatalogoEncuestasPreguntasParametrosClasificacionItemsController extends C
             return response()->json(["id" => ["id de ítem es requerido"]], 400);
         }
 
-        $validator = Validator::make($request->all(),[
-            'id_catalogo_encuestas_preguntas_parametro_clasificacion' => 'nullable|int',
-            'id_catalogo_encuestas_preguntas' => 'nullable|int',
+        //'id_catalogo_encuestas_preguntas_parametro_clasificacion' => 'nullable|int',
+        //'id_catalogo_encuestas_preguntas' => 'nullable|int',
+
+        $lista_validator = [
             'texto' => 'nullable|string',
-            'limite_superior' => 'required|int',
-            'limiten_inferior' => 'required|int',
+            'limite_superior' =>'required|int',
+            'limiten_inferior' =>'required|int',
             'valor' =>'required|string',
-        ]);
+        ];
+
+        if(isset($request->id_clasificacion_parametro)){
+            switch($request->id_clasificacion_parametro){
+                case 4:
+                    $lista_validator = [
+                        'texto' => 'nullable|string',
+                        'limite_superior' =>'required|int',
+                        'valor' =>'required|string',
+                    ];
+                break;
+                case 5:
+                    $lista_validator = [
+                        'texto' => 'nullable|string',
+                        'valor' =>'required|string',
+                    ];
+                break;
+                default;
+                break;
+            }
+        }
+
+        $validator = Validator::make($request->all(),$lista_validator);
 
         if($validator->fails()){
             return response()->json($validator->errors(), 400);
@@ -86,8 +135,8 @@ class CatalogoEncuestasPreguntasParametrosClasificacionItemsController extends C
 
         $editar = CatalogoEncuestasPreguntasParametrosClasificacionItems::where('id',$id)->first();
 
-        $editar->id_catalogo_encuestas_preguntas_parametro_clasificacion = $request->id_catalogo_encuestas_preguntas_parametro_clasificacion;
-        $editar->id_catalogo_encuestas_preguntas = $request->id_catalogo_encuestas_preguntas;
+        //$editar->id_catalogo_encuestas_preguntas_parametro_clasificacion = $request->id_catalogo_encuestas_preguntas_parametro_clasificacion;
+        //$editar->id_catalogo_encuestas_preguntas = $request->id_catalogo_encuestas_preguntas;
         $editar->texto = $request->texto;
         $editar->limite_superior = $request->limite_superior;
         $editar->limiten_inferior = $request->limiten_inferior;

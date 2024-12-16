@@ -25,7 +25,13 @@ class CatalogoEncuestasPreguntasParametrosClasificacionsController extends Contr
     }
 
     public function id($id){
-        $elemento = CatalogoEncuestasPreguntasParametrosClasificacions::with('tipoParametro','items','porPregunta','porPregunta.tipoPreguntas')->where('id',$id)->first();
+        $elemento = CatalogoEncuestasPreguntasParametrosClasificacions::with(
+            'tipoParametro',
+            'items',
+            'porPregunta',
+            'porPregunta.tipoPreguntas',
+            'porPregunta.calsificacionParametroTipo'
+        )->where('id',$id)->first();
         return response()->json($elemento);
     }
 
@@ -88,6 +94,7 @@ class CatalogoEncuestasPreguntasParametrosClasificacionsController extends Contr
         $editar = CatalogoEncuestasPreguntasParametrosClasificacions::where('id',$id)->first();
         $editar->nombre = $request->nombre;
         $editar->puntos_maximo = $request->puntos_maximo;
+        $editar->id_catalogo_encuestas_preguntas_parametros_clasificaciones_tipos = $request->id_catalogo_encuestas_preguntas_parametros_clasificaciones_tipos;
         $editar->color = (isset($request->color)) ? $request->color : '#ffffff';
         $editar->formato_decimales = (isset($request->formato_decimales)) ? $request->formato_decimales : false ;
         $editar->save();

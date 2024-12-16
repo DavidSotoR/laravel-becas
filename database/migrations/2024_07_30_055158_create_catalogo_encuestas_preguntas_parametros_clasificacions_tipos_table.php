@@ -20,11 +20,11 @@ class CreateCatalogoEncuestasPreguntasParametrosClasificacionsTiposTable extends
         });
 
         DB::table('catalogo_encuestas_preguntas_parametros_clasificacions_tipos')->insert(
-            ['nombre' => 'Puntos por rangos numéricos']
+            ['id'=> 1,'nombre' => 'Puntos por rangos numéricos']
         );
 
         DB::table('catalogo_encuestas_preguntas_parametros_clasificacions_tipos')->insert(
-            ['nombre' => 'Calificar pregunta individualmente']
+            ['id'=> 2,'nombre' => 'Calificar pregunta individualmente']
         );
 
         Schema::table('catalogo_encuestas_preguntas_parametros_clasificaciones', function($table) {
