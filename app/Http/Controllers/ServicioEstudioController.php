@@ -16,11 +16,14 @@ use App\CatalogoEncuestasPreguntasParametrosClasificacionItems;
 use App\Mail\NotificacionCorreo;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use PDF;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Concerns\ToCollection;
 use ZipArchive;
 
 class ServicioEstudioController extends Controller
@@ -325,7 +328,7 @@ class ServicioEstudioController extends Controller
     public function cargaMasivaFamilias(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,txt',
+            'file' => 'required|file|mimes:csv,txt,xlsx',
         ]);
         $totalInserts = 0;
         $id_cliente = $request->id_cliente;
@@ -334,46 +337,68 @@ class ServicioEstudioController extends Controller
         //$altaFamilia = $request->enableAltaFamilia == 'true' ? true : false;// false;
         $asignarColaboradorReq = $request->enableAsignarColaborador == 'true' ? true : false; //false;
         $file = $request->file('file'); // Obtener el archivo
+        $extension = strtolower($file->getClientOriginalExtension());
         $data = [];
         $dataToInsert = [];
         $familiasNoAsignadas = [];
         $usuariosExistentes = [];
         $userReactivados = [];
 
-        if (($handle = fopen($file->getPathname(), 'r')) !== false) {
-            // Leer la primera fila como encabezados
-            $headers = fgetcsv($handle);
-        
-            // Asegurarte de que los encabezados estén correctamente codificados a UTF-8
-            /* $headers = array_map(function($header) {
-                return mb_convert_encoding($header, 'UTF-8', 'auto'); // Detecta y convierte a UTF-8
-            }, $headers); */
-            $headers = array_map(function($header) {
-                $encoding = mb_detect_encoding($header, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
-                return mb_convert_encoding($header, 'UTF-8', $encoding ?: 'UTF-8');
-            }, $headers);
-        
-            $data = []; // Aquí almacenaremos las filas procesadas
-        
-            while (($row = fgetcsv($handle)) !== false) {
-                // Asegurarte de que cada valor en la fila esté correctamente codificado
-                /* $row = array_map(function($value) {
-                    return mb_convert_encoding($value, 'UTF-8', 'auto'); // Detecta y convierte a UTF-8
-                }, $row); */
-                $row = array_map(function($value) {
-                    $encoding = mb_detect_encoding($value, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
-                    return mb_convert_encoding($value, 'UTF-8', $encoding ?: 'UTF-8');
-                }, $row);
-        
-                // Asegurar que las filas coincidan en tamaño con los encabezados
-                $row = array_pad($row, count($headers), 'SIN DATO');
-        
-                // Combinar encabezados con valores
-                $data[] = array_combine($headers, $row);
+        if ($extension === 'csv' || $extension === 'txt') {
+            if (($handle = fopen($file->getPathname(), 'r')) !== false) {
+                // Leer la primera fila como encabezados
+                $headers = fgetcsv($handle);
+            
+                // Asegurarte de que los encabezados estén correctamente codificados a UTF-8
+                /* $headers = array_map(function($header) {
+                    return mb_convert_encoding($header, 'UTF-8', 'auto'); // Detecta y convierte a UTF-8
+                }, $headers); */
+                $headers = array_map(function($header) {
+                    $encoding = mb_detect_encoding($header, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
+                    return mb_convert_encoding($header, 'UTF-8', $encoding ?: 'UTF-8');
+                }, $headers);
+            
+                $data = []; // Aquí almacenaremos las filas procesadas
+            
+                while (($row = fgetcsv($handle)) !== false) {
+                    // Asegurarte de que cada valor en la fila esté correctamente codificado
+                    /* $row = array_map(function($value) {
+                        return mb_convert_encoding($value, 'UTF-8', 'auto'); // Detecta y convierte a UTF-8
+                    }, $row); */
+                    $row = array_map(function($value) {
+                        $encoding = mb_detect_encoding($value, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
+                        return mb_convert_encoding($value, 'UTF-8', $encoding ?: 'UTF-8');
+                    }, $row);
+            
+                    // Asegurar que las filas coincidan en tamaño con los encabezados
+                    $row = array_pad($row, count($headers), 'SIN DATO');
+            
+                    // Combinar encabezados con valores
+                    $data[] = array_combine($headers, $row);
+                }
+            
+                fclose($handle);
             }
-        
-            fclose($handle);
         }
+
+        if ($extension === 'xlsx') {
+            Excel::import(new class($data) implements ToCollection {
+                private $data;
+                public function __construct(&$data) {
+                    $this->data = &$data;
+                }
+    
+                public function collection(Collection $rows)
+                {
+                    $encabezados = $rows->first(); // Obtener la primera fila como encabezados
+                    $rows->slice(1)->each(function ($row) use ($encabezados) {
+                        $this->data[] = array_combine($encabezados->toArray(), $row->toArray());
+                    });
+                }
+            }, $file);
+        }
+        
+        return response()->json(['data'=> $data]);
 
         DB::beginTransaction();
         try {
