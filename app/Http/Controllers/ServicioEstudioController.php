@@ -398,7 +398,7 @@ class ServicioEstudioController extends Controller
             }, $file);
         }
         
-        return response()->json(['data'=> $data]);
+        //return response()->json(['data'=> $data]);
 
         DB::beginTransaction();
         try {
