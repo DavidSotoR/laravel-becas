@@ -22,20 +22,52 @@ class UsuariosController extends Controller
 
     public function lista(Request $request)
     {
-        $query = User::query()->with('perfil', 'cliente');
+        
+        //$query = User::query()->with('perfil', 'cliente');
 
         // Si deseas valores predeterminados en caso de que no existan
         $search = $request->query('search', ''); // Por defecto, será una cadena vacía
+        $activo = $request->query('activo', 'all');
         $perfil = $request->query('perfil', 0);  // Por defecto, será 0
         $cliente = $request->query('cliente', 0);
-
-        return response()->json([
+        $lista = null;
+        /* return response()->json([
             'search' => $search,
             'perfil' => $perfil,
             'cliente' => $cliente,
-        ]);
+        ]); */
 
-        if (isset($request->id_cliente)) {
+        // Inicia la consulta base
+        $query = User::query()->with('perfil', 'cliente');
+
+        // Filtrar por búsqueda si no está vacío
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%$search%") // Filtrar por nombre
+                ->orWhere('email', 'LIKE', "%$search%"); // Filtrar por correo
+            });
+        }
+
+        // Filtrar por perfil si es diferente de 0
+        if ($perfil != 0) {
+            $query->where('id_perfil', $perfil);
+        }
+
+        // Filtrar por cliente si es diferente de 0
+        if ($cliente != 0) {
+            $query->where('id_cliente', $cliente);
+        }
+
+        if ($activo !== 'all') {
+            $query->where('active', $activo);
+        }
+        
+
+        // Ejecutar la consulta y obtener los resultados
+        $lista = $query->get();
+
+
+        /* if (isset($request->id_cliente)) {
             if ($request->id_cliente == 0) {
                 $query->where('id_cliente', null);
             } else {
@@ -56,7 +88,7 @@ class UsuariosController extends Controller
             }
         }
 
-        $lista = $query->get();
+        $lista = $query->get(); */
         return response()->json($lista);
     }
 
