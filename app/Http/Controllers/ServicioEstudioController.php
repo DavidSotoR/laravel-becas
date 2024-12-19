@@ -299,7 +299,7 @@ class ServicioEstudioController extends Controller
 
     public function descargarFormatoAltaFamiliasMasiva()
     {
-        $filePath = 'file_system/formato_test.csv'; // Ruta relativa en storage/app/public
+        $filePath = 'file_system/formato_test.xlsx'; // Ruta relativa en storage/app/public
         if (Storage::disk('public')->exists($filePath)) {
             return response()->download(storage_path("app/public/{$filePath}"));
         }
