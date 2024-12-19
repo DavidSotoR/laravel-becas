@@ -20,44 +20,90 @@ class UsuariosController extends Controller
         $this->middleware('auth:api');
     }
 
-    public function lista(Request $request){
-        $query = User::query()->with('perfil','cliente');
+    public function lista(Request $request)
+    {
+        
+        //$query = User::query()->with('perfil', 'cliente');
 
-        if(isset($request->id_cliente)){
-            if($request->id_cliente == 0){
-                $query->where('id_cliente',null);
-            }else{
-                $query->where('id_cliente',$request->id_cliente);
+        // Si deseas valores predeterminados en caso de que no existan
+        $search = $request->query('search', ''); // Por defecto, será una cadena vacía
+        $activo = $request->query('activo', 'all');
+        $perfil = $request->query('perfil', 0);  // Por defecto, será 0
+        $cliente = $request->query('cliente', 0);
+        $lista = null;
+        /* return response()->json([
+            'search' => $search,
+            'perfil' => $perfil,
+            'cliente' => $cliente,
+        ]); */
+
+        // Inicia la consulta base
+        $query = User::query()->with('perfil', 'cliente');
+
+        // Filtrar por búsqueda si no está vacío
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%$search%") // Filtrar por nombre
+                ->orWhere('email', 'LIKE', "%$search%"); // Filtrar por correo
+            });
+        }
+
+        // Filtrar por perfil si es diferente de 0
+        if ($perfil != 0) {
+            $query->where('id_perfil', $perfil);
+        }
+
+        // Filtrar por cliente si es diferente de 0
+        if ($cliente != 0) {
+            $query->where('id_cliente', $cliente);
+        }
+
+        if ($activo !== 'all') {
+            $query->where('active', $activo);
+        }
+        
+
+        // Ejecutar la consulta y obtener los resultados
+        $lista = $query->get();
+
+
+        /* if (isset($request->id_cliente)) {
+            if ($request->id_cliente == 0) {
+                $query->where('id_cliente', null);
+            } else {
+                $query->where('id_cliente', $request->id_cliente);
             }
         }
 
-        if(isset($request->tipos)){
-            if($request->tipos == 'internos'){
+        if (isset($request->tipos)) {
+            if ($request->tipos == 'internos') {
                 $query->whereHas('perfil', function ($query) {
                     $query->where('interno', true);
                 });
             }
-            if($request->tipos == 'externos'){
+            if ($request->tipos == 'externos') {
                 $query->whereHas('perfil', function ($query) {
                     $query->where('interno', false);
                 });
             }
         }
 
-        $lista = $query->get();
+        $lista = $query->get(); */
         return response()->json($lista);
     }
 
-    public function id($id){
-        $elemento = User::with('perfil','cliente')->where('id',$id)->first();
+    public function id($id)
+    {
+        $elemento = User::with('perfil', 'cliente')->where('id', $id)->first();
         return response()->json($elemento);
     }
 
-    public function editar(Request $request){
+    public function editar(Request $request)
+    {
         $id = $request->id;
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'id' => 'required|int',
-            'name' => ['required','min:2', Rule::unique('users')->ignore($id)],
+            'name' => ['required', 'min:2', Rule::unique('users')->ignore($id)],
             'email' => 'required',
             'id_perfil' => 'required|int',
             'id_cliente' => 'nullable|int',
@@ -74,11 +120,11 @@ class UsuariosController extends Controller
             'pais' => 'nullable|string',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
-        $editar = User::where('id',$id)->first();
+        $editar = User::where('id', $id)->first();
         $editar->name = $request->name;
         $editar->email = $request->email;
         $editar->id_perfil = $request->id_perfil;
@@ -100,13 +146,14 @@ class UsuariosController extends Controller
         return response()->json(['message' => 'Usuario modificado', 'data' => $editar], 201);
     }
 
-    public function editarPassword($id,Request $request){
+    public function editarPassword($id, Request $request)
+    {
 
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'password' => 'required|string|min:6',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json([
                 'message' => 'El campo password es requerido o no cumple con las validaciones.',
                 'confirmado' => false,
@@ -116,7 +163,7 @@ class UsuariosController extends Controller
 
         if ($request->password === $request->password_confirmar) {
             $id = $request->id;
-            $editar = User::where('id',$id)->first();
+            $editar = User::where('id', $id)->first();
             $editar->password = bcrypt($request->password);
             $editar->password_temporal = null;
             //return response()->json($editar);
@@ -126,22 +173,23 @@ class UsuariosController extends Controller
         } else {
             return response()->json(['message' => 'Contraseñas no coinciden.', 'confirmado' => false], 400);
         }
-        
     }
 
-    public function disableOrEnable(Request $request){
+    public function disableOrEnable(Request $request)
+    {
         $id = $request->id;
-        $editar = User::where('id',$id)->first();
+        $editar = User::where('id', $id)->first();
         $editar->active = !$editar->active;
         $editar->save();
 
         return response()->json(['message' => 'Usuario modificado', 'data' => $editar], 201);
     }
 
-    public function disableOrEnableList(Request $request){
+    public function disableOrEnableList(Request $request)
+    {
         $lista = $request->lista_usuarios;
-        foreach($lista as $user){
-            $editar = User::where('id',$user['id'])->first();
+        foreach ($lista as $user) {
+            $editar = User::where('id', $user['id'])->first();
             $editar->active = $request->opcion === 1 ? true : false; //!$editar->active;
             $editar->save();
         }
@@ -152,16 +200,17 @@ class UsuariosController extends Controller
         return response()->json(['message' => 'Usuarios modificados'], 201);
     }
 
-    public function colaboradores(Request $request){
+    public function colaboradores(Request $request)
+    {
         $query = User::query()->with('perfil');
 
-        $query->where('active',1);
-        $query->whereHas('perfil', function($queryPerfilInterno) {
+        $query->where('active', 1);
+        $query->whereHas('perfil', function ($queryPerfilInterno) {
             $queryPerfilInterno->where('interno', '=', 1); //
         });
 
-        $query->where(function($queryOR) {
-            $queryOR->whereHas('perfil', function($query) {
+        $query->where(function ($queryOR) {
+            $queryOR->whereHas('perfil', function ($query) {
                 $query->where('id', '=', 4);
             })
                 ->orWhere('asignar_estudios', '=', 1);
@@ -171,11 +220,12 @@ class UsuariosController extends Controller
         return response()->json($lista);
     }
 
-    public function calidad(Request $request){
+    public function calidad(Request $request)
+    {
         $query = User::query()->with('perfil');
 
-        $query->where('active',1);
-        $query->whereHas('perfil', function($queryPerfilInterno) {
+        $query->where('active', 1);
+        $query->whereHas('perfil', function ($queryPerfilInterno) {
             $queryPerfilInterno->where('interno', '=', 1);
             $queryPerfilInterno->where('id', '=', 3);
         });
