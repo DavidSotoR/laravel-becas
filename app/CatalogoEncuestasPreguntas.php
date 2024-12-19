@@ -16,6 +16,8 @@ class CatalogoEncuestasPreguntas extends Model
         'orden',
         'numero_pregunta',
         'longitud_respuesta',
+        'id_parametro_clasificacion_parametro_adicional_uno',
+        'id_parametro_clasificacion_parametro_adicional_dos',
     ];
 
     public function catalogoEncuesta(){
@@ -28,6 +30,14 @@ class CatalogoEncuestasPreguntas extends Model
 
     public function clasificacionParametro(){
         return $this->hasOne('App\CatalogoEncuestasPreguntasParametrosClasificacions','id','id_catalogo_encuestas_preguntas_parametro_clasificacion');
+    }
+
+    public function parametroAdicionalUno(){
+        return $this->hasOne('App\CatalogoEncuestasPreguntasParametrosClasificacions','id','id_parametro_clasificacion_parametro_adicional_uno');
+    }
+
+    public function parametroAdicionalDos(){
+        return $this->hasOne('App\CatalogoEncuestasPreguntasParametrosClasificacions','id','id_parametro_clasificacion_parametro_adicional_dos');
     }
 
     public function calsificacionParametroTipo(){

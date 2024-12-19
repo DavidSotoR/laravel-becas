@@ -12,6 +12,7 @@ use App\ProyectosClientes;
 use App\CatalogoEncuestas;
 use App\CatalogoEncuestasPreguntasParametrosClasificacions;
 use App\ServiciosEstudiosRespuestas;
+use App\CatalogoEncuestasPreguntas;
 use App\CatalogoEncuestasPreguntasParametrosClasificacionItems;
 use App\Mail\NotificacionCorreo;
 use Illuminate\Support\Facades\Validator;
@@ -356,52 +357,52 @@ class ServicioEstudioController extends Controller
         /* if (($handle = fopen($file->getPathname(), 'r')) !== false) {
             // Leer la primera fila como encabezados
             $headers = fgetcsv($handle);
-        
+
             // Verificar y convertir los encabezados a UTF-8
             $headers = array_map(function($header) {
                 return mb_convert_encoding($header, 'UTF-8', 'auto');
             }, $headers);
-        
+
             while (($row = fgetcsv($handle)) !== false) {
                 // Verificar y convertir cada fila a UTF-8
                 $row = array_map(function($value) {
                     return mb_convert_encoding($value, 'UTF-8', 'auto');
                 }, $row);
-        
+
                 // Asegurar que la cantidad de columnas coincida con los encabezados
                 $row = array_pad($row, count($headers), 'SIN DATO');
-        
+
                 // Combinar encabezados con valores
                 $data[] = array_combine($headers, $row);
             }
-        
+
             fclose($handle);
         } */
 
         if (($handle = fopen($file->getPathname(), 'r')) !== false) {
             // Leer la primera fila como encabezados
             $headers = fgetcsv($handle);
-        
+
             // Asegurarte de que los encabezados estén correctamente codificados a UTF-8
             $headers = array_map(function($header) {
                 return mb_convert_encoding($header, 'UTF-8', 'auto'); // Detecta y convierte a UTF-8
             }, $headers);
-        
+
             $data = []; // Aquí almacenaremos las filas procesadas
-        
+
             while (($row = fgetcsv($handle)) !== false) {
                 // Asegurarte de que cada valor en la fila esté correctamente codificado
                 $row = array_map(function($value) {
                     return mb_convert_encoding($value, 'UTF-8', 'auto'); // Detecta y convierte a UTF-8
                 }, $row);
-        
+
                 // Asegurar que las filas coincidan en tamaño con los encabezados
                 $row = array_pad($row, count($headers), 'SIN DATO');
-        
+
                 // Combinar encabezados con valores
                 $data[] = array_combine($headers, $row);
             }
-        
+
             fclose($handle);
         }
 
@@ -589,10 +590,10 @@ class ServicioEstudioController extends Controller
             if (!empty($usuariosExistentes)) {
                 DB::rollBack();
                 return response()->json([
-                    'data' => $data, 'dataToInsert' => [], 
-                    'total_insert' => $totalInserts, 
-                    'errors' => $usuariosExistentes, 
-                    'estatus' => 'fallido', 
+                    'data' => $data, 'dataToInsert' => [],
+                    'total_insert' => $totalInserts,
+                    'errors' => $usuariosExistentes,
+                    'estatus' => 'fallido',
                     'no_asignadas' => $familiasNoAsignadas,
                     'reactivados' => $userReactivados]);
             }
@@ -607,8 +608,8 @@ class ServicioEstudioController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
         // Devolver el array procesado como respuesta JSON (para pruebas)
-        return response()->json(['data' => $data, 'dataToInsert' => $dataToInsert, 'total_insert' => $totalInserts, 
-        'errors' => $usuariosExistentes, 'estatus' => 'completo', 
+        return response()->json(['data' => $data, 'dataToInsert' => $dataToInsert, 'total_insert' => $totalInserts,
+        'errors' => $usuariosExistentes, 'estatus' => 'completo',
         'no_asignadas' => $familiasNoAsignadas, 'reactivados' => $userReactivados]);
     }
 
@@ -1393,5 +1394,26 @@ class ServicioEstudioController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $dir_nombre . '.zip"',
         ])->deleteFileAfterSend(true);
         return response()->download($zipPath)->deleteFileAfterSend(true);
+    }
+
+    public function parametroAdicionalUnoItems($id_pregunta){
+        $id_parametro = CatalogoEncuestasPreguntas::where('id', $id_pregunta)->first()->id_parametro_clasificacion_parametro_adicional_uno;
+
+        if(!$id_parametro){
+            return response()->json([], 200);
+        }
+        $preguntaItem = CatalogoEncuestasPreguntasParametrosClasificacionItems::where('id_catalogo_encuestas_preguntas_parametro_clasificacion',$id_parametro)->get();
+
+        return response()->json($preguntaItem, 200);
+    }
+    public function parametroAdicionalDosItems($id_pregunta){
+        $id_parametro = CatalogoEncuestasPreguntas::where('id', $id_pregunta)->first()->id_parametro_clasificacion_parametro_adicional_dos;
+
+        if(!$id_parametro){
+            return response()->json([], 200);
+        }
+        $preguntaItem = CatalogoEncuestasPreguntasParametrosClasificacionItems::where('id_catalogo_encuestas_preguntas_parametro_clasificacion',$id_parametro)->get();
+
+        return response()->json($preguntaItem, 200);
     }
 }

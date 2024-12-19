@@ -45,6 +45,11 @@ class ServiciosEstudiosRespuestasController extends Controller
 
         switch($request->id_catalogo_encuestas_preguntas_tipo){
             case 1:
+            case 3:
+            case 4:
+            case 5:
+            case 9:
+            case 10:
                 return $this -> respuestaTipoUno($request->respuestas);
             break;
             case 11:
