@@ -552,6 +552,33 @@ class ServicioEstudioController extends Controller
                     ];
 
                     $servNew = ServicioEstudio::create($newServicioEconomico);
+
+                    $newPadre = [
+                        'id_familias_padre_tipo' => strtolower($familiaPorCrear['Padre_Madre']) == 'padre' ? 1 : 2,
+                        'nombre' => $familiaPorCrear['Nombre'],
+                        'vive' => $familiaPorCrear['Padre_vive'] == 'si' ? 1 : 0,
+                        'direccion' => $direccion,
+                        'email' => $familiaPorCrear['Email_contacto'] ?? 'SIN DATO',
+                        'id_servicio_estudio' => $servNew->id,
+                        'contento_principal' => 1
+
+                    ];
+
+                    $newMadre = [
+                        'id_familias_padre_tipo' => 1,
+                        'nombre' => '',
+                        'vive' => true,
+                        'direccion' => '',
+                        'email' => '',
+                        'id_servicio_estudio' => $servNew->id,
+                        'contento_principal' => 0
+
+                    ];
+
+                    //FamiliasPadres::create($newPadre);
+                    //FamiliasPadres::create($newMadre);
+                    //$addPadreMadre = FamiliasPadres
+
                     if ($asignarColaboradorReq) {
                         if ($lat !== null && $lon !== null) { // se asginan colaboradres
                             //DB::rollBack();
