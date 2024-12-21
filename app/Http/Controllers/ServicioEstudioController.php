@@ -554,29 +554,31 @@ class ServicioEstudioController extends Controller
                     $servNew = ServicioEstudio::create($newServicioEconomico);
 
                     $newPadre = [
-                        'id_familias_padre_tipo' => strtolower($familiaPorCrear['Padre_Madre']) == 'padre' ? 1 : 2,
-                        'nombre' => $familiaPorCrear['Nombre'],
+                        'id_familias_padres_tipo' => 1,
+                        'nombre' => strtolower($familiaPorCrear['Padre_Madre']) == 'padre' ? $familiaPorCrear['Nombre'] : '',
                         'vive' => $familiaPorCrear['Padre_vive'] == 'si' ? 1 : 0,
                         'direccion' => $direccion,
-                        'email' => $familiaPorCrear['Email_contacto'] ?? 'SIN DATO',
+                        'email' => strtolower($familiaPorCrear['Padre_Madre']) == 'padre' ? $familiaPorCrear['Email_cuenta'] : '',
                         'id_servicio_estudio' => $servNew->id,
-                        'contento_principal' => 1
+                        'contecto_principal' => strtolower($familiaPorCrear['Padre_Madre']) == 'padre' ? 1 : 0,
+                        'edad' => 0
 
                     ];
 
                     $newMadre = [
-                        'id_familias_padre_tipo' => 1,
-                        'nombre' => '',
-                        'vive' => true,
-                        'direccion' => '',
-                        'email' => '',
+                        'id_familias_padres_tipo' => 2,
+                        'nombre' => strtolower($familiaPorCrear['Padre_Madre']) == 'madre' ? $familiaPorCrear['Nombre'] : '',
+                        'vive' => $familiaPorCrear['Madre_vive'] == 'si' ? 1 : 0,
+                        'direccion' => $direccion,
+                        'email' => strtolower($familiaPorCrear['Padre_Madre']) == 'madre' ? $familiaPorCrear['Email_cuenta'] : '',
                         'id_servicio_estudio' => $servNew->id,
-                        'contento_principal' => 0
+                        'contecto_principal' => strtolower($familiaPorCrear['Padre_Madre']) == 'madre' ? 1 : 0,
+                        'edad' => 0
 
                     ];
 
-                    //FamiliasPadres::create($newPadre);
-                    //FamiliasPadres::create($newMadre);
+                    FamiliasPadres::create($newPadre);
+                    FamiliasPadres::create($newMadre);
                     //$addPadreMadre = FamiliasPadres
 
                     if ($asignarColaboradorReq) {
