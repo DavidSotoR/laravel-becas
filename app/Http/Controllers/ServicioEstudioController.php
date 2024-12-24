@@ -1411,4 +1411,22 @@ class ServicioEstudioController extends Controller
 
         return response()->json($preguntaItem, 200);
     }
+    public function getSumatoruaB($id_estudio,$id_pregunta){
+
+        $id_parametro = CatalogoEncuestasPreguntas::where('id', $id_pregunta)->first()->id_catalogo_encuestas_preguntas_parametro_clasificacion;
+//where('id', $id_pregunta)->
+            return response()->json($id_pregunta, 200);
+        if(!$id_parametro){
+            return response()->json(0, 200);
+        }
+
+        $lista_preguntas = CatalogoEncuestasPreguntas::where('id_catalogo_encuestas_preguntas_parametro_clasificacion', $id_parametro)->get()->id;
+
+        return response()->json($lista_preguntas, 200);
+
+        $lista_respuestas = ServiciosEstudiosRespuestas::where('id_servicio_estudio', $elemento->id)->where('id_catalogo_encuestas_pregunta', $pregunta->id)->get();
+        $preguntaItem = CatalogoEncuestasPreguntasParametrosClasificacionItems::where('id_catalogo_encuestas_preguntas_parametro_clasificacion',$id_parametro)->get();
+
+        return response()->json($preguntaItem, 200);
+    }
 }

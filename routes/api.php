@@ -167,6 +167,7 @@ Route::group([
     Route::post('estudio/preasignacion', 'ServicioEstudioController@preasignarEstudios');
     Route::post('estudio/asignar', 'ServicioEstudioController@asignarEstudios');
     Route::post('estudio/calidad', 'ServicioEstudioController@asignarCalidad');
+    Route::get('estudio/socioeconomico/{id_estudio}/preguntas/{id_pregunta}/parametros/sumantria/b', 'ServicioEstudioController@getSumatoruaB');
 
     Route::get('estudios/enproceso/estados', 'ServicioEstadosController@listaEnProceso');
     Route::get('estudios/enproceso', 'ServicioEstudioController@listaEnProceso');
