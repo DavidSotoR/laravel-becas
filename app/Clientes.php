@@ -35,19 +35,27 @@ class Clientes extends Model
         'terminos'
     ];
 
-    public function tipoCliente(){
-        return $this->hasOne('App\TiposClientes','id','id_tipo_cliente');
+    public function tipoCliente()
+    {
+        return $this->hasOne('App\TiposClientes', 'id', 'id_tipo_cliente');
     }
-    public function encuesta(){
-        return $this->hasOne('App\CatalogoEncuestasPreguntas','id','id_catalogo_encuesta');
-    }
-
-    public function usuarios(){
-        return $this->belongsTo('App\User','id_cliente','id');
+    public function encuesta()
+    {
+        return $this->hasOne('App\CatalogoEncuestasPreguntas', 'id', 'id_catalogo_encuesta');
     }
 
-    public function proyectos(){
-        return $this->belongsToMany('App\Proyectos', 'proyectos_clientes', 'id_cliente','id_proyecto');
+    public function encuesta_asignada()
+    {
+        return $this->hasOne('App\CatalogoEncuestas', 'id', 'id_catalogo_encuesta');
     }
 
+    public function usuarios()
+    {
+        return $this->belongsTo('App\User', 'id_cliente', 'id');
+    }
+
+    public function proyectos()
+    {
+        return $this->belongsToMany('App\Proyectos', 'proyectos_clientes', 'id_cliente', 'id_proyecto');
+    }
 }
