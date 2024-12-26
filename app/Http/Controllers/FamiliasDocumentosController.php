@@ -11,6 +11,7 @@ use App\FamiliasDocumentosTipos;
 use App\ServicioEstados;
 use App\ServicioEstudio;
 use File;
+use Illuminate\Support\Facades\Storage;
 
 class FamiliasDocumentosController extends Controller
 {
@@ -51,6 +52,31 @@ class FamiliasDocumentosController extends Controller
 
         //return storage_path('app/public/' . $elemento->directorio);
         return response()->download(storage_path('app/public/' . $elemento->directorio));
+
+
+        /* 
+        $elemento = FamiliasDocumentos::where('id',$id)->first();
+
+        $directorioNormalizado = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $elemento->directorio);
+        $rutaArchivo = storage_path('app/public/' . $directorioNormalizado);
+
+        if (!file_exists($rutaArchivo)) {
+            return response()->json(['error' => 'El archivo no existe en la ruta especificada'], 404);
+        }
+        //return storage_path('app/public/' . $elemento->directorio);
+
+        return response()->download($rutaArchivo);
+        */
+    }
+
+    public function borrarArchivoIdFamilia($id){
+        $elemento = FamiliasDocumentos::where('id',$id)->first();
+        if (Storage::exists($elemento->directorio)) {
+            return response()->json([ 'message' => 'Existe el archivo' ]);
+        } else {
+            return response()->json([ 'message' => 'NO Existe el archivo' ]);
+        }
+        
     }
 
     public function nuevo(Request $request){

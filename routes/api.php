@@ -106,6 +106,7 @@ Route::group([
     Route::get('familias/documentos/tipos', 'FamiliasDocumentosTiposController@lista');
     Route::get('familias/{id_familia}/documentos', 'FamiliasDocumentosController@lista');
     Route::get('familias/documentos/file/{id}', 'FamiliasDocumentosController@file');
+    Route::delete('familias/documentos/file/{id}', 'FamiliasDocumentosController@borrarArchivoIdFamilia');
     Route::get('familias/documentos/{id}', 'FamiliasDocumentosController@id');
     Route::post('familias/documentos', 'FamiliasDocumentosController@nuevo');
     Route::post('familias/{id_familia}/estudio/socioeconomico/padres/update', 'FamiliasController@estudioSocioeconomicoPadresUpdate');
