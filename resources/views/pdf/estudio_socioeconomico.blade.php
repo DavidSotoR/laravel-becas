@@ -116,12 +116,20 @@ function formatNumber($num) {
 
 function sumaTotalporCampo($campo,$formData) {
 
-    $formData = is_array($formData) ? $formData : (array) $formData;
+    //$formData = is_array($formData) ? $formData : (array) $formData;
 
-    return array_reduce($formData, function($acc, $item) use ($campo) {
+    $total = 0;
+    foreach($formData AS $index => $item){
+        $value = isset($item[$campo]) ? floatval($item[$campo]) : 0;
+        $total+= (is_nan($value) ? 0 : $value);
+    }
+
+    return $total;
+
+    /*return array_reduce($formData, function($acc, $item) use ($campo) {
         $value = isset($item[$campo]) ? floatval($item[$campo]) : 0;
         return $acc + (is_nan($value) ? 0 : $value);
-    }, 0);
+    }, 0);*/
 }
 
 
@@ -135,9 +143,20 @@ function sumaTotales($formData) {
 
 function sumaTotalporCampoSeccion($campo, $seccion, $formData) {
 
-    $formData = is_array($formData) ? $formData : (array) $formData;
+    //$formData = is_array($formData) ? $formData : (array) $formData;
 
-    return array_reduce($formData, function($acc, $item) use ($campo, $seccion) {
+    $total = 0;
+    foreach($formData AS $index => $item){
+        if (isset($item['seccion']) && $item['seccion'] === $seccion) {
+            $value = isset($item[$campo]) ? floatval($item[$campo]) : 0;
+            $total+= (is_nan($value) ? 0 : $value);
+        }
+    }
+
+    return $total;
+
+
+    /*return array_reduce($formData, function($acc, $item) use ($campo, $seccion) {
         $value = 0;
 
         if (isset($item['seccion']) && $item['seccion'] === $seccion) {
@@ -145,7 +164,7 @@ function sumaTotalporCampoSeccion($campo, $seccion, $formData) {
         }
 
         return $acc + (is_nan($value) ? 0 : $value);
-    }, 0);
+    }, 0);*/
 }
 
 function sumaTotalesSeccion($seccion, $formData) {
@@ -619,13 +638,16 @@ function casaHabitacion($formData) {
     $html .= '</table>';
 
     // Total B
-    $totalValor = formatNumber(sumaTotalesSeccion('valor', $formData));
+    $totalValor = sumaTotalesSeccion('valor', $formData);
+    $totalBodyOtros = sumaTotalesSeccion('body_otros', $formData);
+    $totalB =  $totalValor + $totalBodyOtros;
+
     $html .= "
         <table style='width: 100%; font-size:12px;'>
             <tr class='text-start'>
                 <td style='width: 25%;' class='p-1'><b>B) TOTAL:</b></td>
                 <td style='width: 25%;' class='p-1'>
-                    <div class='border-bottom border-secondary'>$" . $totalValor . "</div>
+                    <div class='border-bottom border-secondary'>$" . formatNumber($totalB) . "</div>
                 </td>
                 <td style='width: 25%;' class='p-1'></td>
                 <td style='width: 25%;' class='p-1'></td>
@@ -634,14 +656,12 @@ function casaHabitacion($formData) {
     ";
 
     // Total A + B
-    $totalBodyOtros = sumaTotalesSeccion('body_otros', $formData);
-    $totalTotal = $totalValor + $totalBodyOtros;
     $html .= "
         <table style='width: 100%; font-size:12px;'>
             <tr class='text-start'>
                 <td style='width: 25%;' class='p-1'><b>A + B TOTAL:</b></td>
                 <td style='width: 25%;' class='p-1'>
-                    <div class='border-bottom border-secondary'>$" . formatNumber($totalTotal) . "</div>
+                    <div class='border-bottom border-secondary'>$" . formatNumber(0) . "</div>
                 </td>
                 <td style='width: 25%;' class='p-1'></td>
                 <td style='width: 25%;' class='p-1'></td>
@@ -732,8 +752,8 @@ function deudasMensuales($formData) {
     // Iterar sobre el array de datos
     foreach ($formData as $index => $item) {
         $texto = isset($item['texto']) ? htmlspecialchars($item['texto']) : '';
-        $padreMonto = isset($item['padre_monto']) ? number_format($item['padre_monto'], 2) : '';
-        $monto = isset($item['monto']) ? number_format($item['monto'], 2) : '';
+        $padreMonto = isset($item['padre_monto']) ? number_format($item['padre_monto'], 0) : '';
+        $monto = isset($item['monto']) ? number_format($item['monto'], 0) : '';
 
         $html .= "
             <tr class='text-start'>
@@ -777,7 +797,7 @@ function gastosFamiliaresMensuales($formData) {
     $bloques = array();
     foreach ($formData as $index => $item) {
         $texto = isset($item['texto']) ? htmlspecialchars($item['texto']) : '';
-        $padreMonto = isset($item['padre_monto']) ? number_format($item['padre_monto'], 2) : '';
+        $padreMonto = isset($item['padre_monto']) ? number_format($item['padre_monto'], 0) : '';
 
         $bloques[] = "
                 <td style='width: 25%;' class='p-1'>$texto</td>
@@ -808,6 +828,23 @@ function gastosFamiliaresMensuales($formData) {
 
         $html .= "<tr class='text-start'>$pre_html</tr>";
     }
+
+    $total = formatNumber(sumaTotales($formData));
+
+    $html .= "
+            <tr class='text-start'>
+                <td style='width: 25%;' class='p-1'><b>TOTAL:<b></td>
+                <td style='width: 25%;' class='p-1'>
+                    <table style='width: 100%;'>
+                        <tr>
+                            <td style='width: 10%;'>$</td>
+                            <td style='width: 90%;' class='text-end border-bottom border-secondary'>$total</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        ";
+
 
     $html .= '</table>';
     return $html;
