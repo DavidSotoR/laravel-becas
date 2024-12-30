@@ -25,14 +25,15 @@ class FamiliasDocumentosController extends Controller
         $this->middleware('auth:api');
     }
 
-    public function lista($id_familia){
+    public function lista($id_familia)
+    {
         //$lista = FamiliasDocumentos::where('id_familia',$id_familia)->get();
         //return response()->json($lista);
 
         $query = FamiliasDocumentos::query();
-        $query->where('id_familia',$id_familia);
+        $query->where('id_familia', $id_familia);
 
-        if(isset($request->id_servicio_estudio)){
+        if (isset($request->id_servicio_estudio)) {
             $query->where('id_servicio_estudio', $request->id_servicio_estudio);
         }
 
@@ -41,14 +42,16 @@ class FamiliasDocumentosController extends Controller
         return response()->json($lista);
     }
 
-    public function id($id){
+    public function id($id)
+    {
         //return Storage::download('file.jpg', $name, $headers);
-        $elemento = FamiliasDocumentos::where('id',$id)->first();
+        $elemento = FamiliasDocumentos::where('id', $id)->first();
         return response()->json($elemento);
     }
 
-    public function file($id){
-        $elemento = FamiliasDocumentos::where('id',$id)->first();
+    public function file($id)
+    {
+        $elemento = FamiliasDocumentos::where('id', $id)->first();
 
         //return storage_path('app/public/' . $elemento->directorio);
         return response()->download(storage_path('app/public/' . $elemento->directorio));
@@ -69,17 +72,18 @@ class FamiliasDocumentosController extends Controller
         */
     }
 
-    public function borrarArchivoIdFamilia($id){
-        $elemento = FamiliasDocumentos::where('id',$id)->first();
+    public function borrarArchivoIdFamilia($id)
+    {
+        $elemento = FamiliasDocumentos::find($id);
         if (Storage::exists($elemento->directorio)) {
-            return response()->json([ 'message' => 'Existe el archivo' ]);
+            return response()->json(['message' => 'Existe el archivo', 'data' => $elemento]);
         } else {
-            return response()->json([ 'message' => 'NO Existe el archivo' ]);
+            return response()->json(['message' => 'NO Existe el archivo', 'data' => $elemento]);
         }
-        
     }
 
-    public function nuevo(Request $request){
+    public function nuevo(Request $request)
+    {
         $idFamiliaReq = $request->id_familia;
         $user = auth()->user();
         $id_perfil = $user->perfil->id;
@@ -89,7 +93,7 @@ class FamiliasDocumentosController extends Controller
             return response()->json([], 401);
         }
 
-        if($id_perfil ==  5){
+        if ($id_perfil ==  5) {
 
             $validator = Validator::make($request->all(), [
                 'id_familia' => 'required|int|exists:servicios_estudios,id_familia',
@@ -99,7 +103,7 @@ class FamiliasDocumentosController extends Controller
             ]);
             //get Estudio
             $idse = ServicioEstudio::where('id_familia', '=', auth()->id())->first();
-        }else{
+        } else {
 
             $validator = Validator::make($request->all(), [
                 'id_familias_documentos_tipo' => 'required|int',
@@ -151,22 +155,20 @@ class FamiliasDocumentosController extends Controller
         }
 
         return response()->json(['message' => 'No se encontraron archivos para subir'], 400);
-
-
     }
 
-    public function listaFilesEstudio($id){
+    public function listaFilesEstudio($id)
+    {
         //auth()->id()
 
         $secciones = FamiliasDocumentosTipos::get();
 
-        foreach($secciones AS &$seccion){
+        foreach ($secciones as &$seccion) {
 
             $seccion['documentos'] = [];
 
-            $listaImagenes = FamiliasDocumentos::
-                where('id_servicio_estudio',$id)
-                ->where('id_familias_documentos_tipo',$seccion->id)
+            $listaImagenes = FamiliasDocumentos::where('id_servicio_estudio', $id)
+                ->where('id_familias_documentos_tipo', $seccion->id)
                 ->get();
 
             if ($listaImagenes->isNotEmpty()) {
