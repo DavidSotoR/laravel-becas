@@ -75,10 +75,14 @@ class FamiliasDocumentosController extends Controller
     public function borrarArchivoIdFamilia($id)
     {
         $elemento = FamiliasDocumentos::find($id);
-        if (Storage::exists($elemento->directorio)) {
-            return response()->json(['message' => 'Existe el archivo', 'data' => $elemento]);
+        $disk = 'public';
+
+        if (Storage::disk($disk)->exists($elemento->directorio)) {
+            Storage::disk($disk)->delete($elemento->directorio);
+            $elemento->delete();
+            return response()->json(['status' => true, 'message' => 'Archivo Eliminado Correctamente', 'data' => $elemento]);
         } else {
-            return response()->json(['message' => 'NO Existe el archivo', 'data' => $elemento]);
+            return response()->json(['status' => false, 'message' => 'NO Existe el archivo Validar los datos Enviados', 'data' => $elemento]);
         }
     }
 
@@ -134,7 +138,7 @@ class FamiliasDocumentosController extends Controller
 
                 // Definir la carpeta donde se guardarán los archivos
                 $nombreEstudio = strtoupper(str_replace(' ', '_', $idEstudio['nombre']));
-                $carpeta_guardar = $idse['directorio'] . $nombreEstudio;
+                $carpeta_guardar = "PROYECTOS/" . $idse->id_proyecto . "/" . $request->id_servicio_estudio . "/" . $idse['directorio'] . $nombreEstudio;
 
                 // Almacenar el archivo en la carpeta especificada en el disco 'public'
                 $documentoPath = $file->storeAs($carpeta_guardar, $documentoAlias, 'public');
