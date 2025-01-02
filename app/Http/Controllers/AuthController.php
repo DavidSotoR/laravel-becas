@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
-
+use App\ServicioEstudio;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\User;
@@ -114,12 +114,16 @@ class AuthController extends Controller
 
         $user = auth()->user();
         $user->perfil;
+        if ($user->perfil->id == 6) {
+            $se = ServicioEstudio::with(['cliente','proyecto'])->where('id_familia',$user->id)->first();
+        }
 
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 240,
             'data' => $user,
+            'se' => $se ?? null
         ]);
     }
 
