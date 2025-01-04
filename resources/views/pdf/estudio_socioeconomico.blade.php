@@ -98,7 +98,14 @@
                 <div class="pt-5">
                     <p style="font-size: 1rem" class="text-uppercase fw-bolder">{{$pregunta->numero_pregunta}}.- {{$pregunta->pregunta}}</p>
                 </div>
-                {!! preguntaPorTipoPregunta($pregunta->id_catalogo_encuestas_preguntas_tipo,$pregunta->respuestas) !!}
+                {!!
+                    preguntaPorTipoPregunta(
+                        $pregunta->id_catalogo_encuestas_preguntas_tipo,
+                        $pregunta->respuestas,
+                        $pregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion,
+                        $encuesta->total_parametros
+                    )
+                !!}
             </div>
         @endforeach
     @endif
@@ -517,7 +524,7 @@ function distribucionDeLaCasa($formData) {
     return $html;
 }*/
 // 12 .- Propiedades Hipotecarias / casa Habitación
-function casaHabitacion($formData) {
+function casaHabitacion($formData,$paramtroClasificacion,$totalParametros) {
 
     $html = '<table style="width: 100%; font-size:12px;">';
 
@@ -642,6 +649,8 @@ function casaHabitacion($formData) {
     $totalBodyOtros = sumaTotalesSeccion('body_otros', $formData);
     $totalB =  $totalValor + $totalBodyOtros;
 
+    $totalAB = isset($totalParametros[$paramtroClasificacion]) ? $totalParametros[$paramtroClasificacion] : 0 ;;
+
     $html .= "
         <table style='width: 100%; font-size:12px;'>
             <tr class='text-start'>
@@ -661,7 +670,7 @@ function casaHabitacion($formData) {
             <tr class='text-start'>
                 <td style='width: 25%;' class='p-1'><b>A + B TOTAL:</b></td>
                 <td style='width: 25%;' class='p-1'>
-                    <div class='border-bottom border-secondary'>$" . formatNumber(0) . "</div>
+                    <div class='border-bottom border-secondary'>$" . formatNumber($totalAB) . "</div>
                 </td>
                 <td style='width: 25%;' class='p-1'></td>
                 <td style='width: 25%;' class='p-1'></td>
@@ -1140,7 +1149,7 @@ function setDefaultValue($idPreguntaTipo, $idEstudio, $idPregunta) {
     return $formData;
 }
 
-function preguntaPorTipoPregunta($idPreguntaTipo,$respuestas) {
+function preguntaPorTipoPregunta($idPreguntaTipo,$respuestas,$paramtroClasificacion,$totalParametros) {
     switch($idPreguntaTipo) {
         // 1 .- Pregunta abierta
         case 1:
@@ -1175,7 +1184,7 @@ function preguntaPorTipoPregunta($idPreguntaTipo,$respuestas) {
 
         // 12 .- Propiedades Hipotecarias / casa Habitación
         case 12:
-            return casaHabitacion($respuestas);
+            return casaHabitacion($respuestas,$paramtroClasificacion,$totalParametros);
             break;
 
         // 13 .- Distribución de la casa

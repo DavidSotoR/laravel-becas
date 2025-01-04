@@ -1270,6 +1270,37 @@ class ServicioEstudioController extends Controller
 
     }*/
 
+    private function totalPorParametro($lista_preguntas){
+        $totalPorParametros = [];
+
+        foreach ($lista_preguntas as $item) {
+            // Determinar la clave, manejando valores nulos
+            $total = 0;
+            //if(array_key_exists("respuestas",$item)){
+                foreach($item["respuestas"] AS $respuesta){
+                    $total += $respuesta["monto"];
+                    $total += $respuesta["madre_monto"];
+                    $total += $respuesta["padre_monto"];
+                }
+            //}
+
+            if(array_key_exists($item['id_catalogo_encuestas_preguntas_parametro_clasificacion'],$totalPorParametros)){
+                $totalPorParametros[$item['id_catalogo_encuestas_preguntas_parametro_clasificacion']] += $total;
+            }else{
+                $totalPorParametros[$item['id_catalogo_encuestas_preguntas_parametro_clasificacion']] = $total;
+            }
+
+
+            // Sumar el total correspondiente al parámetro
+            /*if (isset($totalPorParametros[$key])) {
+                $totalPorParametros[$key] += $item['total'];
+            } else {
+                $totalPorParametros[$key] = $item['total'];
+            }*/
+        }
+        return $totalPorParametros;
+    }
+
     private function generateEstudioSocioeconomicoPDF($id)
     {
 
@@ -1293,6 +1324,7 @@ class ServicioEstudioController extends Controller
             $parametro['puntos'] = $this->puntosPrecuntaSeccion($parametro, $id, $encuesta->preguntas);
         }
         $encuesta['parametros'] = $parametros;
+        $encuesta['total_parametros'] = $this->totalPorParametro($encuesta->preguntas);
 
         // Cargar la vista y pasar los datos
         $pdf = PDF::loadView('pdf.estudio_socioeconomico', compact('encuesta'))->setPaper('A4', 'portrait');
