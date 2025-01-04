@@ -694,7 +694,8 @@ function distribucionDeLaCasa($formData) {
     foreach ($formData as $index => $item) {
         if (isset($item['seccion']) && $item['seccion'] === 'seleccionable') {
             $texto = htmlspecialchars($item['texto']);
-            $activo = isset($item['activo']) ? ($item['activo'] ? 'Sí' : 'No') : 'No';
+
+            $activo = isset($item['monto']) ? ($item['monto'] ? formatNumber($item['monto']) : 'No') : 'No';
 
             $html .= "
                 <div class='row col-sm-3' id='pes-" . htmlspecialchars($index) . "'>
