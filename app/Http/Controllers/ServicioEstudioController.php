@@ -1270,6 +1270,23 @@ class ServicioEstudioController extends Controller
 
     }*/
 
+    private function condicionesEspecialesTotalParametros($pregunta_tipo,$seccion){
+        $respuesta_valida =  false;
+
+        switch($pregunta_tipo){
+            case 12:
+                if($seccion == 'valor' || $seccion == 'body_otros') {
+                    $respuesta_valida =  true;
+                }
+            break;
+            default:
+                $respuesta_valida =  true;
+            break;
+        }
+
+        return  $respuesta_valida;
+    }
+
     private function totalPorParametro($lista_preguntas){
         $totalPorParametros = [];
 
@@ -1278,17 +1295,19 @@ class ServicioEstudioController extends Controller
             $total = 0;
             //if(array_key_exists("respuestas",$item)){
                 foreach($item["respuestas"] AS $respuesta){
-                    $total += $respuesta["monto"];
-                    $total += $respuesta["madre_monto"];
-                    $total += $respuesta["padre_monto"];
+                    if($this->condicionesEspecialesTotalParametros($item->id_catalogo_encuestas_preguntas_tipo,$respuesta->seccion)){
+                        $total += $respuesta["monto"];
+                        $total += $respuesta["madre_monto"];
+                        $total += $respuesta["padre_monto"];
+                    }
                 }
             //}
 
-            if(array_key_exists($item['id_catalogo_encuestas_preguntas_parametro_clasificacion'],$totalPorParametros)){
-                $totalPorParametros[$item['id_catalogo_encuestas_preguntas_parametro_clasificacion']] += $total;
-            }else{
-                $totalPorParametros[$item['id_catalogo_encuestas_preguntas_parametro_clasificacion']] = $total;
-            }
+                if(array_key_exists($item['id_catalogo_encuestas_preguntas_parametro_clasificacion'],$totalPorParametros)){
+                    $totalPorParametros[$item['id_catalogo_encuestas_preguntas_parametro_clasificacion']] += $total;
+                }else{
+                    $totalPorParametros[$item['id_catalogo_encuestas_preguntas_parametro_clasificacion']] = $total;
+                }
 
 
             // Sumar el total correspondiente al parámetro

@@ -556,21 +556,26 @@ function casaHabitacion($formData,$paramtroClasificacion,$totalParametros) {
     $html .= '<table style="width: 100%; font-size:12px;">';
     $bloques = array();
     foreach ($formData as $index => $item) {
+        if (isset($item['seccion']) && $item['seccion'] === 'renta') {
+            $texto = htmlspecialchars($item['texto']);
+            $monto = isset($item['monto']) ? formatNumber($item['monto']) : '&nbsp;';
+            $bloques[] = "
+                    <td style='width: 25%;' class='p-1 text-start'>$texto</td>
+                    <td style='width: 25%;' class='p-1 text-start'>
+                        <table style='width: 100%;' >
+                            <tr>
+                                <td style='width: 10%;'>$</td>
+                                <td style='width: 90%;'>
+                                    <div class='border-bottom text-end'>$monto</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    ";
+        }
         if (isset($item['seccion']) && $item['seccion'] === 'valor') {
             $texto = htmlspecialchars($item['texto']);
             $monto = isset($item['monto']) ? formatNumber($item['monto']) : '&nbsp;';
-
-            /*$html .= "
-                <tr class='text-start'>
-                    <td style='width: 25%;' class='p-1 text-start'>$texto</td>
-                    <td style='width: 25%;' class='p-1 text-start'>
-                        <td class='row'>
-                            <div class='col-1'>$</div>
-                            <div class='col-10 border-bottom text-end'>$monto</div>
-                        </td>
-                    </td>
-                </tr>
-            ";*/
             $bloques[] = "
                     <td style='width: 25%;' class='p-1 text-start'>$texto</td>
                     <td style='width: 25%;' class='p-1 text-start'>
