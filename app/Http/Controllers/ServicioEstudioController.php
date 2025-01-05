@@ -349,11 +349,6 @@ class ServicioEstudioController extends Controller
             if (($handle = fopen($file->getPathname(), 'r')) !== false) {
                 // Leer la primera fila como encabezados
                 $headers = fgetcsv($handle);
-
-                // Asegurarte de que los encabezados estén correctamente codificados a UTF-8
-                /* $headers = array_map(function($header) {
-                    return mb_convert_encoding($header, 'UTF-8', 'auto'); // Detecta y convierte a UTF-8
-                }, $headers); */
                 $headers = array_map(function($header) {
                     $encoding = mb_detect_encoding($header, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
                     return mb_convert_encoding($header, 'UTF-8', $encoding ?: 'UTF-8');
@@ -362,10 +357,7 @@ class ServicioEstudioController extends Controller
                 $data = []; // Aquí almacenaremos las filas procesadas
 
                 while (($row = fgetcsv($handle)) !== false) {
-                    // Asegurarte de que cada valor en la fila esté correctamente codificado
-                    /* $row = array_map(function($value) {
-                        return mb_convert_encoding($value, 'UTF-8', 'auto'); // Detecta y convierte a UTF-8
-                    }, $row); */
+                   
                     $row = array_map(function($value) {
                         $encoding = mb_detect_encoding($value, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
                         return mb_convert_encoding($value, 'UTF-8', $encoding ?: 'UTF-8');
@@ -555,24 +547,24 @@ class ServicioEstudioController extends Controller
 
                     $newPadre = [
                         'id_familias_padres_tipo' => 1,
-                        'nombre' => strtolower($familiaPorCrear['Padre_Madre']) == 'padre' ? $familiaPorCrear['Nombre'] : '',
+                        'nombre' => strtolower($familiaPorCrear['Es_Padre']) == 'x' ? $familiaPorCrear['Nombre'] : '',
                         'vive' => $familiaPorCrear['Padre_vive'] == 'si' ? 1 : 0,
                         'direccion' => $direccion,
-                        'email' => strtolower($familiaPorCrear['Padre_Madre']) == 'padre' ? $familiaPorCrear['Email_cuenta'] : '',
+                        'email' => strtolower($familiaPorCrear['Es_Padre']) == 'x' ? $familiaPorCrear['Email_cuenta'] : '',
                         'id_servicio_estudio' => $servNew->id,
-                        'contecto_principal' => strtolower($familiaPorCrear['Padre_Madre']) == 'padre' ? 1 : 0,
+                        'contecto_principal' => strtolower($familiaPorCrear['Es_Padre']) == 'x' ? 1 : 0,
                         'edad' => 0
 
                     ];
 
                     $newMadre = [
                         'id_familias_padres_tipo' => 2,
-                        'nombre' => strtolower($familiaPorCrear['Padre_Madre']) == 'madre' ? $familiaPorCrear['Nombre'] : '',
-                        'vive' => $familiaPorCrear['Madre_vive'] == 'si' ? 1 : 0,
+                        'nombre' => strtolower($familiaPorCrear['Es_Madre']) == 'x' ? $familiaPorCrear['Nombre'] : '',
+                        'vive' => $familiaPorCrear['Es_Madre'] == 'si' ? 1 : 0,
                         'direccion' => $direccion,
-                        'email' => strtolower($familiaPorCrear['Padre_Madre']) == 'madre' ? $familiaPorCrear['Email_cuenta'] : '',
+                        'email' => strtolower($familiaPorCrear['Es_Madre']) == 'x' ? $familiaPorCrear['Email_cuenta'] : '',
                         'id_servicio_estudio' => $servNew->id,
-                        'contecto_principal' => strtolower($familiaPorCrear['Padre_Madre']) == 'madre' ? 1 : 0,
+                        'contecto_principal' => strtolower($familiaPorCrear['Es_Madre']) == 'x' ? 1 : 0,
                         'edad' => 0
 
                     ];
