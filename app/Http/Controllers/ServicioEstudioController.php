@@ -377,14 +377,21 @@ class ServicioEstudioController extends Controller
         if ($extension === 'xlsx') {
             Excel::import(new class($data) implements ToCollection {
                 private $data;
+        
                 public function __construct(&$data) {
                     $this->data = &$data;
                 }
-
+        
                 public function collection(Collection $rows)
                 {
-                    $encabezados = $rows->first(); // Obtener la primera fila como encabezados
-                    $rows->slice(1)->each(function ($row) use ($encabezados) {
+                    // Obtener encabezados de la primera fila
+                    $encabezados = $rows->first();
+        
+                    // Filtrar filas vacías (donde todas las celdas son nulas o vacías)
+                    $rows->slice(1)->filter(function ($row) {
+                        return $row->filter()->isNotEmpty(); // Mantén solo las filas con datos
+                    })->each(function ($row) use ($encabezados) {
+                        // Combinar encabezados con datos
                         $this->data[] = array_combine($encabezados->toArray(), $row->toArray());
                     });
                 }
@@ -470,18 +477,18 @@ class ServicioEstudioController extends Controller
                         'name' => $familiaPorCrear['Nombre'] === '' ? null : $familiaPorCrear['Nombre'],
                         'email' => $familiaPorCrear['Email_cuenta'] === '' ? null : $familiaPorCrear['Email_cuenta'],
                         'id_perfil' => 6,
-                        'id_cliente' => $id_cliente,
+                        'id_cliente' => intval($id_cliente, 10) ,
                         'password' => bcrypt($pass),
                         'password_temporal' => $pass,
                         'latitud' => $lat ?? null,
                         'longitud' => $lon ?? null,
                         'direccion' => $direccion,
                         'calle' => $familiaPorCrear['Calle'] ?? null,
-                        'numero_exterior' => $familiaPorCrear['Numero_exterior'] ?? null,
+                        'numero_exterior' => strval($familiaPorCrear['Numero_exterior'] ) ?? '',
                         'colonia' => $familiaPorCrear['Colonia'] ?? null,
                         'municipio' => $familiaPorCrear['Municipio'] ?? null,
                         'estado' => $familiaPorCrear['Estado'] ?? null,
-                        'codigo_postal' => $familiaPorCrear['Codigo_postal'] ?? null,
+                        'codigo_postal' => strval($familiaPorCrear['Codigo_postal']) ?? null,
                         'pais' => $familiaPorCrear['Pais'] ?? null,
                         'externo' => 1,
                     ];
@@ -507,8 +514,10 @@ class ServicioEstudioController extends Controller
                     ]);
 
                     if ($validator->fails()) {
+                        $errorsRow = $validator->errors();
                         array_push($usuariosExistentes, [
                             "error" => "Formato no válido. Revisar datos ingresados de las familias.",
+                            "errorValidate" => $errorsRow->toArray(), 
                             'tipo' => 'validador',
                             "familia" => $newUser
                         ]);
