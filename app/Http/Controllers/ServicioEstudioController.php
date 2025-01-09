@@ -709,30 +709,30 @@ class ServicioEstudioController extends Controller
             'longitud' => 'nullable|numeric|max:255',
 
             //Validar datos de padrre
-            'padre' => 'required|array',
-            'padre.id_familias_padres_tipo' => 'required|integer|exists:familias_padres_tipos,id',
-            'padre.nombre' => 'required|string|max:255',
-            'padre.edad' => 'required|integer|min:0',
-            'padre.vive' => 'required|boolean',
-            'padre.direccion' => 'required|string|max:255',
+            'padre' => 'nullable|array', // Permite que el array sea opcional
+            'padre.id_familias_padres_tipo' => 'nullable|integer|exists:familias_padres_tipos,id',
+            'padre.nombre' => 'nullable|string|max:255',
+            'padre.edad' => 'nullable|integer|min:0',
+            'padre.vive' => 'nullable|boolean',
+            'padre.direccion' => 'nullable|string|max:255',
             'padre.ocupacion_actual' => 'nullable|string|max:255',
             'padre.empresa_trabajo' => 'nullable|string|max:255',
-            'padre.email' => ['required', 'email:rfc', 'max:255', 'regex:/^\S*$/u'],
-            'padre.telefono_casa' => 'required|string|max:15',
-            'padre.contecto_principal' => 'required|boolean',
+            'padre.email' => ['nullable', 'email:rfc', 'max:255', 'regex:/^\S*$/u'],
+            'padre.telefono_casa' => 'nullable|string|max:15',
+            'padre.contecto_principal' => 'nullable|boolean',
 
             //Validar datos de madre
-            'madre' => 'required|array',
-            'madre.id_familias_padres_tipo' => 'required|integer|exists:familias_padres_tipos,id',
-            'madre.nombre' => 'required|string|max:255',
-            'madre.edad' => 'required|integer|min:0',
-            'madre.vive' => 'required|boolean',
-            'madre.direccion' => 'required|string|max:255',
+            'madre' => 'nullable|array', // Permite que el array sea opcional
+            'madre.id_familias_padres_tipo' => 'nullable|integer|exists:familias_padres_tipos,id',
+            'madre.nombre' => 'nullable|string|max:255',
+            'madre.edad' => 'nullable|integer|min:0',
+            'madre.vive' => 'nullable|boolean',
+            'madre.direccion' => 'nullable|string|max:255',
             'madre.ocupacion_actual' => 'nullable|string|max:255',
             'madre.empresa_trabajo' => 'nullable|string|max:255',
-            'madre.email' => ['required', 'email:rfc', 'max:255', 'regex:/^\S*$/u'],
-            'madre.telefono_casa' => 'required|string|max:15',
-            'madre.contecto_principal' => 'required|boolean',
+            'madre.email' => ['nullable', 'email:rfc', 'max:255', 'regex:/^\S*$/u'],
+            'madre.telefono_casa' => 'nullable|string|max:15',
+            'madre.contecto_principal' => 'nullable|boolean',
 
         ], $messages);
 
@@ -743,10 +743,29 @@ class ServicioEstudioController extends Controller
 
         if ($request->padre["contecto_principal"]) {
             $contacto_por_defecto = $request->padre;
+            $contacto_por_defecto['edad'] = $contacto_por_defecto['edad'] === null ? 0 : $contacto_por_defecto['edad'];
             $contacto_por_defecto_es = 'padre';
+            if ($contacto_por_defecto['nombre'] === null || $contacto_por_defecto['email'] === null) {
+                return response()->json([
+                    "errors" => [
+                        'padre.nombre' => ['Nombre de Contacto Principal es REQUERIDO'],
+                        'padre.email' => ['Email de Contacto Principal es REQUERIDO'],
+                    ]
+                ], 400);
+            }
+            
         } else if ($request->madre["contecto_principal"]) {
             $contacto_por_defecto = $request->madre;
+            $contacto_por_defecto['edad'] = $contacto_por_defecto['edad'] === null ? 0 : $contacto_por_defecto['edad'];
             $contacto_por_defecto_es = 'madre';
+            if ($contacto_por_defecto['nombre'] === null || $contacto_por_defecto['email'] === null) {
+                return response()->json([
+                    "errors" => [
+                        'madre.nombre' => ['Nombre de Contacto Principal es REQUERIDO'],
+                        'madre.email' => ['Email de Contacto Principal es REQUERIDO'],
+                    ]
+                ], 400);
+            }
         } else {
             return response()->json([
                 "errors" => [
@@ -815,7 +834,17 @@ class ServicioEstudioController extends Controller
             }
 
             $padre_request = $request->padre;
+            $padre_request['edad'] = $padre_request['edad']=== null ? 0 : $padre_request['edad'];
+            $padre_request['direccion'] = $padre_request['direccion']=== null ? 'SIN DATO' : $padre_request['direccion'];
+            $padre_request['nombre'] = $padre_request['nombre']=== null ? 'SIN DATO' : $padre_request['nombre'];
+            $padre_request['email'] = $padre_request['email']=== null ? 'SIN DATO' : $padre_request['email'];
+            
             $madre_request = $request->madre;
+            $madre_request['edad'] = $madre_request['edad']=== null ? 0 : $madre_request['edad'];
+            $madre_request['direccion'] = $madre_request['direccion']=== null ? 'SIN DATO' : $madre_request['direccion'];
+            $madre_request['nombre'] = $madre_request['nombre']=== null ? 'SIN DATO' : $madre_request['nombre'];
+            $madre_request['email'] = $madre_request['email']=== null ? 'SIN DATO' : $madre_request['email'];
+            
 
             $padre = FamiliasPadres::create(array_merge(
                 $padre_request,
