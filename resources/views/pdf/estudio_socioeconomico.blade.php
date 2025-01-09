@@ -99,8 +99,6 @@ use Illuminate\Support\Facades\Storage;
         <div class="col-md-12">
             <div class="text-center">
                 <br/>
-                <br/>
-                <br/>
                 <p class="text-uppercase mt-5">COMENTARIO DEL ENTREVISTADOR</p>
                 <br/>
                 <br/>
