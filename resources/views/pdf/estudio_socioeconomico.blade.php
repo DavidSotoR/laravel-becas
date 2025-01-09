@@ -95,6 +95,77 @@ use Illuminate\Support\Facades\Storage;
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-md-12">
+            <div class="text-center">
+                <br/>
+                <br/>
+                <br/>
+                <p class="text-uppercase mt-5">COMENTARIO DEL ENTREVISTADOR</p>
+                <br/>
+                <br/>
+                <table style="width: 100%">
+                    <tr>
+                        <td style="width: 10%"></td>
+                        <td style="width: 20%"><b>CLASIFICACION</b></td>
+                        <td>
+                            <div class="text-center text-uppercase border-bottom pb-2">
+                            </div>
+                        </td>
+                        <td style="width: 10%"></td>
+                    </tr>
+                </table>
+                <br/>
+
+                <table style="width: 100%">
+                    <tr>
+                        <td style="width: 14%"></td>
+                        <td>OBSERVACION</td>
+                        <td style="width: 14%"></td>
+                    </tr>
+                </table>
+                <table style="width: 100%">
+                    <tr>
+                        <td style="width: 10%"></td>
+                        <td class="border" style="height: 250"></td>
+                        <td style="width: 10%"></td>
+                    </tr>
+                </table>
+                <br>
+
+                <p class="text-uppercase">{{$encuesta->estudio->cliente->nombre}}</p>
+
+                <table style="width: 100%">
+                    @foreach ($encuesta->parametros as $parametro)
+                    <tr>
+                        <td style="width: 20%"></td>
+                        <td style="width: 30%">{{$parametro->nombre}}</td>
+                        <td style="width: 5%"></td>
+                        <td style="width: 10%" class="border-bottom text-center">{{$parametro->puntos->valor}}</td>
+                        <td style="width: 5%"></td>
+                        <td style="width: 20%"></td>
+                    </tr>
+                    @endforeach
+                </table>
+                <br>
+
+                <table style="width: 100%">
+                    <tr>
+                        <td style="width: 15%"></td>
+                        <td style="width: 15%">PUNTUACION TOTAL</td>
+                        <td style="width: 5%"  class="border text-center">{{totalPuntosParametros($encuesta)}}</td>
+                        <td style="width: 5%"></td>
+                        <td style="width: 15%">PORCENTAJE SUGERIDO</td>
+                        <td style="width: 5%"  class="border text-center">{{porcentajeSugerido($encuesta)}}</td>
+                        <td style="width: 15%"></td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+    </div>
+    <div class="page-break"></div>  <!--Salto de página -->
+
     @if ($encuesta->preguntas)
         @foreach ($encuesta->preguntas as $pregunta)
             <div class="mt-3 mb-3 ms-5 me-5 no-page-break">
@@ -143,6 +214,66 @@ use Illuminate\Support\Facades\Storage;
 /*
 
 */
+
+function totalPuntosParametros($encuesta){
+    // Extraer los parámetros de la encuesta, manejando si es un objeto o un array
+    $parametros = is_array($encuesta)
+        ? ($encuesta->parametros ?? [])
+        : ($encuesta['parametros'] ?? []);
+
+    // Convertir a colección para facilitar el manejo
+    return collect($parametros)
+        ->reduce(function ($total, $parametro) {
+            // Obtener el valor, manejando si es objeto o array
+            $valor = is_object($parametro)
+                ? ($parametro->puntos->valor ?? 0)
+                : ($parametro['puntos']['valor'] ?? 0);
+
+            // Convertir el valor a entero
+            $valorInt = intval($valor, 10);
+
+            // Sumar al total si es un número finito
+            return $total + (is_finite($valorInt) ? $valorInt : 0);
+        }, 0);
+}
+
+function grandTotalPuntosParametros($encuesta){
+        // Extraer los parámetros de la encuesta, manejando si es un objeto o un array
+        $parametros = is_array($encuesta)
+            ? ($encuesta->parametros ?? [])
+            : ($encuesta['parametros'] ?? []);
+
+        // Convertir a colección para facilitar el manejo
+        return collect($parametros)
+            ->reduce(function ($total, $parametro) {
+                // Obtener el valor, manejando si es objeto o array
+                $valor = is_object($parametro)
+                    ? ($parametro->puntos_maximo ?? 0)
+                    : ($parametro['puntos_maximo'] ?? 0);
+
+                // Convertir el valor a entero
+                $valorInt = intval($valor, 10);
+
+                // Sumar al total si es un número finito
+                return $total + (is_finite($valorInt) ? $valorInt : 0);
+            }, 0);
+}
+function porcentajeSugerido($encuesta){
+        $puntos = totalPuntosParametros($encuesta);
+        $total_puntos = grandTotalPuntosParametros($encuesta);
+
+        $porcentaje = $total_puntos > 0 ? ($puntos * 100) / $total_puntos : 0;
+
+        $bloquesDe20 = floor($porcentaje / 20);
+
+        // Calculamos el descuento: cada bloque de 20% equivale a un 5% de descuento
+        $descuento = $bloquesDe20 * 5;
+
+        // Aseguramos que el descuento máximo sea 25%
+        $descuentoFinal = min($descuento, 25);
+
+        return $descuentoFinal . '%';
+}
 
 function imagenReturn($path){
     $contents = storage_path('app/public/' . $path);
