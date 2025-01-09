@@ -1,3 +1,6 @@
+<?
+use Illuminate\Support\Facades\Storage;
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -110,12 +113,55 @@
         @endforeach
     @endif
 
+    @if ($encuesta->imagenes)
+    <div class="page-break"></div>  <!--Salto de página -->
+    <div>
+
+        @foreach ($encuesta->imagenes as $index => $imagenes)
+
+            @if (count($imagenes->documentos) AND ($imagenes->nombre == "CASA HABITACION" || $imagenes->nombre == "AUTOMOVILES"))
+
+                <h2>{{$imagenes->nombre}}</h2>
+
+                @foreach (mostrarImagenes($imagenes->documentos) AS $img)
+                    {!! $img !!}
+                @endforeach
+
+            @endif
+
+        @endforeach
+
+    </div>
+    @endif
 
 </body>
 </html>
 
 
 <?php
+
+/*
+
+*/
+
+function imagenReturn($path){
+    $contents = storage_path('app/public/' . $path);
+    $type = pathinfo($contents, PATHINFO_EXTENSION);
+    $data = file_get_contents($contents);
+    $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+    return "<img src=\"$base64\" width=\"250\" height=\"250\"/>";
+}
+
+function mostrarImagenes($lista_documentos){
+    $imagenes = array();
+
+    foreach($lista_documentos AS $documento){
+        $img = imagenReturn($documento->directorio);
+        $imagenes[] = $img;
+    }
+
+    return $imagenes;
+}
 
 function formatNumber($num) {
     return number_format($num, 0, '', ',');
