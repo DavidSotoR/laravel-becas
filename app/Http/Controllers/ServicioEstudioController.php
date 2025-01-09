@@ -14,6 +14,8 @@ use App\CatalogoEncuestasPreguntasParametrosClasificacions;
 use App\ServiciosEstudiosRespuestas;
 use App\CatalogoEncuestasPreguntas;
 use App\CatalogoEncuestasPreguntasParametrosClasificacionItems;
+use App\FamiliasDocumentosTipos;
+use App\FamiliasDocumentos;
 use App\Mail\NotificacionCorreo;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -1320,6 +1322,26 @@ class ServicioEstudioController extends Controller
         return $totalPorParametros;
     }
 
+    private function listaDeDocumentosEstudio($id){
+
+        $secciones = FamiliasDocumentosTipos::get();
+
+        foreach ($secciones as &$seccion) {
+
+            $seccion['documentos'] = [];
+
+            $listaImagenes = FamiliasDocumentos::where('id_servicio_estudio', $id)
+                ->where('id_familias_documentos_tipo', $seccion->id)
+                ->get();
+
+            if ($listaImagenes->isNotEmpty()) {
+                $seccion['documentos'] = $listaImagenes;
+            }
+        }
+
+        return $secciones;
+    }
+
     private function generateEstudioSocioeconomicoPDF($id)
     {
 
@@ -1335,6 +1357,7 @@ class ServicioEstudioController extends Controller
         $encuesta = $proyectoCliente->encuesta;
         $encuesta['estudio'] = $elemento;
         $encuesta['proyecto'] = $proyectoCliente->proyecto;
+        $encuesta['imagenes'] = $this->listaDeDocumentosEstudio($id);
         //$encuesta['cliente'] = $elemento->cliente;
 
         $parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta', $encuesta->id)->get();
@@ -1344,6 +1367,8 @@ class ServicioEstudioController extends Controller
         }
         $encuesta['parametros'] = $parametros;
         $encuesta['total_parametros'] = $this->totalPorParametro($encuesta->preguntas);
+
+        //return response()->json($encuesta, 200);
 
         // Cargar la vista y pasar los datos
         $pdf = PDF::loadView('pdf.estudio_socioeconomico', compact('encuesta'))->setPaper('A4', 'portrait');
