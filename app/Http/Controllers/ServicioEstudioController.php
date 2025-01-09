@@ -351,11 +351,6 @@ class ServicioEstudioController extends Controller
             if (($handle = fopen($file->getPathname(), 'r')) !== false) {
                 // Leer la primera fila como encabezados
                 $headers = fgetcsv($handle);
-
-                // Asegurarte de que los encabezados estén correctamente codificados a UTF-8
-                /* $headers = array_map(function($header) {
-                    return mb_convert_encoding($header, 'UTF-8', 'auto'); // Detecta y convierte a UTF-8
-                }, $headers); */
                 $headers = array_map(function($header) {
                     $encoding = mb_detect_encoding($header, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
                     return mb_convert_encoding($header, 'UTF-8', $encoding ?: 'UTF-8');
@@ -364,10 +359,7 @@ class ServicioEstudioController extends Controller
                 $data = []; // Aquí almacenaremos las filas procesadas
 
                 while (($row = fgetcsv($handle)) !== false) {
-                    // Asegurarte de que cada valor en la fila esté correctamente codificado
-                    /* $row = array_map(function($value) {
-                        return mb_convert_encoding($value, 'UTF-8', 'auto'); // Detecta y convierte a UTF-8
-                    }, $row); */
+                   
                     $row = array_map(function($value) {
                         $encoding = mb_detect_encoding($value, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
                         return mb_convert_encoding($value, 'UTF-8', $encoding ?: 'UTF-8');
@@ -387,14 +379,21 @@ class ServicioEstudioController extends Controller
         if ($extension === 'xlsx') {
             Excel::import(new class($data) implements ToCollection {
                 private $data;
+        
                 public function __construct(&$data) {
                     $this->data = &$data;
                 }
-
+        
                 public function collection(Collection $rows)
                 {
-                    $encabezados = $rows->first(); // Obtener la primera fila como encabezados
-                    $rows->slice(1)->each(function ($row) use ($encabezados) {
+                    // Obtener encabezados de la primera fila
+                    $encabezados = $rows->first();
+        
+                    // Filtrar filas vacías (donde todas las celdas son nulas o vacías)
+                    $rows->slice(1)->filter(function ($row) {
+                        return $row->filter()->isNotEmpty(); // Mantén solo las filas con datos
+                    })->each(function ($row) use ($encabezados) {
+                        // Combinar encabezados con datos
                         $this->data[] = array_combine($encabezados->toArray(), $row->toArray());
                     });
                 }
@@ -480,18 +479,18 @@ class ServicioEstudioController extends Controller
                         'name' => $familiaPorCrear['Nombre'] === '' ? null : $familiaPorCrear['Nombre'],
                         'email' => $familiaPorCrear['Email_cuenta'] === '' ? null : $familiaPorCrear['Email_cuenta'],
                         'id_perfil' => 6,
-                        'id_cliente' => $id_cliente,
+                        'id_cliente' => intval($id_cliente, 10) ,
                         'password' => bcrypt($pass),
                         'password_temporal' => $pass,
                         'latitud' => $lat ?? null,
                         'longitud' => $lon ?? null,
                         'direccion' => $direccion,
                         'calle' => $familiaPorCrear['Calle'] ?? null,
-                        'numero_exterior' => $familiaPorCrear['Numero_exterior'] ?? null,
+                        'numero_exterior' => strval($familiaPorCrear['Numero_exterior'] ) ?? '',
                         'colonia' => $familiaPorCrear['Colonia'] ?? null,
                         'municipio' => $familiaPorCrear['Municipio'] ?? null,
                         'estado' => $familiaPorCrear['Estado'] ?? null,
-                        'codigo_postal' => $familiaPorCrear['Codigo_postal'] ?? null,
+                        'codigo_postal' => strval($familiaPorCrear['Codigo_postal']) ?? null,
                         'pais' => $familiaPorCrear['Pais'] ?? null,
                         'externo' => 1,
                     ];
@@ -517,8 +516,10 @@ class ServicioEstudioController extends Controller
                     ]);
 
                     if ($validator->fails()) {
+                        $errorsRow = $validator->errors();
                         array_push($usuariosExistentes, [
                             "error" => "Formato no válido. Revisar datos ingresados de las familias.",
+                            "errorValidate" => $errorsRow->toArray(), 
                             'tipo' => 'validador',
                             "familia" => $newUser
                         ]);
@@ -557,24 +558,24 @@ class ServicioEstudioController extends Controller
 
                     $newPadre = [
                         'id_familias_padres_tipo' => 1,
-                        'nombre' => strtolower($familiaPorCrear['Padre_Madre']) == 'padre' ? $familiaPorCrear['Nombre'] : '',
+                        'nombre' => strtolower($familiaPorCrear['Es_Padre']) == 'x' ? $familiaPorCrear['Nombre'] : '',
                         'vive' => $familiaPorCrear['Padre_vive'] == 'si' ? 1 : 0,
                         'direccion' => $direccion,
-                        'email' => strtolower($familiaPorCrear['Padre_Madre']) == 'padre' ? $familiaPorCrear['Email_cuenta'] : '',
+                        'email' => strtolower($familiaPorCrear['Es_Padre']) == 'x' ? $familiaPorCrear['Email_cuenta'] : '',
                         'id_servicio_estudio' => $servNew->id,
-                        'contecto_principal' => strtolower($familiaPorCrear['Padre_Madre']) == 'padre' ? 1 : 0,
+                        'contecto_principal' => strtolower($familiaPorCrear['Es_Padre']) == 'x' ? 1 : 0,
                         'edad' => 0
 
                     ];
 
                     $newMadre = [
                         'id_familias_padres_tipo' => 2,
-                        'nombre' => strtolower($familiaPorCrear['Padre_Madre']) == 'madre' ? $familiaPorCrear['Nombre'] : '',
-                        'vive' => $familiaPorCrear['Madre_vive'] == 'si' ? 1 : 0,
+                        'nombre' => strtolower($familiaPorCrear['Es_Madre']) == 'x' ? $familiaPorCrear['Nombre'] : '',
+                        'vive' => $familiaPorCrear['Es_Madre'] == 'si' ? 1 : 0,
                         'direccion' => $direccion,
-                        'email' => strtolower($familiaPorCrear['Padre_Madre']) == 'madre' ? $familiaPorCrear['Email_cuenta'] : '',
+                        'email' => strtolower($familiaPorCrear['Es_Madre']) == 'x' ? $familiaPorCrear['Email_cuenta'] : '',
                         'id_servicio_estudio' => $servNew->id,
-                        'contecto_principal' => strtolower($familiaPorCrear['Padre_Madre']) == 'madre' ? 1 : 0,
+                        'contecto_principal' => strtolower($familiaPorCrear['Es_Madre']) == 'x' ? 1 : 0,
                         'edad' => 0
 
                     ];
