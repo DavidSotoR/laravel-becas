@@ -139,7 +139,7 @@ use Illuminate\Support\Facades\Storage;
                         <td style="width: 20%"></td>
                         <td style="width: 30%">{{$parametro->nombre}}</td>
                         <td style="width: 5%"></td>
-                        <td style="width: 10%" class="border-bottom text-center">{{$parametro->puntos->valor}}</td>
+                        <td style="width: 10%" class="border-bottom text-center">{{$parametro->puntos->valor ?? ''}}</td>
                         <td style="width: 5%"></td>
                         <td style="width: 20%"></td>
                     </tr>
@@ -175,7 +175,10 @@ use Illuminate\Support\Facades\Storage;
                         $pregunta->id_catalogo_encuestas_preguntas_tipo,
                         $pregunta->respuestas,
                         $pregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion,
-                        $encuesta->total_parametros
+                        $encuesta->total_parametros,
+                        ($pregunta->parametros ?? array()),
+                        ($pregunta->parametros_promedio_academico ?? array()),
+                        ($pregunta->parametros_promedio_conducta ?? array()),
                     )
                 !!}
             </div>
@@ -210,7 +213,7 @@ use Illuminate\Support\Facades\Storage;
 <?php
 
 /*
-
+Metodos
 */
 
 function totalPuntosParametros($encuesta){
@@ -356,7 +359,9 @@ function sumaTotalesSeccion($seccion, $formData) {
     $total += sumaTotalporCampoSeccion('monto', $seccion, $formData);
     return $total;
 }
-
+/*
+Manejadar de tipo de preguntas
+*/
 // 1 .-  Pregunta abierta
 function preguntaAbierta($formData) {
 
@@ -390,12 +395,122 @@ function preguntaAbierta($formData) {
 
     return  $html;
 }
+// 2 .-  Lista selección múltiple
+// 3 .-  Antigüedad en colegio
+function antiguedadEnColegio($formData,$parametros){
+    $respuesta = isset($formData[0]['valor']) ? htmlspecialchars($formData[0]['valor']) : '';
 
-    // 2 .-  Lista selección múltiple
-    // 3 .-  Antigüedad en colegio
-    // 4 .-  Número de Hijos
-    // 5 .-  Orfandad
-    // 6 .-  Dependientes Económicos
+    $html = '<table style="width: 100%; font-size:12px;">';
+    $html .= "  <tr>
+                    <td style='width: 30%;'></td>
+                    <td></td>
+                    <td style='width: 10%;'></td>
+                    <td>AÑOS</td>
+                    <td style='width: 30%;'></td>
+                </tr>";
+    foreach($parametros AS $parametro){
+        $html .= "<tr>
+                    <td style='width: 40%;'></td>
+                    <td class='border-bottom text-center'>".( $respuesta == $parametro['valor'] ? 'X' : '')."</td>
+                    <td style='width: 10%;'></td>
+                    <td>".$parametro['limiten_inferior']." - ".($parametro['limite_superior'] ? $parametro['limite_superior'] : 'O MAS' )."</td>
+                    <td style='width: 40%;'></td>
+                </tr>";
+    }
+    $html .= '</table>';
+    return $html;
+}
+// 4 .-  Número de Hijos
+function opcionesParametrosPromedioAcademico($promedio_academico, $parametrosPromedioAcademico)
+{
+    // Asegurarse de que $parametrosPromedioAcademico es una colección
+    $parametros = collect($parametrosPromedioAcademico);
+
+    // Buscar el parámetro que coincide con el promedio académico
+    $parametro = $parametros->first(function ($item) use ($promedio_academico) {
+        return $item['valor'] == $promedio_academico;
+    });
+
+    // Retornar 'limiten_inferior' o un espacio en blanco si no existe
+    return isset($parametro['limiten_inferior']) ? $parametro['limiten_inferior'] : "\u{00A0}";
+}
+
+function opcionesParametrosPromedioConducta($promedio_conducta, $parametrosPromedioConducta)
+{
+    // Asegurarse de que $parametrosPromedioConducta es una colección
+    $parametros = collect($parametrosPromedioConducta);
+
+    // Buscar el parámetro que coincide con el promedio de conducta
+    $parametro = $parametros->first(function ($item) use ($promedio_conducta) {
+        return  $item['valor'] ==  $promedio_conducta;
+    });
+
+    // Retornar 'limiten_inferior' o un espacio en blanco si no existe
+    return isset($parametro['limiten_inferior']) ? $parametro['limiten_inferior'] : "\u{00A0}";
+}
+
+function numeroDeHijos($formData,$parametros_promedio_academico,$parametros_promedio_conducta){
+
+    $html = '
+        <table style="width: 100%; font-size:12px;">
+            <tr>
+                <td style="width: 50%;">NOMBRE</td>
+                <td style="width: 10%;" class="text-center">% BECA ACTUAL</td>
+                <td style="width: 10%;" class="text-center">CURSAR</td>
+                <td style="width: 10%;">PROMEDIO ACADEMICO</td>
+                <td style="width: 10%;">PROMEDIO CONDUCTA</td>
+            </tr>
+    ';
+
+
+    foreach ($formData as $index => $item) {
+            $nombre             = isset($item['nombre']) ? htmlspecialchars($item['nombre']) : '&nbsp;';
+            $respuesta          = isset($item['respuesta']) ? htmlspecialchars($item['respuesta']) : '&nbsp;';
+            $anio_cursar        = strlen($item['nombre']) ? $item['monto'] : '&nbsp;';
+            $promedio_academico = strlen($item['nombre']) ? opcionesParametrosPromedioAcademico($item['padre_monto'], $parametros_promedio_academico) : '&nbsp;';
+            $promedio_conducta  = strlen($item['nombre']) ? opcionesParametrosPromedioConducta($item['madre_monto'],   $parametros_promedio_conducta) : '&nbsp;';
+
+            $html .= '
+                <tr class="text-start">
+                    <td style="width: 40%;" class="p-1"><div class="border-bottom">'.$nombre.'</div></td>
+                    <td style="width: 10%;" class="text-center p-1"><div class="border-bottom">'.$respuesta.'</div></td>
+                    <td style="width: 10%;" class="text-center p-1"><div class="border-bottom">'.$anio_cursar .'</div></td>
+                    <td style="width: 15%;" class="text-center p-1"><div class="border-bottom">'.$promedio_academico.'</div></td>
+                    <td style="width: 15%;" class="text-center p-1"><div class="border-bottom">'.$promedio_conducta.'</div></td>
+
+                </tr>
+            ';
+        }
+
+    $html .= '</table>';
+    return $html;
+}
+// 5 .-  Orfandad
+function orfandad($formData,$parametros){
+
+    $respuesta = isset($formData[0]['valor']) ? htmlspecialchars($formData[0]['valor']) : '';
+
+    $html = '<table style="width: 100%; font-size:12px;">';
+    $html .= "  <tr>
+                    <td style='width: 30%;'></td>
+                    <td></td>
+                    <td style='width: 10%;'></td>
+                    <td style='width: 20%;'></td>
+                    <td style='width: 30%;'></td>
+                </tr>";
+    foreach($parametros AS $parametro){
+        $html .= "<tr>
+                    <td style='width: 30%;'></td>
+                    <td class='border-bottom text-center'>".( $respuesta == $parametro['valor'] ? 'X' : '')."</td>
+                    <td style='width: 5%;'></td>
+                    <td style='width: 25%;'>".$parametro['texto']."</td>
+                    <td style='width: 30%;'></td>
+                </tr>";
+    }
+    $html .= '</table>';
+    return $html;
+}
+// 6 .-  Dependientes Económicos
 function dependientesEconomicamente($formData) {
 
     $html = '
@@ -463,7 +578,7 @@ function familiaEconomicameteActiva($formData) {
         $texto = isset($item['texto']) ? htmlspecialchars($item['texto']) : '&nbsp;';
         $vive = isset($item['vive']) && $item['vive'] ? 'Sí' : 'No';
         $activo = isset($item['activo']) && $item['activo'] ? 'Sí' : 'No';
-        $respuesta = isset($item['respuesta']) ? htmlspecialchars($item['respuesta']) : '&nbsp;';
+        $respuesta = isset($item['respuesta']) ? htmlspecialchars($item['respuesta']).'&nbsp;' : '&nbsp;';
 
         $html .= '
             <tr>
@@ -576,7 +691,70 @@ function ingresoNetoMensual($formData) {
     return $html;
 }
     // 9 .-  Ahorro
+function ahorro($formData){
+    $datos      = isset($formData[0]) ? $formData[0] : attay();
+    $activo     = isset($datos['activo']) && $datos['activo'] ? 'Sí' : 'No';
+    $respuesta  = isset($datos['respuesta']) ? htmlspecialchars($formData[0]['respuesta']) : '&nbsp;';
+    $monto      = isset($datos['monto']) ? formatNumber($datos['monto']) : '&nbsp;';
+
+    $html = '<table style="width: 100%; font-size:12px;">';
+    $html .= "  <tr>
+                    <td style='width: 5%;'>$activo</td>
+                    <td style='width: 10%;'>DESCRIBE</td>
+                    <td style='width: 10%;'>$respuesta</td>
+                    <td style='width: 30%;'>D) MONTO DE AHORROS O INVERCIONES</td>
+                    <td style='width: 20%;'>$$monto</td>
+                </tr>";
+    $html .= '</table>';
+    return $html;
+}
     // 10 .-  Inversiones
+function inverciones($formData,$totalParametros){
+    $html = '';
+    foreach($formData AS $item){
+        if($item["seccion"] == "activa"){
+            $activo = isset($datos['activo']) && $datos['activo'] ? 'SI' : 'NO';
+            $html  .= "<p 'font-size:12px;'>$activo</p>";
+        }
+    }
+
+    $html   .= "<br>";
+    $html   .= '<table style="width: 100%; font-size:12px;">';
+    $html   .= "  <tr>
+                    <td style='width: 75%;'>DESCRIBIR</td>
+                    <td style='width: 5%;'></td>
+                    <td style='width: 20%;'>VALOR ESTIMADO</td>
+                </tr>";
+    foreach($formData AS $item){
+        if($item["seccion"] == "inverciones"){
+            $respuesta  = isset($item['respuesta']) ? htmlspecialchars($item['respuesta']) : '&nbsp;';
+            $monto      = isset($item['monto']) ? formatNumber($item['monto']) : '&nbsp;';
+            $html .= "<tr>
+                        <td class='border-bottom'>".$respuesta."</td>
+                        <td ></td>
+                        <td class='border-bottom text-end'>$".$monto."</td>
+                    </tr>";
+        }
+    }
+    $html .= '</table>';
+
+    $total = isset($totalParametros[-1]) ? $totalParametros[-1] : 0 ;;
+
+    // Total A + B
+    $html .= "
+        <table style='width: 100%; font-size:12px;'>
+            <tr class='text-start'>
+                <td style='width: 25%;' class='p-1'><b>TOTAL:</b></td>
+                <td style='width: 25%;' class='p-1'>
+                    <div class='border-bottom border-secondary'>$" . formatNumber($total) . "</div>
+                </td>
+                <td style='width: 25%;' class='p-1'></td>
+                <td style='width: 25%;' class='p-1'></td>
+            </tr>
+        </table>
+    ";
+    return $html;
+}
     // 11 .-  Vehículos
 function preguntaVeiculos($formData) {
 
@@ -861,12 +1039,24 @@ function casaHabitacion($formData,$paramtroClasificacion,$totalParametros) {
     return $html;
 }
 // 13 .- Distribución de la casa
-function distribucionDeLaCasa($formData) {
+function opcionSeleccionadaDLC($valor,$lista_parametros){
+
+    $parametros = collect($lista_parametros);
+
+    // Buscar el parámetro que coincide con el promedio de conducta
+    $parametro = $parametros->first(function ($item) use ($valor) {
+        return  $item['valor'] ==  $valor;
+    });
+
+    // Retornar 'limiten_inferior' o un espacio en blanco si no existe
+    return isset($parametro['texto']) ? $parametro['texto'] : "\u{00A0}";
+}
+function distribucionDeLaCasa($formData,$parametros) {
     // Función para generar el HTML de cada sección
-    $html = '<div class="row">';
+    $html = '';
 
     // Sección 'seleccionable'
-    foreach ($formData as $index => $item) {
+    /*foreach ($formData as $index => $item) {
         if (isset($item['seccion']) && $item['seccion'] === 'seleccionable') {
             $texto = htmlspecialchars($item['texto']);
 
@@ -883,27 +1073,21 @@ function distribucionDeLaCasa($formData) {
                 </div>
             ";
         }
-    }
+    }*/
 
     // Salto de línea
-    $html .= "<div class='sol-12'><br /></div>";
 
     // Sección 'clasificacion'
     foreach ($formData as $index => $item) {
         if (isset($item['seccion']) && $item['seccion'] === 'clasificacion') {
             $texto = htmlspecialchars($item['texto']);
-            $respuesta = isset($item['respuesta']) ? htmlspecialchars($item['respuesta']) : '&nbsp;';
+            $respuesta = isset($item['respuesta']) ? htmlspecialchars($item['respuesta']) : ';';
 
-            $html .= "
-                <div class='row col-12' id='pes-" . htmlspecialchars($index) . "'>
-                    <div class='col-4 p-1 text-start'>$texto</div>
-                    <div class='col-8 p-1'>
-                        <div class='border-bottom border-secondary'>$respuesta</div>
-                    </div>
-                </div>
-            ";
+            $html .= "<div class='border-bottom border-secondary'>OBSERVAMOS QUE LA FAMILIA CUENTA CON: ".opcionSeleccionadaDLC($respuesta,$parametros)."</div>";
         }
     }
+
+    $html .= "<br>";
 
     // Sección 'descripcion'
     foreach ($formData as $index => $item) {
@@ -911,25 +1095,16 @@ function distribucionDeLaCasa($formData) {
             $texto = htmlspecialchars($item['texto']);
             $respuesta = isset($item['respuesta']) ? htmlspecialchars($item['respuesta']) : '&nbsp;';
 
-            $html .= "
-                <div class='row col-12' id='pes-" . htmlspecialchars($index) . "'>
-                    <div class='col-sm-3 p-1 text-start'>$texto</div>
-                    <div class='col-sm-9 p-1'>
-                        <div style='width: 100%; height: 200px; padding: 5px; border: none; border-bottom: 1px solid #ced4da; overflow-y: auto; white-space: pre-wrap;'>
-                            $respuesta
-                        </div>
-                    </div>
-                </div>
-            ";
+            $html .= "<div style='width: 100%;'>$respuesta</div>";
         }
     }
 
-    $html .= '</div>';
     return $html;
 }
 // 14 .-  Deudas
 function deudasMensuales($formData) {
 
+    $monto_total = 0;
     // Generar el encabezado de la tabla
     $html = '<table style="width: 100%; font-size:12px;">';
 
@@ -944,6 +1119,7 @@ function deudasMensuales($formData) {
         $texto = isset($item['texto']) ? htmlspecialchars($item['texto']) : '';
         $padreMonto = isset($item['padre_monto']) ? number_format($item['padre_monto'], 0) : '';
         $monto = isset($item['monto']) ? number_format($item['monto'], 0) : '';
+        $monto_total += isset($item['monto']) ? $item['monto']  : 0;
 
         $html .= "
             <tr class='text-start'>
@@ -969,6 +1145,27 @@ function deudasMensuales($formData) {
     }
 
     $html .= '</table>';
+
+    $total = formatNumber($monto_total);
+
+    $html .= "
+            <table style='width: 100%; font-size:12px;'>
+                <tr class='text-start'>
+                    <td style='width: 25%;' class='p-1'><b>TOTAL:<b></td>
+                    <td style='width: 25%;' class='p-1'>
+                        <table style='width: 100%;'>
+                            <tr>
+                                <td style='width: 10%;'>$</td>
+                                <td style='width: 90%;' class='text-end border-bottom border-secondary'>$total</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+        ";
+
+
     return $html;
 }
 // 15 .-  Gastos familiares
@@ -1330,7 +1527,15 @@ function setDefaultValue($idPreguntaTipo, $idEstudio, $idPregunta) {
     return $formData;
 }
 
-function preguntaPorTipoPregunta($idPreguntaTipo,$respuestas,$paramtroClasificacion,$totalParametros) {
+function preguntaPorTipoPregunta(
+        $idPreguntaTipo,
+        $respuestas,
+        $paramtroClasificacion,
+        $totalParametros,
+        $parametros,
+        $parametros_promedio_academico,
+        $parametros_promedio_conducta
+    ) {
     switch($idPreguntaTipo) {
         // 1 .- Pregunta abierta
         case 1:
@@ -1339,8 +1544,17 @@ function preguntaPorTipoPregunta($idPreguntaTipo,$respuestas,$paramtroClasificac
 
         // 2 .- Lista selección múltiple
         // 3 .- Antigüedad en colegio
+        case 3:
+            return antiguedadEnColegio($respuestas,$parametros);
+            break;
         // 4 .- Número de Hijos
+        case 4:
+            return numeroDeHijos($respuestas,$parametros_promedio_academico,$parametros_promedio_conducta);
+            break;
         // 5 .- Orfandad
+        case 5:
+            return orfandad($respuestas,$parametros);
+            break;
         // 6 .- Dependientes Económicos
         case 6:
             return dependientesEconomicamente($respuestas);
@@ -1357,7 +1571,13 @@ function preguntaPorTipoPregunta($idPreguntaTipo,$respuestas,$paramtroClasificac
             break;
 
         // 9 .- Ahorro
+        case 9:
+            return ahorro($respuestas);
+            break;
         // 10 .- Inversiones
+        case 10:
+            return inverciones($respuestas,$totalParametros);
+            break;
         // 11 .- Vehículos
         case 11:
             return preguntaVeiculos($respuestas);
@@ -1370,7 +1590,7 @@ function preguntaPorTipoPregunta($idPreguntaTipo,$respuestas,$paramtroClasificac
 
         // 13 .- Distribución de la casa
         case 13:
-            return distribucionDeLaCasa($respuestas);
+            return distribucionDeLaCasa($respuestas,$parametros);
 
         // 14 .- Deudas
         case 14:

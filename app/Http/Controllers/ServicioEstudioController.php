@@ -359,7 +359,7 @@ class ServicioEstudioController extends Controller
                 $data = []; // Aquí almacenaremos las filas procesadas
 
                 while (($row = fgetcsv($handle)) !== false) {
-                   
+
                     $row = array_map(function($value) {
                         $encoding = mb_detect_encoding($value, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
                         return mb_convert_encoding($value, 'UTF-8', $encoding ?: 'UTF-8');
@@ -379,16 +379,16 @@ class ServicioEstudioController extends Controller
         if ($extension === 'xlsx') {
             Excel::import(new class($data) implements ToCollection {
                 private $data;
-        
+
                 public function __construct(&$data) {
                     $this->data = &$data;
                 }
-        
+
                 public function collection(Collection $rows)
                 {
                     // Obtener encabezados de la primera fila
                     $encabezados = $rows->first();
-        
+
                     // Filtrar filas vacías (donde todas las celdas son nulas o vacías)
                     $rows->slice(1)->filter(function ($row) {
                         return $row->filter()->isNotEmpty(); // Mantén solo las filas con datos
@@ -519,7 +519,7 @@ class ServicioEstudioController extends Controller
                         $errorsRow = $validator->errors();
                         array_push($usuariosExistentes, [
                             "error" => "Formato no válido. Revisar datos ingresados de las familias.",
-                            "errorValidate" => $errorsRow->toArray(), 
+                            "errorValidate" => $errorsRow->toArray(),
                             'tipo' => 'validador',
                             "familia" => $newUser
                         ]);
@@ -755,7 +755,7 @@ class ServicioEstudioController extends Controller
                     ]
                 ], 400);
             }
-            
+
         } else if ($request->madre["contecto_principal"]) {
             $contacto_por_defecto = $request->madre;
             $contacto_por_defecto['edad'] = $contacto_por_defecto['edad'] === null ? 0 : $contacto_por_defecto['edad'];
@@ -840,13 +840,13 @@ class ServicioEstudioController extends Controller
             $padre_request['direccion'] = $padre_request['direccion']=== null ? 'SIN DATO' : $padre_request['direccion'];
             $padre_request['nombre'] = $padre_request['nombre']=== null ? 'SIN DATO' : $padre_request['nombre'];
             $padre_request['email'] = $padre_request['email']=== null ? 'SIN DATO' : $padre_request['email'];
-            
+
             $madre_request = $request->madre;
             $madre_request['edad'] = $madre_request['edad']=== null ? 0 : $madre_request['edad'];
             $madre_request['direccion'] = $madre_request['direccion']=== null ? 'SIN DATO' : $madre_request['direccion'];
             $madre_request['nombre'] = $madre_request['nombre']=== null ? 'SIN DATO' : $madre_request['nombre'];
             $madre_request['email'] = $madre_request['email']=== null ? 'SIN DATO' : $madre_request['email'];
-            
+
 
             $padre = FamiliasPadres::create(array_merge(
                 $padre_request,
@@ -1323,9 +1323,9 @@ class ServicioEstudioController extends Controller
         $totalPorParametros = [];
 
         foreach ($lista_preguntas as $item) {
-            // Determinar la clave, manejando valores nulos
+
             $total = 0;
-            //if(array_key_exists("respuestas",$item)){
+
                 foreach($item["respuestas"] AS $respuesta){
                     if($this->condicionesEspecialesTotalParametros($item->id_catalogo_encuestas_preguntas_tipo,$respuesta->seccion)){
                         $total += $respuesta["monto"];
@@ -1333,7 +1333,6 @@ class ServicioEstudioController extends Controller
                         $total += $respuesta["padre_monto"];
                     }
                 }
-            //}
 
                 if(array_key_exists($item['id_catalogo_encuestas_preguntas_parametro_clasificacion'],$totalPorParametros)){
                     $totalPorParametros[$item['id_catalogo_encuestas_preguntas_parametro_clasificacion']] += $total;
@@ -1341,13 +1340,15 @@ class ServicioEstudioController extends Controller
                     $totalPorParametros[$item['id_catalogo_encuestas_preguntas_parametro_clasificacion']] = $total;
                 }
 
+                if($item["id_catalogo_encuestas_preguntas_tipo"] == 9 || $item["id_catalogo_encuestas_preguntas_tipo"] == 10 ){
 
-            // Sumar el total correspondiente al parámetro
-            /*if (isset($totalPorParametros[$key])) {
-                $totalPorParametros[$key] += $item['total'];
-            } else {
-                $totalPorParametros[$key] = $item['total'];
-            }*/
+                    if(array_key_exists(-1,$totalPorParametros)){
+                        $totalPorParametros[-1] += $total;
+                    }else{
+                        $totalPorParametros[-1] = $total;
+                    }
+                }
+
         }
         return $totalPorParametros;
     }
@@ -1372,6 +1373,46 @@ class ServicioEstudioController extends Controller
         return $secciones;
     }
 
+    private function listaItemParametros($id_pregunta,$id_catalogo_pregunta){
+
+        $id_parametro = CatalogoEncuestasPreguntas::where('id',$id_pregunta)
+            ->first()->id_catalogo_encuestas_preguntas_parametro_clasificacion;
+        if(!$id_parametro){
+            return response()->json([]);
+        }
+        $query = CatalogoEncuestasPreguntasParametrosClasificacionItems::query();
+        $query->where('id_catalogo_encuestas_preguntas_parametro_clasificacion',$id_parametro);
+
+        if($id_catalogo_pregunta){
+            $query->where('id_catalogo_encuestas_preguntas', $id_catalogo_pregunta);
+        }
+
+        $elementos = $query->get();
+
+        return $elementos;
+    }
+
+    public function listaItemParametrosAdicionalUnoItems($id_pregunta){
+        $id_parametro = CatalogoEncuestasPreguntas::where('id', $id_pregunta)->first()->id_parametro_clasificacion_parametro_adicional_uno;
+
+        if(!$id_parametro){
+            return response()->json([], 200);
+        }
+        $elementos = CatalogoEncuestasPreguntasParametrosClasificacionItems::where('id_catalogo_encuestas_preguntas_parametro_clasificacion',$id_parametro)->get();
+
+        return $elementos;
+    }
+    public function listaItemParametrosAdicionalDosItems($id_pregunta){
+        $id_parametro = CatalogoEncuestasPreguntas::where('id', $id_pregunta)->first()->id_parametro_clasificacion_parametro_adicional_dos;
+
+        if(!$id_parametro){
+            return response()->json([], 200);
+        }
+        $elementos = CatalogoEncuestasPreguntasParametrosClasificacionItems::where('id_catalogo_encuestas_preguntas_parametro_clasificacion',$id_parametro)->get();
+
+        return $elementos;
+    }
+
     private function generateEstudioSocioeconomicoPDF($id)
     {
 
@@ -1382,6 +1423,21 @@ class ServicioEstudioController extends Controller
 
         foreach ($proyectoCliente->encuesta->preguntas as &$pregunta) {
             $pregunta['respuestas'] = ServiciosEstudiosRespuestas::where('id_servicio_estudio', $elemento->id)->where('id_catalogo_encuestas_pregunta', $pregunta->id)->get();
+
+            if( $pregunta->id_catalogo_encuestas_preguntas_tipo == 3){
+                    $pregunta['parametros'] = $this->listaItemParametros($pregunta->id,null);
+
+            }else if($pregunta->id_catalogo_encuestas_preguntas_tipo == 13 || $pregunta->id_catalogo_encuestas_preguntas_tipo == 5){
+                $pregunta['parametros'] = $this->listaItemParametros($pregunta->id,$pregunta->id);
+            }
+
+            if($pregunta->id_catalogo_encuestas_preguntas_tipo == 4){
+                $pregunta['parametros_promedio_academico'] = $this->listaItemParametrosAdicionalUnoItems($pregunta->id);
+                //getParametrosPromedioAcademico();
+                $pregunta['parametros_promedio_conducta']  = $this->listaItemParametrosAdicionalDosItems($pregunta->id);
+                //getParametrosPromedioConducta();
+            }
+
         }
 
         $encuesta = $proyectoCliente->encuesta;
@@ -1398,7 +1454,7 @@ class ServicioEstudioController extends Controller
         $encuesta['parametros'] = $parametros;
         $encuesta['total_parametros'] = $this->totalPorParametro($encuesta->preguntas);
 
-        //return response()->json($encuesta, 200);
+        //return $encuesta;
 
         // Cargar la vista y pasar los datos
         $pdf = PDF::loadView('pdf.estudio_socioeconomico', compact('encuesta'))->setPaper('A4', 'portrait');
