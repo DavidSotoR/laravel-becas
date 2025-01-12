@@ -194,6 +194,7 @@ use Illuminate\Support\Facades\Storage;
             @if (count($imagenes->documentos) AND ($imagenes->nombre == "CASA HABITACION" || $imagenes->nombre == "AUTOMOVILES"))
 
                 <h2>{{$imagenes->nombre}}</h2>
+                <br><br>
 
                 @foreach (mostrarImagenes($imagenes->documentos) AS $img)
                     {!! $img !!}
@@ -281,7 +282,7 @@ function imagenReturn($path){
     $type = pathinfo($contents, PATHINFO_EXTENSION);
     $data = file_get_contents($contents);
     $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-    return "<img src=\"$base64\" width=\"250\" height=\"250\"/>";
+    return "<img src=\"$base64\" width=\"350\" height=\"350\"/>";
 }
 
 function mostrarImagenes($lista_documentos){
