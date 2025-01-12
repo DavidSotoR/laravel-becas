@@ -186,13 +186,13 @@ use Illuminate\Support\Facades\Storage;
     @endif
 
     @if ($encuesta->imagenes)
-    <div class="page-break"></div>  <!--Salto de página -->
     <div>
 
         @foreach ($encuesta->imagenes as $index => $imagenes)
 
             @if (count($imagenes->documentos) AND ($imagenes->nombre == "CASA HABITACION" || $imagenes->nombre == "AUTOMOVILES"))
 
+                <div class="page-break"></div>  <!--Salto de página -->
                 <h2>{{$imagenes->nombre}}</h2>
                 <br><br>
 
