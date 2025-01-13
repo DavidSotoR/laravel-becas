@@ -145,6 +145,20 @@ class ServicioEstudioController extends Controller
         $lista = $query->get();
         return response()->json($lista);
     }
+
+    private function preguntaEsporHijo($id_proyecto,$id_cliente){
+
+        $pregunta = ProyectosClientes::with(
+                            [
+                                'encuesta.preguntas' => function ($query) { $query ->where('id_catalogo_encuestas_preguntas_tipo', 4);}
+                            ]
+                        )
+                ->where('id_proyecto', $id_proyecto)
+                ->where('id_cliente', $id_cliente)
+                ->first()->encuesta->preguntas;
+
+         return $pregunta;
+    }
     public function listaConcluidos(Request $request, int $id_proyecto)
     {
 
@@ -221,21 +235,70 @@ class ServicioEstudioController extends Controller
                             ->where('id_cliente',$user->id_cliente)
                             ->first();
         $encuesta = $proyectoCliente->encuesta;*/
+        $encuesta_por_hijo = false;
+        if(isset($lista[0])){
 
-
-        foreach ($lista as &$estudio) {
-            /*$parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta',$encuesta->id)->get();
-
-            foreach($parametros AS &$parametro){
-                $parametro['puntos'] = $this -> puntosPrecuntaSeccion($parametro,$estudio->id,$encuesta->preguntas);
+            $peimer_estudio = $lista[0];
+            $pregunta = $this->preguntaEsporHijo($peimer_estudio->id_proyecto,$peimer_estudio->id_cliente);
+            if(count($pregunta)){
+                $encuesta_por_hijo = true;
             }
-            */
-            $parametros = $this->estudioParametrosPuntos($estudio->id);
-            $estudio['parametros'] = $parametros;
+
         }
 
+        if($encuesta_por_hijo){
+            $estudios_por_hijo = array();
 
-        return response()->json($lista);
+            foreach ($lista as $estudio) {
+                /*$parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta',$encuesta->id)->get();
+
+                foreach($parametros AS &$parametro){
+                    $parametro['puntos'] = $this -> puntosPrecuntaSeccion($parametro,$estudio->id,$encuesta->preguntas);
+                }
+                */
+
+                //$parametros = $this->estudioParametrosPuntos($estudio->id);
+                //$estudio['parametros'] = $parametros;
+
+                //CatalogoEncuestasPreguntas::where()->first();
+
+                $pregunta_get = $this->preguntaEsporHijo($estudio->id_proyecto,$estudio->id_cliente);
+                $pregunta = $pregunta_get[0];
+                $lista_de_hijos = ServiciosEstudiosRespuestas::
+                    where('id_servicio_estudio',$estudio->id)
+                    ->where('id_catalogo_encuestas_pregunta',$pregunta->id)
+                    ->where('nombre', '!=', '')
+                    ->get();
+                foreach($lista_de_hijos AS $key => $hijo){
+                    $estudio_hijo = array();
+                    $estudio_hijo = clone $estudio;
+                    $parametros = $this->estudioParametrosPuntos($estudio->id,$hijo['id']);
+                    $estudio_hijo['parametros'] = $parametros;
+                    $estudio_hijo['nombre_hijo'] =  $hijo['nombre'];
+                    //$estudio['hijos'] = $lista_de_hijos;
+                    $estudio_hijo['hijo'] = $hijo;
+                    $estudio_hijo['no_hijo'] = $key+1;
+                    $estudios_por_hijo[] = $estudio_hijo;
+                }
+            }
+
+            return response()->json($estudios_por_hijo);
+
+        }else{
+            foreach ($lista as &$estudio) {
+                /*$parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta',$encuesta->id)->get();
+
+                foreach($parametros AS &$parametro){
+                    $parametro['puntos'] = $this -> puntosPrecuntaSeccion($parametro,$estudio->id,$encuesta->preguntas);
+                }
+                */
+                $parametros = $this->estudioParametrosPuntos($estudio->id,0);
+                $estudio['parametros'] = $parametros;
+            }
+
+
+            return response()->json($lista);
+        }
     }
 
     public function id($id)
@@ -1130,7 +1193,7 @@ class ServicioEstudioController extends Controller
         $parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta', $encuesta->id)->get();
 
         foreach ($parametros as &$parametro) {
-            $parametro['puntos'] = $this->puntosPrecuntaSeccion($parametro, $id, $encuesta->preguntas);
+            $parametro['puntos'] = $this->puntosPrecuntaSeccion($parametro, $id, $encuesta->preguntas,0);
         }
         $encuesta['parametros'] = $parametros;
 
@@ -1151,7 +1214,7 @@ class ServicioEstudioController extends Controller
         $parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta', $encuesta->id)->get();
 
         foreach ($parametros as &$parametro) {
-            $parametro['puntos'] = $this->puntosPrecuntaSeccion($parametro, $id, $encuesta->preguntas);
+            $parametro['puntos'] = $this->puntosPrecuntaSeccion($parametro, $id, $encuesta->preguntas,0);
         }
 
         //$parametros;
@@ -1159,7 +1222,7 @@ class ServicioEstudioController extends Controller
         return response()->json($parametros);
     }
 
-    public function estudioParametrosPuntos($id)
+    public function estudioParametrosPuntos($id,$hijo)
     {
 
         $elemento = ServicioEstudio::where('id', $id)->first();
@@ -1171,7 +1234,7 @@ class ServicioEstudioController extends Controller
         $parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta', $encuesta->id)->get();
 
         foreach ($parametros as &$parametro) {
-            $parametro['puntos'] = $this->puntosPrecuntaSeccion($parametro, $id, $encuesta->preguntas);
+            $parametro['puntos'] = $this->puntosPrecuntaSeccion($parametro, $id, $encuesta->preguntas,$hijo);
         }
 
         //$parametros;
@@ -1179,16 +1242,24 @@ class ServicioEstudioController extends Controller
         return $parametros;
     }
 
-    private function puntosPrecuntaSeccion($parametro, $id_estudio, $preguntas)
+    private function puntosPrecuntaSeccion($parametro, $id_estudio, $preguntas,$hijo = 0)
     {
 
-        $puntos = 0;
+        $puntos = [];
 
         $lista_respuestas = array();
+        $lista_respuestas_adicinales_uno = array();
+        $lista_respuestas_adicinales_dos = array();
+
+        $preguntas_tipo = [];
+        $preguntas_lista = [];
 
         foreach ($preguntas as $pregunta) {
 
-            if ($parametro->id == $pregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion) {
+            if ( $parametro->id == $pregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion ) {
+                $preguntas_tipo[] = $pregunta->id_catalogo_encuestas_preguntas_tipo;
+                $respuestas = [];
+                $respuestas_array = [];
 
                 $respuestas = ServiciosEstudiosRespuestas::where('id_servicio_estudio', $id_estudio)
                     ->where('id_catalogo_encuestas_pregunta', $pregunta->id)
@@ -1207,26 +1278,101 @@ class ServicioEstudioController extends Controller
                 //$lista_respuestas[] = ["id_servicio_estudio"=>$id_estudio,"id_catalogo_encuestas_pregunta"=>$pregunta->id,'respuestas'=>$respuestas_array]; // $this -> sumatoriaRespuesta($respuestas);
 
             }
+
+            if ( $parametro->id == $pregunta->id_parametro_clasificacion_parametro_adicional_uno ) {
+                $preguntas_tipo[] = $pregunta->id_catalogo_encuestas_preguntas_tipo;
+                $respuestas = [];
+                $respuestas_array = [];
+                $respuestas = ServiciosEstudiosRespuestas::where('id_servicio_estudio', $id_estudio)
+                    ->where('id_catalogo_encuestas_pregunta', $pregunta->id)
+                    ->get();
+
+                $respuestas_array = $respuestas->toArray();
+
+                if (!count($lista_respuestas_adicinales_uno)) {
+                    $lista_respuestas_adicinales_uno = $respuestas_array;
+                } else {
+                    if (count($respuestas_array)) {
+                        $lista_respuestas_adicinales_uno = array_merge($lista_respuestas_adicinales_uno, $respuestas_array);
+                    }
+                }
+
+            }
+
+            if ( $parametro->id == $pregunta->id_parametro_clasificacion_parametro_adicional_dos ) {
+                $preguntas_tipo[] = $pregunta->id_catalogo_encuestas_preguntas_tipo;
+                $respuestas = [];
+                $respuestas_array = [];
+                $respuestas = ServiciosEstudiosRespuestas::where('id_servicio_estudio', $id_estudio)
+                    ->where('id_catalogo_encuestas_pregunta', $pregunta->id)
+                    ->get();
+
+                $respuestas_array = $respuestas->toArray();
+
+                if (!count($lista_respuestas_adicinales_dos)) {
+                    $lista_respuestas_adicinales_dos = $respuestas_array;
+                } else {
+                    if (count($respuestas_array)) {
+                        $lista_respuestas_adicinales_dos = array_merge($lista_respuestas_adicinales_dos, $respuestas_array);
+                    }
+                }
+
+            }
         }
 
         //return $lista_respuestas;
 
-        $sumatorias_por_seccion = $this->sumatoriaRespuesta($lista_respuestas);
         $total = 0;
+
+        //$pregunta = $this->preguntaEsporHijo($elemento->id_proyecto,$elemento->id_cliente);
+        $datos_hijo = [];
+        if($hijo != 0){
+            $datos_hijo = ServiciosEstudiosRespuestas::
+                where('id',$hijo)
+                //where('id_servicio_estudio',$estudio->id)
+                //->where('id_catalogo_encuestas_pregunta',$pregunta->id)
+                //->where('nombre', '!=', '')
+                ->first();
+        }
+
+
 
         switch ($parametro->id_catalogo_encuestas_preguntas_parametros_clasificaciones_tipos) {
             case 1:
-                foreach ($sumatorias_por_seccion as $seccion) {
-                    $total += $seccion['padre_monto'];
-                    $total += $seccion['madre_monto'];
-                    $total += $seccion['monto'];
+                if(in_array(3,$preguntas_tipo)){
+                    $total = (int) $this->opcionSeleccionada("valor",$lista_respuestas);
+                    $puntos = $this->obtenerOpcionSeleccionada($parametro->id, $total);
+                }else{
+                    $sumatorias_por_seccion = $this->sumatoriaRespuesta($lista_respuestas);
+                    foreach ($sumatorias_por_seccion as $seccion) {
+                        $total += $seccion['padre_monto'];
+                        $total += $seccion['madre_monto'];
+                        $total += $seccion['monto'];
+                    }
+                    $puntos = $this->obtenerRango($parametro->id, $total);
+                }
+                break;
+            case 3:
+                if(count($lista_respuestas_adicinales_uno)){
+                    //calificacionPorCoincidenciaHijo($columna,$hijo,$respuestas)
+                    $total =  (string) $this->calificacionPorCoincidenciaHijo("padre_monto",$hijo,$lista_respuestas_adicinales_uno);
+                    $puntos = $this->obtenerOpcionSeleccionada($parametro->id, $total);
+                    //$puntos["respuestas"] = [$hijo,$lista_respuestas_adicinales_uno];
+
+                }else if(count($lista_respuestas_adicinales_dos)){
+                    $total = (string) $this->calificacionPorCoincidenciaHijo("madre_monto",$hijo,$lista_respuestas_adicinales_dos);
+                    $puntos = $this->obtenerOpcionSeleccionada($parametro->id, $total);
+                    //$puntos["respuestas"] = [$lista_respuestas_adicinales_dos];
+                }else{
+                    $total =  $this->caluloDeCoincidencia("nombre",$lista_respuestas);
+                    $puntos = $this->obtenerCoincidencia($parametro->id, $total);
+                    //$puntos["respuestas"] = $lista_respuestas;
                 }
                 break;
             default:
                 $puntos = null;
                 break;
         }
-        $puntos = $this->obtenerRango($parametro->id, $total);
         $puntos["sumatoria"] = $total;
         //$items = CatalogoEncuestasPreguntasParametrosClasificacionItems::where('id_catalogo_encuestas_preguntas_parametro_clasificacion',$parametro->id)->get();
 
@@ -1275,6 +1421,22 @@ class ServicioEstudioController extends Controller
 
         return $resultado;
     }
+    private function caluloDeCoincidencia($columna,$respuestas){
+
+        $resultado = 0;
+
+        foreach ($respuestas as $item) {
+
+            // validamos que exsista la columna en la lista de respuestas
+            if (isset($item[$columna])) {
+                if(strlen($item[$columna])){
+                    $resultado++;
+                }
+            }
+        }
+
+        return $resultado;
+    }
     function obtenerRango($idParametros, $puntos)
     {
         return CatalogoEncuestasPreguntasParametrosClasificacionItems::where(function ($query) use ($puntos) {
@@ -1296,6 +1458,53 @@ class ServicioEstudioController extends Controller
         })
             ->where('id_catalogo_encuestas_preguntas_parametro_clasificacion', $idParametros)->first(); // Devolvemos el primer resultado que coincida
     }
+    function opcionSeleccionada($columna,$respuestas){
+
+        $resultado = 0;
+
+        foreach ($respuestas as $item) {
+
+            // validamos que exsista la columna en la lista de respuestas
+            if (isset($item[$columna])) {
+                $resultado = $item[$columna];
+            }
+        }
+
+        return $resultado;
+    }
+    function obtenerCoincidencia($idParametros, $puntos)
+    {
+        return CatalogoEncuestasPreguntasParametrosClasificacionItems::where(function ($query) use ($puntos) {
+            $query->where('limiten_inferior', '=', $puntos);
+        })
+            ->where('id_catalogo_encuestas_preguntas_parametro_clasificacion', $idParametros)->first(); // Devolvemos el primer resultado que coincida
+    }
+
+    function obtenerOpcionSeleccionada($idParametros, $puntos)
+    {
+        return CatalogoEncuestasPreguntasParametrosClasificacionItems::where(function ($query) use ($puntos) {
+            $query->where('valor', '=', $puntos);
+        })
+            ->where('id_catalogo_encuestas_preguntas_parametro_clasificacion', $idParametros)->first(); // Devolvemos el primer resultado que coincida
+    }
+
+    private function calificacionPorCoincidenciaHijo($columna,$hijo,$respuestas){
+
+        $resultado = 0;
+
+        foreach ($respuestas as $item) {
+
+            // validamos que exsista la columna en la lista de respuestas
+            if (isset($item[$columna])) {
+                if( $item["id"] == $hijo){
+                    $resultado = $item[$columna];
+                }
+            }
+        }
+
+        return $resultado;
+    }
+
 
 
     /*private function calculoDePuntosPorTipo($idPreguntaTipo,$respuestas){
@@ -1449,7 +1658,7 @@ class ServicioEstudioController extends Controller
         $parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta', $encuesta->id)->get();
 
         foreach ($parametros as &$parametro) {
-            $parametro['puntos'] = $this->puntosPrecuntaSeccion($parametro, $id, $encuesta->preguntas);
+            $parametro['puntos'] = $this->puntosPrecuntaSeccion($parametro, $id, $encuesta->preguntas,0);
         }
         $encuesta['parametros'] = $parametros;
         $encuesta['total_parametros'] = $this->totalPorParametro($encuesta->preguntas);
