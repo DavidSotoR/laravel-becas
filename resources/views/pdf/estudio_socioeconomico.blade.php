@@ -163,7 +163,7 @@ use Illuminate\Support\Facades\Storage;
                         <td style="width: 5%"  class="border text-center">{{porcentajeSugerido($encuesta)}}</td>
                         <td style="width: 5%"></td>
                         <td style="width: 15%">PORCENTAJE OTORGADO</td>
-                        <td style="width: 5%"  class="border text-center">{{$encuesta->porcentaje_otorgado}}</td>
+                        <td style="width: 5%"  class="border text-center">{{ $encuesta->estudio->porcentaje_otorgado ? $encuesta->estudio->porcentaje_otorgado.'%':''}}</td>
                         <td style="width: 15%"></td>
                     </tr>
                 </table>
