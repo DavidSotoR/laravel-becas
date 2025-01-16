@@ -1277,6 +1277,13 @@ class ServicioEstudioController extends Controller
                 //$respuestas;//$this -> calculoDePuntosPorTipo($pregunta,$respuestas);
                 //$lista_respuestas[] = ["id_servicio_estudio"=>$id_estudio,"id_catalogo_encuestas_pregunta"=>$pregunta->id,'respuestas'=>$respuestas_array]; // $this -> sumatoriaRespuesta($respuestas);
 
+                if ( $pregunta->id_parametro_clasificacion_tipo){
+
+                    $pregunta_temp = array();
+                    $pregunta_temp = clone $pregunta;
+                    $pregunta_temp["respuestas"] = $respuestas_array;
+                    $preguntas_lista[] = $pregunta_temp;
+                }
             }
 
             if ( $parametro->id == $pregunta->id_parametro_clasificacion_parametro_adicional_uno ) {
@@ -1352,6 +1359,23 @@ class ServicioEstudioController extends Controller
                     $puntos = $this->obtenerRango($parametro->id, $total);
                 }
                 break;
+            case 2:
+                    /*if(in_array(3,$preguntas_tipo)){
+                        $total = (int) $this->opcionSeleccionada("valor",$lista_respuestas);
+                        $puntos = $this->obtenerOpcionSeleccionada($parametro->id, $total);
+                    }else{
+                        $sumatorias_por_seccion = $this->sumatoriaRespuesta($lista_respuestas);
+                        foreach ($sumatorias_por_seccion as $seccion) {
+                            $total += $seccion['padre_monto'];
+                            $total += $seccion['madre_monto'];
+                            $total += $seccion['monto'];
+                        }
+                        $puntos = $this->obtenerRango($parametro->id, $total);
+                    }*/
+                    $puntos["secciones"] = $this->parametroPreguntaPuntos($preguntas_lista);
+                    $puntos["respuestas"] = $preguntas_lista;
+                    $total = array_sum($puntos["secciones"]);
+                    break;
             case 3:
                 if(count($lista_respuestas_adicinales_uno)){
                     //calificacionPorCoincidenciaHijo($columna,$hijo,$respuestas)
@@ -1486,6 +1510,39 @@ class ServicioEstudioController extends Controller
             $query->where('valor', '=', $puntos);
         })
             ->where('id_catalogo_encuestas_preguntas_parametro_clasificacion', $idParametros)->first(); // Devolvemos el primer resultado que coincida
+    }
+
+    function parametroPreguntaPuntos($listaPreguntas){
+        $lista_puntos = [];
+        foreach($listaPreguntas AS $pregunta){
+            switch($pregunta->id_parametro_clasificacion_tipo){
+                case 4:
+                    $total = 0;
+                    if($pregunta->id_catalogo_encuestas_preguntas_tipo == 6){
+                        $total = $this->caluloDeCoincidencia("nombre",$pregunta->respuestas);
+                    }else{
+                        $total = $this->caluloDeCoincidencia("respuesta",$pregunta->respuestas);
+                    }
+                    $puntos = $this->obtenerCoincidenciaPregunta($pregunta->id_parametro_clasificacion_tipo,$pregunta->id_catalogo_encuestas_preguntas, $total);
+                    //$lista_puntos[$pregunta->id] = $puntos;//["puntos" => $puntos , "total" => $total];
+                    $lista_puntos[] = $total;//["puntos" => $puntos , "total" => $total];
+                break;
+                /*case 5:
+                    $lista_puntos[$pregunta->id]
+                break;*/
+            }
+        }
+        return $lista_puntos;
+    }
+
+    function obtenerCoincidenciaPregunta($idPregunta,$idParametros, $puntos)
+    {
+        return CatalogoEncuestasPreguntasParametrosClasificacionItems::where(function ($query) use ($puntos) {
+            $query->where('limiten_inferior', '=', $puntos);
+        })
+            ->where('id_catalogo_encuestas_preguntas', $idPregunta)
+            ->where('id_catalogo_encuestas_preguntas_parametro_clasificacion', $idParametros)
+            ->first(); // Devolvemos el primer resultado que coincida
     }
 
     private function calificacionPorCoincidenciaHijo($columna,$hijo,$respuestas){
