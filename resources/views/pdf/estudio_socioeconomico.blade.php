@@ -125,7 +125,7 @@ use Illuminate\Support\Facades\Storage;
                 <table style="width: 100%">
                     <tr>
                         <td style="width: 10%"></td>
-                        <td class="border" style="height: 250"></td>
+                        <td class="border" style="height: 230"></td>
                         <td style="width: 10%"></td>
                     </tr>
                 </table>
@@ -144,17 +144,26 @@ use Illuminate\Support\Facades\Storage;
                         <td style="width: 20%"></td>
                     </tr>
                     @endforeach
+
+                    <tr>
+                        <td style="width: 20%"></td>
+                        <td style="width: 30%">TOTAL</td>
+                        <td style="width: 5%"></td>
+                        <td style="width: 10%" class="border-bottom text-center">{{totalPuntosParametros($encuesta)}}</td>
+                        <td style="width: 5%"></td>
+                        <td style="width: 20%"></td>
+                    </tr>
                 </table>
                 <br>
 
                 <table style="width: 100%">
                     <tr>
                         <td style="width: 15%"></td>
-                        <td style="width: 15%">PUNTUACION TOTAL</td>
-                        <td style="width: 5%"  class="border text-center">{{totalPuntosParametros($encuesta)}}</td>
-                        <td style="width: 5%"></td>
                         <td style="width: 15%">PORCENTAJE SUGERIDO</td>
                         <td style="width: 5%"  class="border text-center">{{porcentajeSugerido($encuesta)}}</td>
+                        <td style="width: 5%"></td>
+                        <td style="width: 15%">PORCENTAJE OTORGADO</td>
+                        <td style="width: 5%"  class="border text-center">{{$encuesta->porcentaje_otorgado}}</td>
                         <td style="width: 15%"></td>
                     </tr>
                 </table>
