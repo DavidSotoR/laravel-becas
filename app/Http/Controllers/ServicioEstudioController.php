@@ -1171,11 +1171,15 @@ class ServicioEstudioController extends Controller
         ], 200);
     }
 
-    public function estudioSocioeconomico($id)
+    public function estudioSocioeconomico(Request $request,$id)
     {
 
         /*with(['estado','cliente','proyecto','ordenServicio','colaborador','colegiosComunes',])->*/
         //$elemento['encuesta'] = $encuesta;
+        $id_hijo = 0;
+        if(isset($request->id_hijo)){
+            $id_hijo = $request->id_hijo;
+        }
 
         $elemento = ServicioEstudio::with(['cliente'])->where('id', $id)->first();
 
@@ -1193,7 +1197,7 @@ class ServicioEstudioController extends Controller
         $parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta', $encuesta->id)->get();
 
         foreach ($parametros as &$parametro) {
-            $parametro['puntos'] = $this->puntosPrecuntaSeccion($parametro, $id, $encuesta->preguntas,0);
+            $parametro['puntos'] = $this->puntosPrecuntaSeccion($parametro, $id, $encuesta->preguntas,$id_hijo);
         }
         $encuesta['parametros'] = $parametros;
 
@@ -1719,7 +1723,7 @@ class ServicioEstudioController extends Controller
         return $elementos;
     }
 
-    private function generateEstudioSocioeconomicoPDF($id)
+    private function generateEstudioSocioeconomicoPDF($id,$id_hijo)
     {
 
         // Obtener los datos
@@ -1755,7 +1759,7 @@ class ServicioEstudioController extends Controller
         $parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta', $encuesta->id)->get();
 
         foreach ($parametros as &$parametro) {
-            $parametro['puntos'] = $this->puntosPrecuntaSeccion($parametro, $id, $encuesta->preguntas,0);
+            $parametro['puntos'] = $this->puntosPrecuntaSeccion($parametro, $id, $encuesta->preguntas,$id_hijo);
         }
         $encuesta['parametros'] = $parametros;
         $encuesta['total_parametros'] = $this->totalPorParametro($encuesta->preguntas);
@@ -1767,7 +1771,7 @@ class ServicioEstudioController extends Controller
         return $pdf;
     }
 
-    public function estudioSocioeconomicoPDF($id)
+    public function estudioSocioeconomicoPDF(Request $request,$id)
     {
         if (!$id) {
             return response()->json([
@@ -1777,9 +1781,14 @@ class ServicioEstudioController extends Controller
             ], 400);
         }
 
-        $pdf = $this->generateEstudioSocioeconomicoPDF($id);
+        $id_hijo = 0;
+        if(isset($request->id_hijo)){
+            $id_hijo = $request->id_hijo;
+        }
+
+        $pdf = $this->generateEstudioSocioeconomicoPDF($id,$id_hijo);
         // Descargar el archivo PDF
-        return $pdf->download("Estudio_{$id}.pdf");
+        return $pdf->download("Estudio_{$id}_{$id_hijo}.pdf");
     }
 
     public function estudioSocioeconomicoRangos($id_estudio)
@@ -1859,7 +1868,11 @@ class ServicioEstudioController extends Controller
 
         // Generar cada PDF y guardarlo en la carpeta temporal
         foreach ($dataSets as  $id) {
-            $pdf = $this->generateEstudioSocioeconomicoPDF($id);
+            $id_hijo = 0;
+            if(isset($dataSets->id_hijo)){
+                $id_hijo = $dataSets->id_hijo;
+            }
+            $pdf = $this->generateEstudioSocioeconomicoPDF($id,$id_hijo);
             $filePath = $tempFolder . "/file_{$id}.pdf";
             $pdf->save($filePath);
         }
