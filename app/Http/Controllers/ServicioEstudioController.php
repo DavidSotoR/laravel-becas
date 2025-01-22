@@ -1372,9 +1372,11 @@ class ServicioEstudioController extends Controller
                         }
                         $puntos = $this->obtenerRango($parametro->id, $total);
                     }*/
-                    $puntos["secciones"] = $this->parametroPreguntaPuntos($preguntas_lista);
+                    $total_puntos = $this->parametroPreguntaPuntos($preguntas_lista);
+                    $puntos["secciones"] = $total_puntos;
                     $puntos["respuestas"] = $preguntas_lista;
-                    $total = array_sum($puntos["secciones"]);
+                    $total = array_sum($total_puntos);
+                    $puntos["valor"] = $total;
                     break;
             case 3:
                 if(count($lista_respuestas_adicinales_uno)){
@@ -1518,14 +1520,34 @@ class ServicioEstudioController extends Controller
             switch($pregunta->id_parametro_clasificacion_tipo){
                 case 4:
                     $total = 0;
-                    if($pregunta->id_catalogo_encuestas_preguntas_tipo == 6){
-                        $total = $this->caluloDeCoincidencia("nombre",$pregunta->respuestas);
-                    }else{
-                        $total = $this->caluloDeCoincidencia("respuesta",$pregunta->respuestas);
+                    switch($pregunta->id_catalogo_encuestas_preguntas_tipo){
+                        case 4:
+                            $total =  $this->caluloDeCoincidencia("nombre",$pregunta->respuestas);
+                            $puntos = $this->obtenerCoincidenciaPregunta($pregunta->id_parametro_clasificacion_tipo,$pregunta->id_catalogo_encuestas_preguntas, $total);
+                            $lista_puntos[] = $total;
+                        break;
+                        case 5:
+                            $total = $this->seleccionUnicaLista("valor",$pregunta->respuestas);
+                            $lista_puntos[] = $total;
+                        break;
+                        case 6:
+                            $total =  $this->caluloDeCoincidencia("nombre",$pregunta->respuestas);
+                            $puntos = $this->obtenerCoincidenciaPregunta($pregunta->id_parametro_clasificacion_tipo,$pregunta->id_catalogo_encuestas_preguntas, $total);
+                            $lista_puntos[] = $total;
+                        break;
+                        default:
+                            $total = $this->caluloDeCoincidencia("respuesta",$pregunta->respuestas);
+                            $puntos = $this->obtenerCoincidenciaPregunta($pregunta->id_parametro_clasificacion_tipo,$pregunta->id_catalogo_encuestas_preguntas, $total);
+                            $lista_puntos[] = $total;
+                        break;
                     }
-                    $puntos = $this->obtenerCoincidenciaPregunta($pregunta->id_parametro_clasificacion_tipo,$pregunta->id_catalogo_encuestas_preguntas, $total);
                     //$lista_puntos[$pregunta->id] = $puntos;//["puntos" => $puntos , "total" => $total];
-                    $lista_puntos[] = $total;//["puntos" => $puntos , "total" => $total];
+                    //["puntos" => $puntos , "total" => $total];
+                break;
+                case 5:
+                    $total = 0;
+                    $total = $this->seleccionUnicaLista("valor",$pregunta->respuestas);
+                    $lista_puntos[] = $total;
                 break;
                 /*case 5:
                     $lista_puntos[$pregunta->id]
@@ -1562,6 +1584,24 @@ class ServicioEstudioController extends Controller
         return $resultado;
     }
 
+    private function seleccionUnicaLista($columna,$respuestas){
+
+        $resultado = 0;
+
+        foreach ($respuestas as $index => $item) {
+
+            // validamos que exsista la columna en la lista de respuestas
+            if($index == 0){
+                if (isset($item[$columna])) {
+                    if(strlen($item[$columna])){
+                        $resultado = (int) $item[$columna];
+                    }
+                }
+            }
+        }
+
+        return $resultado;
+    }
 
 
     /*private function calculoDePuntosPorTipo($idPreguntaTipo,$respuestas){
