@@ -1193,6 +1193,9 @@ class ServicioEstudioController extends Controller
         $encuesta['estudio'] = $elemento;
         $encuesta['proyecto'] = $proyectoCliente->proyecto;
         //$encuesta['cliente'] = $elemento->cliente;
+        if($id_hijo){
+            $encuesta['hijo'] = ServiciosEstudiosRespuestas::where('id', $id_hijo)->first();
+        }
 
         $parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta', $encuesta->id)->get();
 
@@ -1755,6 +1758,9 @@ class ServicioEstudioController extends Controller
         $encuesta['proyecto'] = $proyectoCliente->proyecto;
         $encuesta['imagenes'] = $this->listaDeDocumentosEstudio($id);
         //$encuesta['cliente'] = $elemento->cliente;
+        if($id_hijo){
+            $encuesta['hijo'] = ServiciosEstudiosRespuestas::where('id', $id_hijo)->first();
+        }
 
         $parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta', $encuesta->id)->get();
 

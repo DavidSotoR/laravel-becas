@@ -132,12 +132,15 @@ use Illuminate\Support\Facades\Storage;
                 <br>
 
                 <p class="text-uppercase">{{$encuesta->estudio->cliente->nombre}}</p>
+                @if (isset($encuesta["hijo"]))
+                <p class="text-uppercase">{{$encuesta->hijo->nombre}}</p>
+                @endif
 
-                <table style="width: 100%">
+                <table style="width: 100%; font-size: 12px;">
                     @foreach ($encuesta->parametros as $parametro)
                     <tr>
                         <td style="width: 20%"></td>
-                        <td style="width: 30%">{{$parametro->nombre}}</td>
+                        <td style="width: 30%" class="text-uppercase">{{$parametro->nombre}}</td>
                         <td style="width: 5%"></td>
                         <td style="width: 10%" class="border-bottom text-center">{{$parametro->puntos->valor ?? ''}}</td>
                         <td style="width: 5%"></td>
