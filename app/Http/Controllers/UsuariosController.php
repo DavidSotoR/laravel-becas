@@ -103,8 +103,8 @@ class UsuariosController extends Controller
         $id = $request->id;
         $validator = Validator::make($request->all(), [
             'id' => 'required|int',
-            'name' => ['required', 'min:2', Rule::unique('users')->ignore($id)],
-            'email' => 'required',
+            'name' => ['required', 'min:2'],
+            'email' => ['required', Rule::unique('users')->ignore($id)],
             'id_perfil' => 'required|int',
             'id_cliente' => 'nullable|int',
             'latiud' => 'nullable|string',
