@@ -303,7 +303,7 @@ class ServicioEstudioController extends Controller
 
     public function id($id)
     {
-        $elemento = ServicioEstudio::with([
+        /* $elemento = ServicioEstudio::with([
             'estado',
             'cliente',
             'proyecto',
@@ -314,7 +314,62 @@ class ServicioEstudioController extends Controller
             'madre',
             'colegiosComunes',
             'contactoPrincipal',
-        ])->where('id', $id)->first();
+        ])->where('id', $id)->first(); */
+        $elemento = ServicioEstudio::select([
+            'id',
+            DB::raw('estado as estado_columna'), // Alias para la columna estado
+            'id_servicio_estado',
+                            'id_proyecto',
+                            'id_cliente',
+                            'id_familia',
+                            'id_orden_servicio',
+                            'id_colaborador',
+                            'id_calidad',
+                            'id_gerencia',
+                            'es_cliente_comun',
+                            'candidato',
+                            'situacion',
+                            'email',
+                            'telefono_movil',
+                            'telefono_contacto',
+                            'curp',
+                            'domicilio',
+                            'entrecalles',
+                            'departamento',
+                            'anterior_empleo',
+                            'anterior_puesto',
+                            'anterior_empresa',
+                            'anterior_antiguedad',
+                            'directorio',
+                            'direccion',
+                            'latitud',
+                            'longitud',
+                            'calle',
+                            'numero_exterior',
+                            'colonia',
+                            'municipio',
+                            'codigo_postal',
+                            'pais',
+                            'visita_fecha',
+                            'visita_hora',
+                            'visita_recordatorio',
+                            'porcentaje_otorgado',
+                            'clave_familia_colegio',
+        ])
+        ->with([
+            'estado', // Esto trae la relación llamada "estado"
+            'cliente',
+            'proyecto',
+            'ordenServicio',
+            'colaborador',
+            'familia',
+            'padre',
+            'madre',
+            'colegiosComunes',
+            'contactoPrincipal',
+        ])
+        ->where('id', $id)
+        ->first();
 
         if (!$elemento) {
             return response()->json(["errors" => ["id" => ["Encuesta no exsiste"]]], 400);
