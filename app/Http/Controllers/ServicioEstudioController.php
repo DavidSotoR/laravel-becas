@@ -1865,8 +1865,14 @@ class ServicioEstudioController extends Controller
     }
     public function estudioSocioeconomicoProcentaje(Request $request, $id_estudio)
     {
+        $elemento = array();
 
-        $elemento = ServicioEstudio::where('id', $id_estudio)->first();
+        if(isset($request->id_hijo)){
+            $elemento = ServiciosEstudiosRespuestas::where('id', $request->id_hijo)->where('id_servicio_estudio', $id_estudio)->first();
+        }else{
+            $elemento = ServicioEstudio::where('id', $id_estudio)->first();
+        }
+
 
         if (!$elemento) {
             return response()->json(["errors" => "Elemento no exsiste"], 404);
