@@ -166,7 +166,7 @@ use Illuminate\Support\Facades\Storage;
                         <td style="width: 5%"  class="border text-center">{{porcentajeSugerido($encuesta)}}</td>
                         <td style="width: 5%"></td>
                         <td style="width: 15%">PORCENTAJE OTORGADO</td>
-                        <td style="width: 5%"  class="border text-center">{{ $encuesta->estudio->porcentaje_otorgado ? $encuesta->estudio->porcentaje_otorgado.'%':''}}</td>
+                        <td style="width: 5%"  class="border text-center">{{ (isset($encuesta["hijo"])) ? $encuesta->hijo->porcentaje_otorgado.'%' : ($encuesta->estudio->porcentaje_otorgado ? $encuesta->estudio->porcentaje_otorgado.'%':'')}}</td>
                         <td style="width: 15%"></td>
                     </tr>
                 </table>
@@ -693,9 +693,12 @@ function ingresoNetoMensual($formData) {
         <tr class="row text-start">
             <td class="col-sm-3 p-1"><b>TOTAL</b></td>
             <td class="col-sm-3 p-1">
-                <div class="border-bottom border-secondary text-end">
-                    $' . $total . '
-                </div>
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 10%;">$</td>
+                        <td style="width: 90%;" class="text-end border-bottom border-secondary">' . $total . '</td>
+                    </tr>
+                </table>
             </td>
         </tr>
     ';
@@ -706,19 +709,31 @@ function ingresoNetoMensual($formData) {
     // 9 .-  Ahorro
 function ahorro($formData){
     $datos      = isset($formData[0]) ? $formData[0] : attay();
-    $activo     = isset($datos['activo']) && $datos['activo'] ? 'Sí' : 'No';
+    $activo     = isset($datos['activo']) && $datos['activo'] ? 'SI' : 'NO';
     $respuesta  = isset($datos['respuesta']) ? htmlspecialchars($formData[0]['respuesta']) : '&nbsp;';
     $monto      = isset($datos['monto']) ? formatNumber($datos['monto']) : '&nbsp;';
 
     $html = '<table style="width: 100%; font-size:12px;">';
+
+    if($activo == 'NO'){
+    $html .= "  <tr>
+                    <td style='width: 5%;'>$activo</td>
+                    <td style='width: 10%;'></td>
+                    <td style='width: 10%;'></td>
+                    <td style='width: 30%;'></td>
+                    <td style='width: 20%;'></td>
+                </tr>";
+    }else{
     $html .= "  <tr>
                     <td style='width: 5%;'>$activo</td>
                     <td style='width: 10%;'>DESCRIBE</td>
                     <td style='width: 10%;'>$respuesta</td>
-                    <td style='width: 30%;'>D) MONTO DE AHORROS O INVERCIONES</td>
+                    <td style='width: 30%;'>MONTO DE AHORROS O INVERCIONES</td>
                     <td style='width: 20%;'>$$monto</td>
                 </tr>";
+    }
     $html .= '</table>';
+
     return $html;
 }
     // 10 .-  Inversiones
@@ -759,7 +774,12 @@ function inverciones($formData,$totalParametros){
             <tr class='text-start'>
                 <td style='width: 25%;' class='p-1'><b>TOTAL:</b></td>
                 <td style='width: 25%;' class='p-1'>
-                    <div class='border-bottom border-secondary'>$" . formatNumber($total) . "</div>
+                        <table style='width: 100%;'>
+                            <tr>
+                                <td style='width: 10%;'>$</td>
+                                <td style='width: 90%;' class='text-end border-bottom border-secondary'>" . formatNumber($total) . "</td>
+                            </tr>
+                        </table>
                 </td>
                 <td style='width: 25%;' class='p-1'></td>
                 <td style='width: 25%;' class='p-1'></td>
@@ -816,12 +836,12 @@ function preguntaVeiculos($formData) {
         <tr>
             <td class='col-sm-3'><b>TOTAL:</b></td>
             <td class='col-sm-3 p-1 text-start'>
-                <table style='width: 100%;' class='border-bottom border-secondary'>
-                    <tr>
-                        <td style='width: 10%;'>$</td>
-                        <td text-end'>$totalMonto</td>
-                    </tr>
-                </table>
+                        <table style='width: 100%;'>
+                            <tr>
+                                <td style='width: 10%;'>$</td>
+                                <td style='width: 90%;' class='text-end border-bottom border-secondary'>$totalMonto</td>
+                            </tr>
+                        </table>
             </td>
         </tr>
     ";
@@ -1025,9 +1045,14 @@ function casaHabitacion($formData,$paramtroClasificacion,$totalParametros) {
     $html .= "
         <table style='width: 100%; font-size:12px;'>
             <tr class='text-start'>
-                <td style='width: 25%;' class='p-1'><b>B) TOTAL:</b></td>
+                <td style='width: 25%;' class='p-1'><b>TOTAL:</b></td>
                 <td style='width: 25%;' class='p-1'>
-                    <div class='border-bottom border-secondary'>$" . formatNumber($totalB) . "</div>
+                        <table style='width: 100%;'>
+                            <tr>
+                                <td style='width: 10%;'>$</td>
+                                <td style='width: 90%;' class='text-end border-bottom border-secondary'>" . formatNumber($totalB) . "</td>
+                            </tr>
+                        </table>
                 </td>
                 <td style='width: 25%;' class='p-1'></td>
                 <td style='width: 25%;' class='p-1'></td>
@@ -1039,9 +1064,14 @@ function casaHabitacion($formData,$paramtroClasificacion,$totalParametros) {
     $html .= "
         <table style='width: 100%; font-size:12px;'>
             <tr class='text-start'>
-                <td style='width: 25%;' class='p-1'><b>A + B TOTAL:</b></td>
+                <td style='width: 25%;' class='p-1'><b>GRAN TOTAL PATRIMONIO:</b></td>
                 <td style='width: 25%;' class='p-1'>
-                    <div class='border-bottom border-secondary'>$" . formatNumber($totalAB) . "</div>
+                        <table style='width: 100%;'>
+                            <tr>
+                                <td style='width: 10%;'>$</td>
+                                <td style='width: 90%;' class='text-end border-bottom border-secondary'>" . formatNumber($totalAB) . "</td>
+                            </tr>
+                        </table>
                 </td>
                 <td style='width: 25%;' class='p-1'></td>
                 <td style='width: 25%;' class='p-1'></td>
@@ -1096,12 +1126,9 @@ function distribucionDeLaCasa($formData,$parametros) {
             $texto = htmlspecialchars($item['texto']);
             $respuesta = isset($item['respuesta']) ? htmlspecialchars($item['respuesta']) : ';';
 
-            $html .= "<div class='border-bottom border-secondary'>OBSERVAMOS QUE LA FAMILIA CUENTA CON: ".opcionSeleccionadaDLC($respuesta,$parametros)."</div>";
+            $html .= "<div>OBSERVAMOS QUE LA FAMILIA CUENTA CON: ".opcionSeleccionadaDLC($respuesta,$parametros)."</div>";
         }
     }
-
-    $html .= "<br>";
-
     // Sección 'descripcion'
     foreach ($formData as $index => $item) {
         if (isset($item['seccion']) && $item['seccion'] === 'descripcion') {
