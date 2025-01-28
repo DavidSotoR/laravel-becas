@@ -160,6 +160,7 @@ Route::group([
     Route::post('estudio/socioeconomico', 'ServicioEstudioController@rejistroSocioeconomico');
     Route::post('estudio/socioeconomico/{id}/visita', 'ServicioEstudioController@addFechaVisita');
     Route::post('estudio/socioeconomico/carga/familias', 'ServicioEstudioController@cargaMasivaFamilias');
+    Route::post('estudio/socioeconomico/editar/familia', 'ServicioEstudioController@editarFamiliaEstudioServicio');
     Route::get('estudio/socioeconomico/formatoalta/descargar', 'ServicioEstudioController@descargarFormatoAltaFamiliasMasiva');
 
     Route::get('estudio/socioeconomico/pregunta/parametro/{id_pregunta}/adicional-uno/items', 'ServicioEstudioController@parametroAdicionalUnoItems');

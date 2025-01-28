@@ -418,6 +418,47 @@ class ServicioEstudioController extends Controller
         return response()->json(['message' => 'Nuevo elemento creado', 'data' => $elemento], 201);
     }
 
+    public function editarFamiliaEstudioServicio(Request $request){
+        $datos = $request->all();
+        $padreUpdate = $datos['padre'];
+        $madreUpdate = $datos['madre'];
+        $seUpdate = ServicioEstudio::find($datos['id']);
+
+        if ($seUpdate) {
+            $seUpdate->update([
+                'candidato' => $datos['candidato'],
+                'situacion' => $datos['situacion'],
+                'email' => $datos['email'],
+                'calle' => $datos['calle'],
+                'numero_exterior' => $datos['numero_exterior'],
+                'colonia' => $datos['colonia'],
+                'municipio' => $datos['municipio'],
+                'estado' => $datos['estado_columna'],
+                'codigo_postal' => $datos['codigo_postal'],
+                'pais' => $datos['pais'],
+                'latitud' => $datos['latitud'],
+                'longitud' => $datos['longitud'],
+                'direccion' => $datos['direccion']
+            ]);
+        }
+
+        //return response()->json($datos);
+
+        if ($padreUpdate) {
+            $padre = FamiliasPadres::find($padreUpdate['id']); // Busca el registro por ID
+            if ($padre) {
+                $padre->update($padreUpdate); // Actualiza los campos permitidos por $fillable
+            }
+        }
+        if ($madreUpdate) {
+            $madre = FamiliasPadres::find($madreUpdate['id']); // Busca el registro por ID
+            if ($madre) {
+                $madre->update($madreUpdate); // Actualiza los campos permitidos por $fillable
+            }
+        }
+        return response()->json(['message' => 'Se hizo update de los datos.']);
+    }
+
     public function descargarFormatoAltaFamiliasMasiva()
     {
         $filePath = 'file_system/formato_test.xlsx'; // Ruta relativa en storage/app/public
