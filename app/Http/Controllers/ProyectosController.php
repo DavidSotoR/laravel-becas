@@ -29,7 +29,7 @@ class ProyectosController extends Controller
             $query->where('id_tipo_cliente', $request->id_tipo_cliente);
         }
 
-        if(isset($request->activo)){
+        if(isset($request->activo) && $request->activo !== 'all'){
             $query->where('activo', $request->activo);
         }
 

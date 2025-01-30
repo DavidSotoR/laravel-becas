@@ -70,6 +70,7 @@ Route::group([
     Route::get('proyectos', 'ProyectosController@lista');
     Route::get('proyectos/{id}', 'ProyectosController@id');
     Route::post('proyectos', 'ProyectosController@nuevo');
+    Route::post('proyectos/editar', 'ProyectosController@editar');
     Route::put('proyectos', 'ProyectosController@eliminar');
     //Proyectos Clientes
     Route::get('proyectos/{id_proyecto}/clientes', 'ProyectosClientesController@lista');
