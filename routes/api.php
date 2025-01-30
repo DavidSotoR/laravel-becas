@@ -54,6 +54,7 @@ Route::group([
 
     //Clientes
     Route::get('clientes', 'ClientesController@lista');
+    Route::get('clientes/filtro/proyecto/{id}', 'ClientesController@listaFiltrosClientesPorRoyecto');
     Route::get('clientes/{id}/usuarios', 'ClientesController@usuarios');
     Route::get('clientes/{id}', 'ClientesController@id');
     Route::post('clientes', 'ClientesController@nuevo');
@@ -68,6 +69,7 @@ Route::group([
 
     //Proyectos
     Route::get('proyectos', 'ProyectosController@lista');
+    Route::get('proyectos/filtro', 'ProyectosController@listaFiltro');
     Route::get('proyectos/{id}', 'ProyectosController@id');
     Route::post('proyectos', 'ProyectosController@nuevo');
     Route::post('proyectos/editar', 'ProyectosController@editar');

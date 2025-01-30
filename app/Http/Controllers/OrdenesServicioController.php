@@ -37,7 +37,7 @@ class OrdenesServicioController extends Controller
     }
 
     public function nuevo(Request $request){
-
+        return response()->json(['message' => 'Nuevo elemento creado', 'data' => $request->all()], 201);
         $validator = Validator::make($request->all(),[
             'id_proyecto' => 'required|exists:proyectos,id',
             'id_cliente' => 'required|exists:clientes,id',

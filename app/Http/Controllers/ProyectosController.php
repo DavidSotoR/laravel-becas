@@ -40,6 +40,14 @@ class ProyectosController extends Controller
         return response()->json($lista);
     }
 
+    public function listaFiltro(Request $request){
+        $query = Proyectos::query()->with('tipoCliente');
+        $query->where('borrado', 0);
+        $query->where('activo', 1);
+        $lista = $query->get();
+        return response()->json($lista);
+    }
+
     public function id($id){
         $elemento = Proyectos::with(['tipoCliente','clientes'])->where('id',$id)->first();
         return response()->json($elemento);

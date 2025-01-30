@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use App\Clientes;
 use App\OrdenesServicio;
+use App\ProyectosClientes;
 
 class ClientesController extends Controller
 {
@@ -42,6 +43,23 @@ class ClientesController extends Controller
                 $query->where('id_clientes_hermanos', $request->id_clientes_hermanos);
             }
         }
+
+        $lista = $query->get();
+
+        return response()->json($lista);
+    }
+
+    public function listaFiltrosClientesPorRoyecto($id)
+    {
+        $idProyecto = $id;
+
+        $clientesProyecto = ProyectosClientes::select('id_cliente')->where('id_proyecto', $idProyecto)->get();
+        if ($id == 0) {
+            $query = Clientes::query()->with("tipoCliente", "encuesta_asignada");
+        } else {
+            $query = Clientes::query()->with("tipoCliente", "encuesta_asignada")->whereIn('id', $clientesProyecto);
+        }
+        //$query = Clientes::query()->with("tipoCliente", "encuesta_asignada")->whereIn('id', $clientesProyecto);
 
         $lista = $query->get();
 
