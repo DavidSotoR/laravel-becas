@@ -87,6 +87,8 @@ Route::group([
     Route::post('proyectos/clientes/ordenes-servicio', 'OrdenesServicioController@nuevo');
     Route::put('proyectos/clientes/ordenes-servicio/{id}', 'OrdenesServicioController@editar');
 
+    //ORDENES DE SERVICIO
+    Route::get('ordenes-servicio', 'OrdenesServicioController@OrdenesServiciosCatalogo');
 
     //Familias
     Route::get('familias', 'FamiliasController@lista');

@@ -22,6 +22,11 @@ class OrdenesServicio extends Model
 
     public function proyecto()
     {
-        return $this->belongsTo('App\Proyecto', 'id_proyecto','id');
+        return $this->belongsTo('App\Proyectos', 'id_proyecto','id');
+    }
+
+    public function cliente()
+    {
+        return $this->belongsTo('App\Clientes', 'id_cliente','id');
     }
 }

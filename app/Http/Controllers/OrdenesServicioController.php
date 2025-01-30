@@ -108,4 +108,11 @@ class OrdenesServicioController extends Controller
         $lista = $query->get();
         return response()->json($lista);
     }
+
+    public function OrdenesServiciosCatalogo(Request $request){
+        $allOrdenesServicios = OrdenesServicio::with('proyecto','cliente')->get();
+
+        return response()->json($allOrdenesServicios);
+
+    }
 }
