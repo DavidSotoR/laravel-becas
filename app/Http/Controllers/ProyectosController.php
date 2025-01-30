@@ -6,7 +6,9 @@ use App\Proyectos;
 use App\Clientes;
 use App\OrdenesServicio;
 use App\ProyectosClientes;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -33,7 +35,7 @@ class ProyectosController extends Controller
             $query->where('activo', $request->activo);
         }
 
-
+        $query->where('borrado', 0);
         $lista = $query->get();
         return response()->json($lista);
     }
@@ -85,6 +87,7 @@ class ProyectosController extends Controller
 
         return response()->json(['message' => 'Elemento modificado', 'data' => $editar], 201);
     }
+
     public function listaProyectosXPerfil(Request $request){
 
         $user = auth()->user();
@@ -145,5 +148,15 @@ class ProyectosController extends Controller
         $elemento['id_encuesta'] = $proyectoCliente->id_encuesta;
 
         return response()->json($elemento);
+    }
+
+    public function borrarProyecto(Request $request){
+        $editar = Proyectos::find($request->id);
+        $editar->borrado = 1;
+        $editar->borrado_user = Auth::id();
+        $editar->borrado_fecha = Carbon::now();
+
+        $editar->save();
+        return response()->json([$editar], 201);
     }
 }
