@@ -110,9 +110,37 @@ class OrdenesServicioController extends Controller
     }
 
     public function OrdenesServiciosCatalogo(Request $request){
-        $allOrdenesServicios = OrdenesServicio::with('proyecto','cliente')->get();
+
+        $search = $request->query('search');
+        $id_proyecto = $request->query('id_proyecto');
+        $id_cliente = $request->query('id_cliente');
+
+        $query = OrdenesServicio::with('proyecto', 'cliente');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->orWhereHas('proyecto', function ($q) use ($search) {
+                      $q->where('nombre', 'like', "%$search%");
+                  })
+                  ->orWhereHas('cliente', function ($q) use ($search) {
+                      $q->where('nombre', 'like', "%$search%");
+                  });
+            });
+        }
+        
+        if ($id_proyecto !== 'all') {
+            $query->where('id_proyecto', $id_proyecto);
+        }
+        
+        if ($id_cliente !== 'all') {
+            $query->where('id_cliente', $id_cliente);
+        }
+
+        $allOrdenesServicios = $query->get();
+        //$allOrdenesServicios = OrdenesServicio::with('proyecto','cliente')->get();
 
         return response()->json($allOrdenesServicios);
 
     }
+    
 }
