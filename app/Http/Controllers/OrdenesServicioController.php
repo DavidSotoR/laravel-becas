@@ -31,9 +31,24 @@ class OrdenesServicioController extends Controller
         return response()->json($lista);
     }
 
-    public function id($id){
-        $elemento = OrdenesServicio::where('id',$id)->first();
-        return response()->json($elemento);
+    public function id(Request $request,$id){
+        $elemento = OrdenesServicio::findOrFail($id);
+        $validatedData = $request->validate([
+            'id_cliente' => 'required|integer',
+            'id_proyecto' => 'required|integer',
+            'descripcion' => 'nullable|string|max:255',
+            'activo' => 'required|boolean',
+            'notas' => 'nullable|string',
+            'fecha_estimada_entrega' => 'required|date',
+            'fecha_estimada_finalizacion' => 'required|date|after_or_equal:fecha_estimada_entrega',
+        ]);
+        $elemento->update($validatedData);
+
+        // Retornar la respuesta actualizada
+        return response()->json([
+            'message' => 'Orden de servicio actualizada correctamente',
+            'data' => $elemento
+        ], 200);
     }
 
     public function nuevo(Request $request){
