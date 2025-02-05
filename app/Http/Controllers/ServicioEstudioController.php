@@ -576,12 +576,7 @@ class ServicioEstudioController extends Controller
         $rows = array_slice($data, 1); // Resto de los datos
 
         $formattedData = array_map(function ($row) use ($headers) {
-            // Limpiar cada valor del row
-            $cleanedRow = array_map(function ($value) {
-                return preg_replace('/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ., ]/u', '', trim($value));
-            }, $row);
-        
-            return array_combine($headers, $cleanedRow);
+            return array_combine($headers, $row);
         }, $rows);
 
         //return response()->json(['data'=> $formattedData]);
