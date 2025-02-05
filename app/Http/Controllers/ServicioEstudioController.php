@@ -27,6 +27,9 @@ use PDF;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Concerns\ToCollection;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Reader\Exception as ReaderException;
+
 use ZipArchive;
 
 class ServicioEstudioController extends Controller
@@ -536,34 +539,56 @@ class ServicioEstudioController extends Controller
         }
 
         if ($extension === 'xlsx') {
-            Excel::import(new class($data) implements ToCollection {
-                private $data;
+            $spreadsheet = IOFactory::load($file->getPathname());
+            $worksheet = $spreadsheet->getActiveSheet();
 
-                public function __construct(&$data) {
-                    $this->data = &$data;
+            $data = [];
+
+            foreach ($worksheet->getRowIterator() as $row) {
+                $rowData = [];
+                foreach ($row->getCellIterator() as $cell) {
+                    $value = $cell->getValue();
+                    $rowData[] = mb_convert_encoding($value, 'UTF-8', 'auto');
                 }
+                $data[] = $rowData;
+            }
 
-                public function collection(Collection $rows)
-                {
-                    // Obtener encabezados de la primera fila
-                    $encabezados = $rows->first();
+            // Limpiar encabezados eliminando columnas vacías
+            if (!empty($data)) {
+                $headers = $data[0];
 
-                    // Filtrar filas vacías (donde todas las celdas son nulas o vacías)
-                    $rows->slice(1)->filter(function ($row) {
-                        return $row->filter()->isNotEmpty(); // Mantén solo las filas con datos
-                    })->each(function ($row) use ($encabezados) {
-                        // Combinar encabezados con datos
-                        $this->data[] = array_combine($encabezados->toArray(), $row->toArray());
-                    });
+                // Identificar índices de columnas vacías
+                $validColumns = array_keys(array_filter($headers, fn($h) => trim($h) !== ""));
+
+                // Filtrar encabezados
+                $headers = array_intersect_key($headers, array_flip($validColumns));
+                $data[0] = array_values($headers); // Reindexar
+
+                // Filtrar las filas de datos para que solo mantengan las mismas columnas que el header
+                foreach ($data as $index => $row) {
+                    $data[$index] = array_values(array_intersect_key($row, array_flip($validColumns)));
                 }
-            }, $file);
+            }
+
         }
 
-        //return response()->json(['data'=> $data]);
+        $headers = $data[0]; // Primer array son los headers
+        $rows = array_slice($data, 1); // Resto de los datos
 
+        $formattedData = array_map(function ($row) use ($headers) {
+            // Limpiar cada valor del row
+            $cleanedRow = array_map(function ($value) {
+                return preg_replace('/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ., ]/u', '', trim($value));
+            }, $row);
+        
+            return array_combine($headers, $cleanedRow);
+        }, $rows);
+
+        //return response()->json(['data'=> $formattedData]);
+        
         DB::beginTransaction();
         try {
-            foreach ($data as $familiaPorCrear) {
+            foreach ($formattedData as $familiaPorCrear) {
                 $existe = User::select('*')->where('email', $familiaPorCrear['Email_cuenta'])->first();
                 //return response()->json(['message' => count($existe)]);
                 if ($existe !== null) {
