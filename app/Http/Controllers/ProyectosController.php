@@ -159,6 +159,12 @@ class ProyectosController extends Controller
     }
 
     public function borrarProyecto(Request $request){
+
+        $proyecton_tiene_clientes_asignados = ProyectosClientes::where('id_proyecto',$request->id)->count();
+
+        if($proyecton_tiene_clientes_asignados){
+            return response()->json(["errors"=>["message"=>["Este proyecto no se puede eliminar porque tiene clientes asignados"]]], 400);
+        }
         $editar = Proyectos::find($request->id);
         $editar->borrado = 1;
         $editar->borrado_user = Auth::id();
