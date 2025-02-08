@@ -153,6 +153,7 @@ Route::group([
 
     Route::get('catalogos/encuestas', 'CatalogoEncuestasController@lista');
     Route::get('catalogos/encuestas/{id}', 'CatalogoEncuestasController@id');
+    Route::post('catalogos/encuestas/{id}/copia', 'CatalogoEncuestasController@copia');
     Route::post('catalogos/encuestas', 'CatalogoEncuestasController@nuevo');
     Route::put('catalogos/encuestas', 'CatalogoEncuestasController@editar');
 

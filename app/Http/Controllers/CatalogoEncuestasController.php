@@ -76,4 +76,52 @@ class CatalogoEncuestasController extends Controller
 
         return response()->json(['message' => 'Encuesta modificada', 'data' => $editar], 201);
     }
+
+
+    public function copia(Request $request, $id){
+
+        $elemento = CatalogoEncuestas::with('preguntas','parametros','parametros.items')->where('id',$id)->first();
+        if(isset($request->nombre) && $elemento){
+            $request->nombre = $elemento->nombre." - ".$request->nombre;
+        }
+
+        //return response()->json($elemento);
+
+        $validator = Validator::make($request->all(),[
+            'nombre' => ['required','string','min:2',Rule::unique('catalogo_encuestas')->ignore($id)],
+            'password' => 'required'
+        ]);
+
+        /*$UserPassword = auth()->user()->password;
+        $ComprovacionPassword = bcrypt($request->password);
+
+        if($UserPassword != $ComprovacionPassword){
+            return response()->json(['error' => ['password'=>['Contraseña Incorrecta',$UserPassword,$ComprovacionPassword]]], 400);
+        }*/
+
+
+        $nuevoElemento = $elemento->replicate();
+        $nuevoElemento->nombre = $request->nombre;
+        $nuevoElemento->save();
+
+        // Clonar preguntas
+        foreach ($elemento->preguntas as $pregunta) {
+            $nuevaPregunta = $pregunta->replicate();
+            $nuevoElemento->preguntas()->save($nuevaPregunta);
+        }
+
+        // Clonar parámetros
+        foreach ($elemento->parametros as $parametro) {
+            $nuevoParametro = $parametro->replicate();
+            $nuevoElemento->parametros()->save($nuevoParametro);
+
+            // Clonar items
+            foreach ($parametro->items as $item) {
+                $nuevoItem = $item->replicate();
+                $nuevoParametro->items()->save($nuevoItem);
+            }
+        }
+
+        return response()->json($elemento);
+    }
 }

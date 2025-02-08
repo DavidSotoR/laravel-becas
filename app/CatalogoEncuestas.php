@@ -15,4 +15,7 @@ class CatalogoEncuestas extends Model
     public function preguntas(){
         return $this->hasMany('App\CatalogoEncuestasPreguntas','id_catalogo_encuesta','id');
     }
+    public function parametros(){
+        return $this->hasMany('App\CatalogoEncuestasPreguntasParametrosClasificacions','id_catalogo_encuesta','id');
+    }
 }
