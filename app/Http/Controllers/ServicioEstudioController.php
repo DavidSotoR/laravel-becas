@@ -558,7 +558,7 @@ class ServicioEstudioController extends Controller
                 $headers = $data[0];
 
                 // Identificar índices de columnas vacías
-                $validColumns = array_keys(array_filter($headers, fn($h) => trim($h) !== ""));
+                //$validColumns = array_keys(array_filter($headers, fn($h) => trim($h) !== ""));
 
                 // Filtrar encabezados
                 $headers = array_intersect_key($headers, array_flip($validColumns));
@@ -580,7 +580,7 @@ class ServicioEstudioController extends Controller
         }, $rows);
 
         //return response()->json(['data'=> $formattedData]);
-        
+
         DB::beginTransaction();
         try {
             foreach ($formattedData as $familiaPorCrear) {
