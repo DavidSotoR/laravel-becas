@@ -1126,7 +1126,7 @@ function distribucionDeLaCasa($formData,$parametros) {
             $texto = htmlspecialchars($item['texto']);
             $respuesta = isset($item['respuesta']) ? htmlspecialchars($item['respuesta']) : ';';
 
-            $html .= "<div>OBSERVAMOS QUE LA FAMILIA CUENTA CON: ".opcionSeleccionadaDLC($respuesta,$parametros)."</div><br>";
+            $html .= "<div>OBSERVAMOS QUE LA FAMILIA ".opcionSeleccionadaDLC($respuesta,$parametros)."</div><br>";
         }
     }
     // Sección 'descripcion'

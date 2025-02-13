@@ -13,6 +13,7 @@ class ServiciosEstudiosRespuestas extends Model
                             'parentesco',
                             'nombre',
                             'texto',
+                            'texto_plural',
                             'respuesta',
                             'vive',
                             'activo',
