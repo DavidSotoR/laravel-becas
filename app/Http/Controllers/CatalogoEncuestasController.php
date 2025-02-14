@@ -104,11 +104,8 @@ class CatalogoEncuestasController extends Controller
         $nuevoElemento->nombre = $request->nombre;
         $nuevoElemento->save();
 
-        // Clonar preguntas
-        foreach ($elemento->preguntas as $pregunta) {
-            $nuevaPregunta = $pregunta->replicate();
-            $nuevoElemento->preguntas()->save($nuevaPregunta);
-        }
+        $idsParametrosTransacction = array();
+        $idsPreguntasTransacction = array();
 
         // Clonar parámetros
         foreach ($elemento->parametros as $parametro) {
@@ -120,7 +117,37 @@ class CatalogoEncuestasController extends Controller
                 $nuevoItem = $item->replicate();
                 $nuevoParametro->items()->save($nuevoItem);
             }
+
+            $idsPreguntasTransacction[$parametro->id] = $nuevoElemento->id;
         }
+
+        // Clonar preguntas
+        foreach ($elemento->preguntas as $pregunta) {
+            //$pregunta->
+            $nuevaPregunta = $pregunta->replicate();
+
+            if($nuevaPregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion !== null){
+                $nuevaPregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion = $idsPreguntasTransacction[$nuevaPregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion];
+            }
+            if($nuevaPregunta->id_parametro_clasificacion_parametro_adicional_uno !== null){
+                $nuevaPregunta->id_parametro_clasificacion_parametro_adicional_uno = $idsPreguntasTransacction[$nuevaPregunta->id_parametro_clasificacion_parametro_adicional_uno];
+            }
+            if($nuevaPregunta->id_parametro_clasificacion_parametro_adicional_dos !== null){
+                $nuevaPregunta->id_parametro_clasificacion_parametro_adicional_dos = $idsPreguntasTransacction[$nuevaPregunta->id_parametro_clasificacion_parametro_adicional_dos];
+            }
+
+            $nuevoElemento->preguntas()->save($nuevaPregunta);
+
+            /*'id_catalogo_encuestas_preguntas_parametro_clasificacion',
+            'id_parametro_clasificacion_parametro_adicional_uno',
+            'id_parametro_clasificacion_parametro_adicional_dos',
+            $idsPreguntasTransacction[$nuevaPregunta->id] = array(
+                'parametro' => ,
+                'parametro_adicional_uno'=> ,
+                'parametro_adicional_dos' =>
+            );*/
+        }
+
 
         return response()->json($elemento);
     }

@@ -151,6 +151,12 @@ Route::group([
     Route::delete('catalogos/encuestas/preguntas/{id_preguntas}/items', 'CatalogoEncuestasPreguntasItemsController@eliminar');
     Route::get('catalogos/encuestas/preguntas/{id_pregunta}/parametros', 'CatalogoEncuestasPreguntasController@parametros');
 
+
+    Route::post('catalogos/encuestas/rangos', 'CatalogoEncuestasRangosController@nuevo');
+    Route::put('catalogos/encuestas/rangos', 'CatalogoEncuestasRangosController@editar');
+    Route::get('catalogos/encuestas/{id_encuesta}/rangos', 'CatalogoEncuestasRangosController@lista');
+    Route::delete('catalogos/encuestas/rangos/{id}', 'CatalogoEncuestasRangosController@eliminar');
+
     Route::get('catalogos/encuestas', 'CatalogoEncuestasController@lista');
     Route::get('catalogos/encuestas/{id}', 'CatalogoEncuestasController@id');
     Route::post('catalogos/encuestas/{id}/copia', 'CatalogoEncuestasController@copia');
