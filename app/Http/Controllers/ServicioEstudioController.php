@@ -421,6 +421,25 @@ class ServicioEstudioController extends Controller
         return response()->json(['message' => 'Nuevo elemento creado', 'data' => $elemento], 201);
     }
 
+    public function aniadirObservacion(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|int',
+            'observaciones' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(["errors" => $validator->errors()], 400);
+        }
+
+        $elemento = ServicioEstudio::find($request->id);
+
+        $elemento->observaciones = $request->observaciones;
+        $elemento->save();
+
+        return response()->json(['message' => 'Nuevo elemento creado', 'data' => $elemento], 201);
+    }
+
     public function editarFamiliaEstudioServicio(Request $request){
         $datos = $request->all();
         $padreUpdate = $datos['padre'];

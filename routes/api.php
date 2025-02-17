@@ -190,6 +190,7 @@ Route::group([
 
     Route::get('estudio/socioeconomico/{id}/encuesta', 'ServicioEstudioController@estudioSocioeconomico');
     Route::get('estudio/socioeconomico/{id}/pdf', 'ServicioEstudioController@estudioSocioeconomicoPDF');
+    Route::post('estudio/observaciones','ServicioEstudioController@aniadirObservacion');
 
     Route::get('estudio/{id_estudio}/pregunta/{id_pregunta}/respuestas', 'ServiciosEstudiosRespuestasController@lista');
     Route::get('estudio/{id_estudio}/documentos/', 'FamiliasDocumentosController@listaFilesEstudio');

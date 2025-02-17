@@ -47,8 +47,9 @@ class ServicioEstudio extends Model
                             'visita_recordatorio',
                             'porcentaje_otorgado',
                             'clave_familia_colegio',
+                            'aniadir_observaciones',
+                            'observaciones',
                           ];
-
 
 
     protected $casts = [

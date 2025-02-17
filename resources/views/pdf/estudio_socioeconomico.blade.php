@@ -114,22 +114,33 @@ use Illuminate\Support\Facades\Storage;
                     </tr>
                 </table>
                 <br/>
-
+                @if($encuesta->estudio->aniadir_observaciones === 1 )
                 <table style="width: 100%">
                     <tr>
-                        <td style="width: 14%"></td>
-                        <td>OBSERVACION</td>
-                        <td style="width: 14%"></td>
+                        <td style="width: 10%"></td>
+                        <td>RESUMEN</td>
+                        <td style="width: 10%"></td>
                     </tr>
                 </table>
                 <table style="width: 100%">
                     <tr>
                         <td style="width: 10%"></td>
-                        <td class="border" style="height: 230"></td>
+                        <td class="text-start  border" style="height: 230px">
+                            <div
+                            style="
+                                width: 100%;
+                                min-height: 200px;
+                                padding: 5px;
+                                line-height: 1.55;
+                                white-space: pre-wrap;
+                                font-size:12px;
+                            ">{{$encuesta->estudio->observaciones}}</div>
+                        </td>
                         <td style="width: 10%"></td>
                     </tr>
                 </table>
                 <br>
+                @endif
 
                 <p class="text-uppercase">{{$encuesta->estudio->cliente->nombre}}</p>
                 @if (isset($encuesta["hijo"]))
