@@ -16,6 +16,7 @@ use App\CatalogoEncuestasPreguntas;
 use App\CatalogoEncuestasPreguntasParametrosClasificacionItems;
 use App\FamiliasDocumentosTipos;
 use App\FamiliasDocumentos;
+use App\ServiciosEstudiosRespuestasClasificacion;
 use App\Mail\NotificacionCorreo;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -238,6 +239,11 @@ class ServicioEstudioController extends Controller
                             ->where('id_cliente',$user->id_cliente)
                             ->first();
         $encuesta = $proyectoCliente->encuesta;*/
+        $distribucion_del_gasto = false;
+        if(isset($request->distribucion_del_gasto)){
+            $distribucion_del_gasto = true;
+        }
+
         $encuesta_por_hijo = false;
         if(isset($lista[0])){
 
@@ -264,7 +270,6 @@ class ServicioEstudioController extends Controller
                 //$estudio['parametros'] = $parametros;
 
                 //CatalogoEncuestasPreguntas::where()->first();
-
                 $pregunta_get = $this->preguntaEsporHijo($estudio->id_proyecto,$estudio->id_cliente);
                 $pregunta = $pregunta_get[0];
                 $lista_de_hijos = ServiciosEstudiosRespuestas::
@@ -281,6 +286,15 @@ class ServicioEstudioController extends Controller
                     //$estudio['hijos'] = $lista_de_hijos;
                     $estudio_hijo['hijo'] = $hijo;
                     $estudio_hijo['no_hijo'] = $key+1;
+
+                    if($distribucion_del_gasto){
+                        $estudio_hijo['distribucion_del_gasto'] = $this->getDistribucionDelGasto(
+                            $estudio_hijo->id_proyecto,
+                            $estudio_hijo->id_cliente,
+                            $estudio_hijo->id
+                        );
+                    }
+
                     $estudios_por_hijo[] = $estudio_hijo;
                 }
             }
@@ -297,11 +311,47 @@ class ServicioEstudioController extends Controller
                 */
                 $parametros = $this->estudioParametrosPuntos($estudio->id,0);
                 $estudio['parametros'] = $parametros;
+
+                if($distribucion_del_gasto){
+                    $estudio['distribucion_del_gasto'] = $this->getDistribucionDelGasto(
+                        $estudio->id_proyecto,
+                        $estudio->id_cliente,
+                        $estudio->id
+                    );
+                }
             }
 
 
             return response()->json($lista);
         }
+    }
+
+    private function getDistribucionDelGasto($id_proyecto,$id_cliente,$id_estudio){
+
+        $lista_totales = array();
+        $id_encuesta = ProyectosClientes::where('id_proyecto',$id_proyecto)->where('id_cliente',$id_cliente)->first()->id_encuesta;
+        $id_pregunta = CatalogoEncuestasPreguntas::where('id_catalogo_encuesta',$id_encuesta)->where('id_catalogo_encuestas_preguntas_tipo',15)->first()->id;
+
+        if(!$id_pregunta){
+            return $lista_totales;
+        }
+
+        $lista_respuestas = ServiciosEstudiosRespuestas::where('id_servicio_estudio',$id_estudio)->where('id_catalogo_encuestas_pregunta',$id_pregunta)->get();
+
+        $lista_clasificacion = ServiciosEstudiosRespuestasClasificacion::get();
+
+
+        foreach($lista_clasificacion as $clasificacion){
+            $sumatoria = 0;
+            foreach($lista_respuestas as $respuesta){
+                if($respuesta->id_respuestas_clasificacions == $clasificacion->id){
+                    $sumatoria += $respuesta->padre_monto;
+                }
+            }
+            $lista_totales[] = [ "categoria" => $clasificacion->nombre, "total" => $sumatoria ] ;
+        }
+
+        return $lista_totales;
     }
 
     public function id($id)
@@ -2071,7 +2121,7 @@ class ServicioEstudioController extends Controller
     public function getSumatoruaB($id_estudio,$id_pregunta){
 
         $id_parametro = CatalogoEncuestasPreguntas::where('id', $id_pregunta)->first()->id_catalogo_encuestas_preguntas_parametro_clasificacion;
-//where('id', $id_pregunta)->
+        //where('id', $id_pregunta)->
             return response()->json($id_pregunta, 200);
         if(!$id_parametro){
             return response()->json(0, 200);
@@ -2086,4 +2136,6 @@ class ServicioEstudioController extends Controller
 
         return response()->json($preguntaItem, 200);
     }
+
+
 }
