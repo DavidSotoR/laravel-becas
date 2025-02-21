@@ -1912,6 +1912,68 @@ class ServicioEstudioController extends Controller
         return $pdf;
     }
 
+    private function generateDatosEncuestasEstudioSocioeconomicoPDF($id,$id_hijo = 0)
+    {
+
+        // Obtener los datos
+        $elemento = ServicioEstudio::with(['cliente'])->where('id', $id)->first();
+
+        $proyectoCliente = ProyectosClientes::with(['encuesta', 'encuesta.preguntas', 'proyecto'])->where('id_proyecto', $elemento->id_proyecto)->where('id_cliente', $elemento->id_cliente)->first();
+
+        foreach ($proyectoCliente->encuesta->preguntas as &$pregunta) {
+            $pregunta['respuestas'] = ServiciosEstudiosRespuestas::where('id_servicio_estudio', $elemento->id)->where('id_catalogo_encuestas_pregunta', $pregunta->id)->get();
+
+            if( $pregunta->id_catalogo_encuestas_preguntas_tipo == 3){
+                    $pregunta['parametros'] = $this->listaItemParametros($pregunta->id,null);
+
+            }else if($pregunta->id_catalogo_encuestas_preguntas_tipo == 13 || $pregunta->id_catalogo_encuestas_preguntas_tipo == 5){
+                $pregunta['parametros'] = $this->listaItemParametros($pregunta->id,$pregunta->id);
+            }
+
+            if($pregunta->id_catalogo_encuestas_preguntas_tipo == 4){
+                $pregunta['parametros_promedio_academico'] = $this->listaItemParametrosAdicionalUnoItems($pregunta->id);
+                //getParametrosPromedioAcademico();
+                $pregunta['parametros_promedio_conducta']  = $this->listaItemParametrosAdicionalDosItems($pregunta->id);
+                //getParametrosPromedioConducta();
+            }
+
+        }
+
+        $encuesta = $proyectoCliente->encuesta;
+        $encuesta['estudio'] = $elemento;
+        $encuesta['proyecto'] = $proyectoCliente->proyecto;
+        $encuesta['imagenes'] = $this->listaDeDocumentosEstudio($id);
+        //$encuesta['cliente'] = $elemento->cliente;
+        if($id_hijo){
+            $encuesta['hijo'] = ServiciosEstudiosRespuestas::where('id', $id_hijo)->first();
+        }
+
+        $parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta', $encuesta->id)->get();
+
+        foreach ($parametros as &$parametro) {
+            $parametro['puntos'] = $this->puntosPrecuntaSeccion($parametro, $id, $encuesta->preguntas,$id_hijo);
+        }
+        $encuesta['parametros'] = $parametros;
+        $encuesta['total_parametros'] = $this->totalPorParametro($encuesta->preguntas);
+
+        //return $encuesta;
+
+        // Cargar la vista y pasar los datos
+        return $encuesta;
+    }
+
+    public function resultadosEstudiosSocieconomicosReporte(Request $request){
+        $os = $request->ordenes_servicio;
+        //$elementos = ServicioEstudio::with(['cliente'])->whereIn('id', $request->ordenes_servicio)->get();
+        $datos = [];
+        foreach($os as $elemento){
+          array_push($datos, $this->generateDatosEncuestasEstudioSocioeconomicoPDF($elemento));
+        }
+        
+        
+        return response(["message"=> "llego", "datos" => $datos]);
+    }
+
     public function estudioSocioeconomicoPDF(Request $request,$id)
     {
         if (!$id) {
