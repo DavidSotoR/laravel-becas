@@ -206,7 +206,7 @@ Route::group([
     Route::get('estudios/proyectos/{id_proyecto}/ordenesdeservicio', 'OrdenesServicioController@listaODPEmpresa');
     Route::get('usuario/cliente', 'ClientesController@clienteUsuarioEmpresa');
 
-
+    Route::get('estudios/socioeconomico/proyectos/{id_proyecto}/distribucion-del-gasto', 'EstudiosSocioeconomicosReportesController@distribucionDelGasto');
 
 
 });
