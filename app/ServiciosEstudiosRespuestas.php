@@ -25,6 +25,7 @@ class ServiciosEstudiosRespuestas extends Model
                             'marca_modelo',
                             'anio',
                             'propietario',
+                            'id_respuestas_clasificacions',
                         ];
 
     protected $casts = [

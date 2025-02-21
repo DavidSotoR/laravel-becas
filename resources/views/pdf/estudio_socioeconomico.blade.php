@@ -719,7 +719,7 @@ function ingresoNetoMensual($formData) {
 }
     // 9 .-  Ahorro
 function ahorro($formData){
-    $datos      = isset($formData[0]) ? $formData[0] : attay();
+    $datos      = isset($formData[0]) ? $formData[0] : array();
     $activo     = isset($datos['activo']) && $datos['activo'] ? 'SI' : 'NO';
     $respuesta  = isset($datos['respuesta']) ? htmlspecialchars($formData[0]['respuesta']) : '&nbsp;';
     $monto      = isset($datos['monto']) ? formatNumber($datos['monto']) : '&nbsp;';
