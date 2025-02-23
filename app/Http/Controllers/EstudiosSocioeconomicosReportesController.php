@@ -19,6 +19,8 @@ use App\FamiliasDocumentos;
 use App\ServiciosEstudiosRespuestasClasificacion;
 use Illuminate\Http\Request;
 
+use App\Http\Controllers\ServicioEstudioController;
+
 class EstudiosSocioeconomicosReportesController extends Controller
 {
     public function __construct()
@@ -118,7 +120,6 @@ class EstudiosSocioeconomicosReportesController extends Controller
 
         return $lista_totales;
     }
-    //gastosPorRangoIngresoMensual
 
     public function gastosPorRangoIngresoMensual(Request $request, int $id_proyecto){
 
@@ -135,15 +136,51 @@ class EstudiosSocioeconomicosReportesController extends Controller
             $id_orden_servicio = $request->id_orden_servicio;
         }
 
+        $lista_totales = array();
+        $id_encuesta = ProyectosClientes::where('id_proyecto',$id_proyecto)->where('id_cliente',$id_cliente)->first()->id_encuesta;
+
+        // Datos de encuesta con datos
         $lista = $this->estudiosPorProyectoCliente($id_proyecto,$id_cliente,$id_orden_servicio);
+        $parametros = CatalogoEncuestasPreguntasParametrosClasificacions::where('id_catalogo_encuesta', $id_encuesta)->get();
+        $servicioEstudioController = new ServicioEstudioController();
 
         foreach ($lista as &$estudio) {
 
-            $parametros = $this->estudioParametrosPuntos($estudio->id,0);
+            $parametros = $servicioEstudioController->estudioParametrosPuntos($estudio->id,0);
             $estudio['parametros'] = $parametros;
 
         }
 
-        return response()->json($lista);
+        //Lista de parameotros tipo por rangos
+        $parametros_por_rangos = CatalogoEncuestasPreguntasParametrosClasificacions::with('items')
+                        ->where('id_catalogo_encuesta', $id_encuesta)
+                        ->where('id_catalogo_encuestas_preguntas_parametros_clasificaciones_tipos', 1)
+                        ->get();
+
+        foreach ($parametros_por_rangos AS &$parametro_rango){
+            foreach($parametro_rango->items AS &$item ){
+                $datos_encuestas = $this->filtrarEcnuestasPorParametro($parametro_rango->id,$item->id,$lista);
+                $item["estudios"] = $datos_encuestas;
+                $item["total_estudios"] = count($datos_encuestas);
+                //$item = array_merge($item->toArray(),$datos_encuestas);
+            }
+        }
+
+        return response()->json($parametros_por_rangos);
+    }
+
+    function filtrarEcnuestasPorParametro($id_parameotro,$id_item,$lista_estudios){
+        $datos = array();
+        $servicioEstudioController = new ServicioEstudioController();
+        foreach ($lista_estudios as &$estudio) {
+            foreach ($estudio['parametros'] as &$parametro) {
+                if($parametro->id == $id_parameotro){
+                    if(isset($parametro['puntos']['id']) && $parametro['puntos']['id'] == $id_item){
+                        $datos[] = $estudio;
+                    }
+                }
+            }
+        }
+        return $datos;
     }
 }

@@ -208,6 +208,7 @@ Route::group([
     Route::get('usuario/cliente', 'ClientesController@clienteUsuarioEmpresa');
 
     Route::get('estudios/socioeconomico/proyectos/{id_proyecto}/distribucion-del-gasto', 'EstudiosSocioeconomicosReportesController@distribucionDelGasto');
+    Route::get('estudios/socioeconomico/proyectos/{id_proyecto}/rango-ingreso-mensual', 'EstudiosSocioeconomicosReportesController@gastosPorRangoIngresoMensual');
 
 
 });
