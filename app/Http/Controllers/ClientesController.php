@@ -158,7 +158,7 @@ class ClientesController extends Controller
     public function editar(Request $request)
     {
         $id = $request->input('id'); // Obtener ID desde FormData
-        
+        //return response()->json($request->all());
         $validator = Validator::make($request->all(), [
             'id' => 'required|exists:clientes,id',
             'nombre' => ['required', 'min:2', Rule::unique('clientes')->ignore($id)],
