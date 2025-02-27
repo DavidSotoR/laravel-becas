@@ -32,6 +32,8 @@ class Clientes extends Model
         'rason_social',
         'id_catalogo_encuesta',
         'documentacion_digital',
+        'habilitar_resumen',
+        'ubicacion_logo',
         'terminos'
     ];
 
