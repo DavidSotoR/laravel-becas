@@ -34,6 +34,7 @@ class Clientes extends Model
         'documentacion_digital',
         'habilitar_resumen',
         'ubicacion_logo',
+        'requiere_facturar',
         'terminos'
     ];
 

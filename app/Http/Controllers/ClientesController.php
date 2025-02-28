@@ -185,10 +185,10 @@ class ClientesController extends Controller
             'id_tipo_cliente' => $request->input('id_tipo_cliente'),
             'id_clientes_hermanos' => $request->input('id_clientes_hermanos') ?? $cliente->id_clientes_hermanos,
             'id_catalogo_encuesta' => $request->input('id_catalogo_encuesta') ?? $cliente->id_catalogo_encuesta,
-            'documentacion_digital' => $request->input('documentacion_digital') ?? $cliente->documentacion_digital,
+            'documentacion_digital' => $request->input('documentacion_digital') ? 1 : 0,
             'terminos' => $request->input('terminos') ?? $cliente->terminos,
             'tipo_persona' => $request->input('tipo_persona') ?? $cliente->tipo_persona,
-            'requiere_facturar' => $request->has('requiere_facturar') ? ($request->input('requiere_facturar') ? 1 : 0) : $cliente->requiere_facturar,
+            'requiere_facturar' =>$request->input('requiere_facturar') ? 1 : 0,
             'rfc' => $request->input('rfc') ?? $cliente->rfc,
             'rso' => $request->input('rso') ?? $cliente->rso,
             'nombre_uno' => $request->input('nombre_uno') ?? $cliente->nombre_uno,
@@ -204,7 +204,7 @@ class ClientesController extends Controller
             'estado' => $request->input('estado') ?? $cliente->estado,
             'pais' => $request->input('pais') ?? $cliente->pais,
             'rason_social' => $request->input('rason_social') ?? $cliente->rason_social,
-            'habilitar_resumen' => $request->input('habilitar_resumen') ?? $cliente->habilitar_resumen
+            'habilitar_resumen' => $request->input('habilitar_resumen') ? 1 : 0
         ]);
 
         // Manejo de la subida de archivos (logo)
