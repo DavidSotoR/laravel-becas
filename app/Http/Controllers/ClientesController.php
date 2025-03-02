@@ -9,6 +9,7 @@ use Illuminate\Validation\Rule;
 use App\Clientes;
 use App\OrdenesServicio;
 use App\ProyectosClientes;
+use Illuminate\Support\Facades\Storage;
 
 class ClientesController extends Controller
 {
@@ -99,7 +100,6 @@ class ClientesController extends Controller
 
     public function nuevo(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|unique:clientes',
             'descripcion' => 'required',
@@ -126,22 +126,41 @@ class ClientesController extends Controller
             'id_catalogo_encuesta' => 'nullable|int',
             'documentacion_digital' => 'nullable|boolean',
             'terminos' => 'nullable|string',
+            'habilitar_resumen' => 'nullable|boolean',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // Validación del logo
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
+        // Crear cliente sin el logo
         $cliente = Clientes::create($validator->validate());
 
-        return response()->json(['message' => 'Nuevo cliente creado', 'data' => $cliente], 201);
+        // Verificar si se envió un logo
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            $logoNombre = time() . '_' . $file->getClientOriginalName(); // Generar nombre único
+            $rutaLogo = "clientes/{$cliente->id}/logo/"; // Carpeta destino
+            $file->storeAs($rutaLogo, $logoNombre, 'public'); // Guardar en storage/app/public/
+
+            // Actualizar cliente con la ruta del logo
+            $cliente->update(['ubicacion_logo' => $rutaLogo . $logoNombre]);
+            $cliente->save();
+        }
+
+        return response()->json([
+            'message' => 'Nuevo cliente creado',
+            'data' => $cliente
+        ], 201);
     }
 
     public function editar(Request $request)
     {
-        $id = $request->id;
+        $id = $request->input('id'); // Obtener ID desde FormData
+        //return response()->json($request->all());
         $validator = Validator::make($request->all(), [
-            'id' => 'required',
+            'id' => 'required|exists:clientes,id',
             'nombre' => ['required', 'min:2', Rule::unique('clientes')->ignore($id)],
             'descripcion' => 'required',
             'notificaciones_email' => 'required',
@@ -149,78 +168,65 @@ class ClientesController extends Controller
             'id_clientes_hermanos' => 'nullable|int',
             'id_catalogo_encuesta' => 'nullable|int',
             'documentacion_digital' => 'nullable|boolean',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // Manejo de archivos
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
-        $editar = Clientes::where('id', $id)->first();
-        $editar->nombre = $request->nombre;
-        $editar->descripcion = $request->descripcion;
-        $editar->notificaciones_email = $request->notificaciones_email;
-        $editar->id_tipo_cliente = $request->id_tipo_cliente;
-        if (isset($request->id_clientes_hermanos)) {
-            $editar->id_clientes_hermanos = $request->id_clientes_hermanos;
-        }
-        if (isset($request->terminos)) {
-            $editar->terminos = $request->terminos;
-        }
-        if (isset($request->tipo_persona)) {
-            $editar->tipo_persona = $request->tipo_persona;
-        }
-        if (isset($request->requiere_facturar))
-            if ($request->requiere_facturar) {
-                $editar->requiere_facturar = 1;
-            } else {
-                $editar->requiere_facturar = 0;
+        $cliente = Clientes::findOrFail($id);
+
+        // Actualizar datos del cliente
+        $cliente->update([
+            'nombre' => $request->input('nombre'),
+            'descripcion' => $request->input('descripcion'),
+            'notificaciones_email' => $request->input('notificaciones_email'),
+            'id_tipo_cliente' => $request->input('id_tipo_cliente'),
+            'id_clientes_hermanos' => $request->input('id_clientes_hermanos') ?? $cliente->id_clientes_hermanos,
+            'id_catalogo_encuesta' => $request->input('id_catalogo_encuesta') ?? $cliente->id_catalogo_encuesta,
+            'documentacion_digital' => $request->input('documentacion_digital') ? 1 : 0,
+            'terminos' => $request->input('terminos') ?? $cliente->terminos,
+            'tipo_persona' => $request->input('tipo_persona') ?? $cliente->tipo_persona,
+            'requiere_facturar' =>$request->input('requiere_facturar') ? 1 : 0,
+            'rfc' => $request->input('rfc') ?? $cliente->rfc,
+            'rso' => $request->input('rso') ?? $cliente->rso,
+            'nombre_uno' => $request->input('nombre_uno') ?? $cliente->nombre_uno,
+            'telefono_uno' => $request->input('telefono_uno') ?? $cliente->telefono_uno,
+            'nombre_dos' => $request->input('nombre_dos') ?? $cliente->nombre_dos,
+            'telefono_dos' => $request->input('telefono_dos') ?? $cliente->telefono_dos,
+            'telefono_mobil' => $request->input('telefono_mobil') ?? $cliente->telefono_mobil,
+            'calle' => $request->input('calle') ?? $cliente->calle,
+            'entre_cale' => $request->input('entre_cale') ?? $cliente->entre_cale,
+            'colonia' => $request->input('colonia') ?? $cliente->colonia,
+            'codigo_postal' => $request->input('codigo_postal') ?? $cliente->codigo_postal,
+            'ciudad' => $request->input('ciudad') ?? $cliente->ciudad,
+            'estado' => $request->input('estado') ?? $cliente->estado,
+            'pais' => $request->input('pais') ?? $cliente->pais,
+            'rason_social' => $request->input('rason_social') ?? $cliente->rason_social,
+            'habilitar_resumen' => $request->input('habilitar_resumen') ? 1 : 0
+        ]);
+
+        // Manejo de la subida de archivos (logo)
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            $logoNombre = time() . '_' . $file->getClientOriginalName();
+            $rutaLogo = "clientes/{$cliente->id}/logo/";
+
+            // Eliminar logo anterior si existe
+            if ($cliente->ubicacion_logo && Storage::disk('public')->exists($cliente->ubicacion_logo)) {
+                Storage::disk('public')->delete($cliente->ubicacion_logo);
             }
 
-        if (isset($request->rfc))
-            $editar->rfc = $request->rfc;
-        if (isset($request->id_catalogo_encuesta))
-            $editar->id_catalogo_encuesta = $request->id_catalogo_encuesta;
-        if (isset($request->documentacion_digital))
-            $editar->documentacion_digital = $request->documentacion_digital;
-        if (isset($request->rso))
-            $editar->rso = $request->rso;
-        if (isset($request->nombre_uno))
-            $editar->nombre_uno = $request->nombre_uno;
-        if (isset($request->telefono_uno))
-            $editar->telefono_uno = $request->telefono_uno;
-        if (isset($request->nombre_dos))
-            $editar->nombre_dos = $request->nombre_dos;
-        if (isset($request->telefono_dos))
-            $editar->telefono_dos = $request->telefono_dos;
-        if (isset($request->telefono_mobil))
-            $editar->telefono_mobil = $request->telefono_mobil;
-        if (isset($request->calle))
-            $editar->calle = $request->calle;
-        if (isset($request->entre_cale))
-            $editar->entre_cale = $request->entre_cale;
-        if (isset($request->colonia))
-            $editar->colonia = $request->colonia;
-        if (isset($request->codigo_postal))
-            $editar->codigo_postal = $request->codigo_postal;
-        if (isset($request->ciudad))
-            $editar->ciudad = $request->ciudad;
-        if (isset($request->estado))
-            $editar->estado = $request->estado;
-        if (isset($request->pais))
-            $editar->pais = $request->pais;
-        if (isset($request->rason_social))
-            $editar->rason_social = $request->rason_social;
-        if (isset($request->id_catalogo_encuesta))
-            $editar->id_catalogo_encuesta = $request->id_catalogo_encuesta;
-        if (isset($request->documentacion_digital))
-            $editar->documentacion_digital = $request->documentacion_digital;
+            // Guardar nuevo logo
+            $file->storeAs($rutaLogo, $logoNombre, 'public');
+            $cliente->update(['ubicacion_logo' => $rutaLogo . $logoNombre]);
+        }
 
-
-        $editar->save();
-
-
-        return response()->json(['message' => 'Cliente modificado', 'data' => $editar], 201);
+        return response()->json(['message' => 'Cliente modificado', 'data' => $cliente], 200);
     }
+
+
 
     public function clienteUsuarioEmpresa(Request $request)
     {
