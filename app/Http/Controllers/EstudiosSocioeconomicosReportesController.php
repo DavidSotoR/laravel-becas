@@ -147,6 +147,13 @@ class EstudiosSocioeconomicosReportesController extends Controller
         foreach ($lista as &$estudio) {
 
             $parametros = $servicioEstudioController->estudioParametrosPuntos($estudio->id,0);
+
+            foreach($parametros as &$parametro){
+
+                $preguntas = $this -> getListasdePreguntasPorParametroID($id_encuesta,$parametro->id,$estudio->id);
+                $parametro["preguntas"] = $preguntas;
+            }
+
             $estudio['parametros'] = $parametros;
 
         }
@@ -182,5 +189,14 @@ class EstudiosSocioeconomicosReportesController extends Controller
             }
         }
         return $datos;
+    }
+
+    function getListasdePreguntasPorParametroID($id_encuesta,$id_parametro,$id_estudio){
+        $preguntas = CatalogoEncuestasPreguntas::where('id_catalogo_encuesta',$id_encuesta)->where('id_catalogo_encuestas_preguntas_parametro_clasificacion',$id_parametro)->get();
+        foreach($preguntas AS &$pregunta){
+            $lista_respuestas = ServiciosEstudiosRespuestas::where('id_servicio_estudio',$id_estudio)->where('id_catalogo_encuestas_pregunta',$pregunta->id)->get();
+            $pregunta["respuestas"] = $lista_respuestas;
+        }
+        return $preguntas;
     }
 }
