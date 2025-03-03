@@ -608,7 +608,17 @@ class ServicioEstudioController extends Controller
         }
 
         if ($extension === 'xlsx') {
-            $spreadsheet = IOFactory::load($file->getPathname());
+            try {
+                //code...
+                $spreadsheet = IOFactory::load($file->getPathname());
+            } catch (\Throwable $th) {
+                //throw $th;
+                return response()->json([
+                    'error' => 'Error al procesar el archivo.',
+                    'message' => $th->getMessage()
+                ], 500);
+            }
+            
             $worksheet = $spreadsheet->getActiveSheet();
 
             $data = [];
@@ -627,7 +637,7 @@ class ServicioEstudioController extends Controller
                 $headers = $data[0];
 
                 // Identificar índices de columnas vacías
-                //$validColumns = array_keys(array_filter($headers, fn($h) => trim($h) !== ""));
+                $validColumns = array_keys(array_filter($headers, fn($h) => trim($h) !== ""));
 
                 // Filtrar encabezados
                 $headers = array_intersect_key($headers, array_flip($validColumns));
