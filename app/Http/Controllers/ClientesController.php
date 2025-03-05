@@ -140,7 +140,7 @@ class ClientesController extends Controller
         // Verificar si se envió un logo
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
-            $logoNombre = time() . '_' . $file->getClientOriginalName(); // Generar nombre único
+            $logoNombre = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
             $rutaLogo = "clientes/{$cliente->id}/logo/"; // Carpeta destino
             $file->storeAs($rutaLogo, $logoNombre, 'public'); // Guardar en storage/app/public/
 
@@ -210,7 +210,7 @@ class ClientesController extends Controller
         // Manejo de la subida de archivos (logo)
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
-            $logoNombre = time() . '_' . $file->getClientOriginalName();
+            $logoNombre = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
             $rutaLogo = "clientes/{$cliente->id}/logo/";
 
             // Eliminar logo anterior si existe
