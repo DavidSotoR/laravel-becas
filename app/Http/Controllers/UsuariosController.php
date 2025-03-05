@@ -220,6 +220,26 @@ class UsuariosController extends Controller
         return response()->json($lista);
     }
 
+    public function listaColaboradoresAsignar(Request $request)
+    {
+        $query = User::query()->with('perfil');
+
+        $query->where('active', 1);
+        $query->whereHas('perfil', function ($queryPerfilInterno) {
+            $queryPerfilInterno->where('interno', '=', 1); //
+        });
+
+        /* $query->where(function ($queryOR) {
+            $queryOR->whereHas('perfil', function ($query) {
+                $query->where('id', '=', 4);
+            })
+                ->orWhere('asignar_estudios', '=', 1);
+        }); */
+
+        $lista = $query->get();
+        return response()->json($lista);
+    }
+
     public function calidad(Request $request)
     {
         $query = User::query()->with('perfil');

@@ -164,6 +164,7 @@ Route::group([
     Route::put('catalogos/encuestas', 'CatalogoEncuestasController@editar');
 
     Route::get('estudio/colaboradores', 'UsuariosController@colaboradores');
+    Route::get('estudio/colaboradores/asignar', 'UsuariosController@listaColaboradoresAsignar');
     Route::get('estudio/calidad', 'UsuariosController@calidad');
     Route::post('estudio/{id_estudio}/colaboradores', 'ServicioEstudioController@asignarColaborador');
     Route::get('estudio/{id_estudio}/encuesta', 'ServicioEstudioController@encuesta');
