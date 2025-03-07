@@ -1001,6 +1001,28 @@ class ServicioEstudioController extends Controller
             return response()->json(["errors" => $validator->errors()], 400);
         }
 
+        $padre_request_validar = $request->padre;
+        //$padre_request['email'] = $padre_request['email']=== null ? 'SIN DATO' : $padre_request['email'];
+        $madre_request_validar = $request->madre;
+        $emailMadreExist = FamiliasPadres::where('email', $madre_request_validar['email'])->first();
+        $emailPadreExist = FamiliasPadres::where('email', $padre_request_validar['email'])->first();
+
+        if ($emailMadreExist) {
+            return response()->json([
+                "errors" => [
+                    'madre.email' => ['Email de Madre se encuentra registrado.'],
+                ]
+            ], 400);
+        }
+
+        if ($emailPadreExist) {
+            return response()->json([
+                "errors" => [
+                    'padre.email' => ['Email de Padre se encuentra registrado.'],
+                ]
+            ], 400);
+        }
+
         if ($request->padre["contecto_principal"]) {
             $contacto_por_defecto = $request->padre;
             $contacto_por_defecto['edad'] = $contacto_por_defecto['edad'] === null ? 0 : $contacto_por_defecto['edad'];
