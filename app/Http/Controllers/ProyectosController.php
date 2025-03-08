@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-
+use Illuminate\Support\Facades\DB;
 class ProyectosController extends Controller
 {
     /**
@@ -58,6 +58,7 @@ class ProyectosController extends Controller
         $validator = Validator::make($request->all(),[
             'activo' => 'boolean',
             'nombre' => 'required|string|unique:proyectos',
+            'anio' => 'required|date|unique:proyectos',
             'id_tipo_cliente' => 'required|int',
         ]);
 
@@ -80,6 +81,11 @@ class ProyectosController extends Controller
             'id' => 'required',
             'activo' => 'required',
             'nombre' => ['required','string', Rule::unique('proyectos')->ignore($id)],
+            'anio' => ['required','date',
+                Rule::unique('proyectos')->where(function ($query) use ($id) {
+                    $query->where(DB::raw('YEAR(anio)'), request('anio'))->where('id', '!=', $id);
+                }),
+            ],
             'id_tipo_cliente' => 'required|int',
         ]);
 
@@ -91,6 +97,7 @@ class ProyectosController extends Controller
         $editar->activo = $request->activo;
         $editar->nombre = $request->nombre;
         $editar->id_tipo_cliente = $request->id_tipo_cliente;
+        $editar->anio = $request->anio;
         $editar->save();
 
         return response()->json(['message' => 'Elemento modificado', 'data' => $editar], 201);

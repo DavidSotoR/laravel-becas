@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Proyectos extends Model
 {
-    protected $fillable = ['nombre','activo','id_tipo_cliente'];
+    protected $fillable = ['nombre','activo','id_tipo_cliente','anio'];
 
     public function tipoCliente(){
         return $this->hasOne('App\TiposClientes','id','id_tipo_cliente');
