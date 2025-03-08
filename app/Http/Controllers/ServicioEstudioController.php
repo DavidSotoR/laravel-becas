@@ -618,7 +618,7 @@ class ServicioEstudioController extends Controller
                     'message' => $th->getMessage()
                 ], 500);
             }
-            
+
             $worksheet = $spreadsheet->getActiveSheet();
 
             $data = [];
@@ -637,7 +637,9 @@ class ServicioEstudioController extends Controller
                 $headers = $data[0];
 
                 // Identificar índices de columnas vacías
-                $validColumns = array_keys(array_filter($headers, fn($h) => trim($h) !== ""));
+                $validColumns = array_keys(array_filter($headers, function($h) {
+                    return trim($h) !== "";
+                }));
 
                 // Filtrar encabezados
                 $headers = array_intersect_key($headers, array_flip($validColumns));
@@ -2051,8 +2053,8 @@ class ServicioEstudioController extends Controller
         foreach($os as $elemento){
           array_push($datos, $this->generateDatosEncuestasEstudioSocioeconomicoPDF($elemento));
         }
-        
-        
+
+
         return response(["message"=> "llego", "datos" => $datos]);
     }
 
