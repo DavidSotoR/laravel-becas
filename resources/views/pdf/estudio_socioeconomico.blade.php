@@ -127,13 +127,12 @@ use Illuminate\Support\Facades\Storage;
                 <br/>
                 <p class="text-uppercase mt-5">COMENTARIO DEL ENTREVISTADOR</p>
                 <br/>
-                <br/>
                 <table style="width: 100%">
                     <tr>
                         <td style="width: 10%"></td>
-                        <td style="width: 20%"><b>CLASIFICACION</b></td>
                         <td>
-                            <div class="text-center text-uppercase border-bottom pb-2">
+                            <div class="text-center text-uppercase ">
+                                {{getClasificacionEncuesta($encuesta->preguntas)}}
                             </div>
                         </td>
                         <td style="width: 10%"></td>
@@ -409,6 +408,64 @@ function sumaTotalesSeccion($seccion, $formData) {
     $total += sumaTotalporCampoSeccion('madre_monto', $seccion, $formData);
     $total += sumaTotalporCampoSeccion('monto', $seccion, $formData);
     return $total;
+}
+/*
+Datos espesificos de preguntas
+*/
+function getClasificacionEncuesta($lista_preguntas) {
+    $lista_preguntas_validadas = [];
+
+    // Verificar si es un JSON y convertirlo a array
+    if (is_string($lista_preguntas)) {
+        $lista_preguntas_validadas = json_decode($lista_preguntas, true);
+
+        // Validar que la conversión fue exitosa
+        if (!is_array($lista_preguntas_validadas)) {
+            return '';
+        }
+    } elseif (is_object($lista_preguntas)) {
+        // Convertir objeto a array
+        $lista_preguntas_validadas = json_decode(json_encode($lista_preguntas), true);
+    } else {
+        $lista_preguntas_validadas = $lista_preguntas;
+    }
+
+    // **Verificar que es un array antes de filtrar**
+    if (!is_array($lista_preguntas_validadas)) {
+        return '';
+    }
+
+    // **Filtrar preguntas con id_catalogo_encuestas_preguntas_tipo == 13**
+    $pregunta = array_values(array_filter($lista_preguntas_validadas, function ($p) {
+        return isset($p['id_catalogo_encuestas_preguntas_tipo']) && $p['id_catalogo_encuestas_preguntas_tipo'] == 13;
+    }));
+
+    // Si no hay preguntas, retornar vacío
+    if (empty($pregunta)) {
+        return '';
+    }
+
+    // Obtener el primer elemento válido
+    $pregunta = $pregunta[0];
+
+    // **Verificar que la pregunta tenga respuestas**
+    if (!isset($pregunta['respuestas']) || !is_array($pregunta['respuestas'])) {
+        return '';
+    }
+
+    // **Filtrar respuestas donde 'seccion' == 13**
+    $respuesta = array_values(array_filter($pregunta['respuestas'], function ($p) {
+        return isset($p['seccion']) && $p['seccion'] == 'clasificacion';
+    }));
+
+    // **Obtener la primera respuesta válida**
+    $respuesta = !empty($respuesta) ? $respuesta[0] : [];
+
+    // **Validar si existe la clave 'respuesta'**
+    $texto_respuesta = isset($respuesta['respuesta']) ? htmlspecialchars($respuesta['respuesta']) : '';
+
+    // **Retornar la respuesta final**
+    return $texto_respuesta != '' ? opcionSeleccionadaDLC($texto_respuesta, $pregunta['parametros']) : '';
 }
 /*
 Manejadar de tipo de preguntas
@@ -883,67 +940,7 @@ function preguntaVeiculos($formData) {
     $html .= '</table>';
     return $html;
 }
-/*
-function distribucionDeLaCasa($formData) {
-    $html = '<div class="row">';
-
-    // Sección 'seleccionable'
-    foreach ($formData as $index => $item) {
-        if (isset($item['seccion']) && $item['seccion'] === 'seleccionable') {
-            $texto = htmlspecialchars($item['texto']);
-            $activo = isset($item['activo']) && $item['activo'] ? "Sí" : "No";
-
-            $html .= "
-                <div class='row col-sm-3' id='pes-" . htmlspecialchars($index) . "'>
-                    <div class='col-8 p-1 text-start'>$texto</div>
-                    <div class='col-4 p-1'>
-                        <div class='form-check form-switch'><span>$activo</span></div>
-                    </div>
-                </div>
-            ";
-        }
-    }
-
-    $html .= '<div class="sol-12"><br /></div>';
-
-    // Sección 'clasificacion'
-    foreach ($formData as $index => $item) {
-        if (isset($item['seccion']) && $item['seccion'] === 'clasificacion') {
-            $texto = htmlspecialchars($item['texto']);
-            $respuesta = isset($item['respuesta']) ? htmlspecialchars($item['respuesta']) : '&nbsp;';
-
-            $html .= "
-                <div class='row col-12' id='pes-" . htmlspecialchars($index) . "'>
-                    <div class='col-4 p-1 text-start'>$texto</div>
-                    <div class='col-8 p-1'>
-                        <div class='border-bottom border-secondary'>$respuesta</div>
-                    </div>
-                </div>
-            ";
-        }
-    }
-
-    // Sección 'descripcion'
-    foreach ($formData as $index => $item) {
-        if (isset($item['seccion']) && $item['seccion'] === 'descripcion') {
-            $texto = htmlspecialchars($item['texto']);
-            $respuesta = isset($item['respuesta']) ? htmlspecialchars($item['respuesta']) : '&nbsp;';
-
-            $html .= "
-                <div class='row col-12' id='pes-" . htmlspecialchars($index) . "'>
-                    <div class='col-sm-3 p-1 text-start'>$texto</div>
-                    <div class='col-sm-9 p-1'>
-                        <div class='border-bottom border-secondary' style='white-space: pre-wrap; min-height: 200px;'>$respuesta</div>
-                    </div>
-                </div>
-            ";
-        }
-    }
-
-    $html .= '</div>';
-    return $html;
-}*/
-// 12 .- Propiedades Hipotecarias / casa Habitación
+    // 12 .- Propiedades Hipotecarias / casa Habitación
 function casaHabitacion($formData,$paramtroClasificacion,$totalParametros) {
 
     $html = '<table style="width: 100%;" class="respuestas">';
@@ -1132,26 +1129,6 @@ function distribucionDeLaCasa($formData,$parametros) {
     // Función para generar el HTML de cada sección
     $html = '';
 
-    // Sección 'seleccionable'
-    /*foreach ($formData as $index => $item) {
-        if (isset($item['seccion']) && $item['seccion'] === 'seleccionable') {
-            $texto = htmlspecialchars($item['texto']);
-
-            $activo = isset($item['monto']) ? ($item['monto'] ? formatNumber($item['monto']) : 'No') : 'No';
-
-            $html .= "
-                <div class='row col-sm-3' id='pes-" . htmlspecialchars($index) . "'>
-                    <div class='col-8 p-1 text-start'>$texto</div>
-                    <div class='col-4 p-1'>
-                        <div class='form-check form-switch'>
-                            <span>$activo</span>
-                        </div>
-                    </div>
-                </div>
-            ";
-        }
-    }*/
-
     // Salto de línea
 
     // Sección 'clasificacion'
@@ -1160,7 +1137,7 @@ function distribucionDeLaCasa($formData,$parametros) {
             $texto = htmlspecialchars($item['texto']);
             $respuesta = isset($item['respuesta']) ? htmlspecialchars($item['respuesta']) : ';';
 
-            $html .= "<div>OBSERVAMOS QUE LA FAMILIA ".opcionSeleccionadaDLC($respuesta,$parametros)."</div><br>";
+            $html .= "<div class='respuestas'>".opcionSeleccionadaDLC($respuesta,$parametros)."</div><br>";
         }
     }
     // Sección 'descripcion'
