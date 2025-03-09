@@ -168,6 +168,7 @@ use Illuminate\Support\Facades\Storage;
                 @endif
 
                 <p class="text-uppercase">{{$encuesta->estudio->cliente->nombre}}</p>
+                <p class="text-uppercase">{{$encuesta->estudio->candidato}}</p>
 
                 @if (isset($encuesta["hijo"]))
                 <p class="text-uppercase">{{$encuesta->hijo->nombre}}</p>
@@ -215,8 +216,8 @@ use Illuminate\Support\Facades\Storage;
 
     @if ($encuesta->preguntas)
         @foreach ($encuesta->preguntas as $pregunta)
-            <div class="mt-2 mb-2 ms-5 me-5 no-page-break">
-                <div class="pt-5">
+            <div class="mt-1 mb-1 ms-5 me-5 no-page-break">
+                <div class="pt-3">
                     <p style="font-size: 1rem" class="text-uppercase fw-bolder">{{$pregunta->numero_pregunta}}.- {{$pregunta->pregunta}}</p>
                 </div>
                 {!!
