@@ -624,7 +624,7 @@ function familiaEconomicameteActiva($formData) {
             <tr>
                 <td>' . $texto . '</td>
                 <td class="p-1">
-                    ' . $vive . '
+                    <span class="border-bottom">' . $vive . '</span>
                 </td>
                 <td class="p-1">
                    ' . $activo . '
@@ -744,7 +744,7 @@ function ahorro($formData){
 
     if($activo == 'NO'){
     $html .= "  <tr>
-                    <td style='width: 5%;'>$activo</td>
+                    <td style='width: 5%;' class='border-bottom text-center'>$activo</td>
                     <td style='width: 10%;'></td>
                     <td style='width: 10%;'></td>
                     <td style='width: 30%;'></td>
@@ -752,11 +752,11 @@ function ahorro($formData){
                 </tr>";
     }else{
     $html .= "  <tr>
-                    <td style='width: 5%;'>$activo</td>
+                    <td style='width: 5%;'class='border-bottom text-center'>$activo</td>
                     <td style='width: 10%;'>DESCRIBE</td>
-                    <td style='width: 10%;'>$respuesta</td>
+                    <td style='width: 10%;'class='border-bottom text-center'>$respuesta</td>
                     <td style='width: 30%;'>MONTO DE AHORROS O INVERCIONES</td>
-                    <td style='width: 20%;'>$$monto</td>
+                    <td style='width: 20%;'class='border-bottom text-center'>$$monto</td>
                 </tr>";
     }
     $html .= '</table>';
@@ -769,7 +769,7 @@ function inverciones($formData,$totalParametros){
     foreach($formData AS $item){
         if($item["seccion"] == "activa"){
             $activo = isset($datos['activo']) && $datos['activo'] ? 'SI' : 'NO';
-            $html  .= "<p class='respuestas'>$activo</p>";
+            $html  .= "<p style='width: 5%;'class='respuestas border-bottom text-center'>$activo</p>";
         }
     }
 
@@ -1329,7 +1329,7 @@ function actualmenteConEmpleo($formData) {
             <tr>
                 <td >$texto</td>
                 <td class='p-1'>
-                    $activo
+                    <p class='border-bottom'>$activo</p>
                 </td>
                 <td class='p-1'>
                     <div class='border-bottom border-secondary'>$respuesta</div>
