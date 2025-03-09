@@ -1239,8 +1239,8 @@ function gastosFamiliaresMensuales($formData) {
         $padreMonto = isset($item['padre_monto']) ? number_format($item['padre_monto'], 0) : '';
 
         $bloques[] = "
-                <td style='width: 25%;' class='p-1'>$texto</td>
-                <td style='width: 25%;' class='p-1'>
+                <td style='width: 25%;' class=''>$texto</td>
+                <td style='width: 25%;' class=''>
                     <table style='width: 100%;'>
                         <tr>
                             <td style='width: 10%;'>$</td>
@@ -1257,8 +1257,8 @@ function gastosFamiliaresMensuales($formData) {
         if($i==$no_bloques){
             $pre_html .= $bloques[$i]."
                 <tr class='text-start'>
-                    <td style='width: 25%;' class='p-1 text-start'></td>
-                    <td style='width: 25%;' class='p-1 text-start'>
+                    <td style='width: 25%;' class=' text-start'></td>
+                    <td style='width: 25%;' class=' text-start'>
                 </tr>
                 ";
         }else{
