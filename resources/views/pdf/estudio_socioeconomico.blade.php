@@ -1240,7 +1240,7 @@ function gastosFamiliaresMensuales($formData) {
 
         $bloques[] = "
                 <td style='width: 25%;' class=''>$texto</td>
-                <td style='width: 25%;' class='pe-1'>
+                <td style='width: 25%;' class='pe-2'>
                     <table style='width: 100%;'>
                         <tr>
                             <td style='width: 10%;'>$</td>
@@ -1258,7 +1258,7 @@ function gastosFamiliaresMensuales($formData) {
             $pre_html .= $bloques[$i]."
                 <tr class='text-start'>
                     <td style='width: 25%;' class=' text-start'></td>
-                    <td style='width: 25%;' class='pe-1 text-start'>
+                    <td style='width: 25%;' class='pe-2 text-start'>
                 </tr>
                 ";
         }else{
