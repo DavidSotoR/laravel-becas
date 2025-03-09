@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Storage;
             left: 0;
             right: 0;
             height: 50px;
-            font-size: 14px;
+            font-size: 11px;
             font-weight: bold;
             color: #333;
             text-align: center;
@@ -75,6 +75,7 @@ use Illuminate\Support\Facades\Storage;
     </style>
 </head>
 <body>
+
     <header>
         <p class="text-uppercase">{{$encuesta->estudio->cliente->nombre}} <br> FAMILIA {{$encuesta->estudio->candidato}}</p>
     </header>
@@ -82,6 +83,8 @@ use Illuminate\Support\Facades\Storage;
     <div class="row">
         <div class="col-md-12">
             <div class="text-center">
+                <br/>
+                <br/>
                 <br/>
                 <br/>
                 <br/>
@@ -166,6 +169,7 @@ use Illuminate\Support\Facades\Storage;
                 @endif
 
                 <p class="text-uppercase">{{$encuesta->estudio->cliente->nombre}}</p>
+
                 @if (isset($encuesta["hijo"]))
                 <p class="text-uppercase">{{$encuesta->hijo->nombre}}</p>
                 @endif
@@ -574,7 +578,7 @@ function dependientesEconomicamente($formData) {
         $html .= '
             <tr class="text-start">
                 <td></td>
-                <td class="p-1">
+                <td >
                     <div style="
                         padding: 5px;
                         border-bottom: 1px solid #020202;
@@ -585,7 +589,7 @@ function dependientesEconomicamente($formData) {
                         ' . $parentesco . '
                     </div>
                 </td>
-                <td class="p-1">
+                <td >
                     <div style="
                         padding: 5px;
                         border-bottom: 1px solid #020202;
@@ -627,15 +631,14 @@ function familiaEconomicameteActiva($formData) {
         $html .= '
             <tr>
                 <td>' . $texto . '</td>
-                <td class="p-1">
+                <td style="padding: 5px;">
                     <span class="border-bottom">' . $vive . '</span>
                 </td>
-                <td class="p-1">
+                <td style="padding: 5px;">
                    ' . $activo . '
                 </td>
-                <td class="p-1">
+                <td style="padding: 5px;">
                     <div style="
-                        padding: 5px;
                         border-bottom: 1px solid lightgray;
                         white-space: nowrap;
                         overflow: hidden;
