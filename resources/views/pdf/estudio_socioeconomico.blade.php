@@ -25,7 +25,9 @@ use Illuminate\Support\Facades\Storage;
             font-size: 14px;
             font-weight: bold;
             color: #333;
+            text-align: center;
         }
+
 
         @font-face {
             font-family: 'MiFuentePersonalizada_2';
@@ -68,11 +70,13 @@ use Illuminate\Support\Facades\Storage;
         br{
             margin-top: 0px;
         }
+
+        @page:first header { display: none; }
     </style>
 </head>
 <body>
     <header>
-        <p class="text-uppercase">{{$encuesta->estudio->cliente->nombre}} - {{$encuesta->estudio->candidato}}</p>
+        <p class="text-uppercase">{{$encuesta->estudio->cliente->nombre}} <br> FAMILIA {{$encuesta->estudio->candidato}}</p>
     </header>
 
     <div class="row">
@@ -83,7 +87,7 @@ use Illuminate\Support\Facades\Storage;
                 <br/>
                 <h5>SINERGIA EN ESTUDIOS SOCIOECONÓMICOS</h5>
                 <br/>
-                <p class="text-uppercase mt-5">ESTUDIO SOCIOECONÓMICO PARA BECA CICLO {{$encuesta->proyecto->nombre}}</p>
+                <p class="text-uppercase mt-5">ESTUDIO SOCIOECONÓMICO PARA BECAS<br>{{$encuesta->proyecto->nombre}}</p>
                 <br/>
                 <p class="text-uppercase">{{$encuesta->estudio->cliente->nombre}}</p>
                 <br/>
