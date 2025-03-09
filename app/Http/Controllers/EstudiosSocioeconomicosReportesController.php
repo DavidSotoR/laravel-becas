@@ -36,7 +36,7 @@ class EstudiosSocioeconomicosReportesController extends Controller
             'proyecto',
             'ordenServicio',
             'colaborador',
-        ]);
+        ])->orderBy('candidato', 'asc');
         /*
             'padre',
             'madre',

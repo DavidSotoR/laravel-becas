@@ -178,7 +178,7 @@ class ServicioEstudioController extends Controller
             'padre',
             'madre',
             'contactoPrincipal',
-        ]);
+        ])->orderBy('candidato', 'asc');
 
         //$query->where('id_colaborador',$user->id);
         switch ($id_perfil) {
