@@ -76,9 +76,9 @@ use Illuminate\Support\Facades\Storage;
 </head>
 <body>
 
-    <header>
+    <!--<header>
         <p class="text-uppercase">{{$encuesta->estudio->cliente->nombre}} <br> FAMILIA {{$encuesta->estudio->candidato}}</p>
-    </header>
+    </header>-->
 
     <div class="row">
         <div class="col-md-12">
@@ -625,8 +625,8 @@ function dependientesEconomicamente($formData) {
         <table style="width: 100%;" class="respuestas">
             <tr>
                 <td  style="width: 15%;"></td>
-                <td   class="p-1  text-center">PARENTESCO</td>
-                <td  class="p-1 text-center">NOMBRE</td>
+                <td   class="pb-1  text-center">PARENTESCO</td>
+                <td  class="pb-1 text-center">NOMBRE</td>
                 <td  style="width: 10%;"></td>
             </tr>
     ';
@@ -640,7 +640,7 @@ function dependientesEconomicamente($formData) {
                 <td></td>
                 <td >
                     <div style="
-                        padding: 5px;
+                        padding-top: 5px;
                         border-bottom: 1px solid #020202;
                         white-space: nowrap;
                         overflow: hidden;
@@ -651,7 +651,7 @@ function dependientesEconomicamente($formData) {
                 </td>
                 <td >
                     <div style="
-                        padding: 5px;
+                        padding-top: 5px;
                         border-bottom: 1px solid #020202;
                         white-space: nowrap;
                         overflow: hidden;

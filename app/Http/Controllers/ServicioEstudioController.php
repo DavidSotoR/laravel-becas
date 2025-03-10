@@ -1763,7 +1763,6 @@ class ServicioEstudioController extends Controller
                             $lista_puntos[] = $total;
                         break;
                         case 7:
-                            $total = 0;
                             $sumatorias_por_seccion =  $this->sumatoriaRespuesta($pregunta->respuestas);
                             foreach ($sumatorias_por_seccion as $seccion) {
                                 $total += $seccion["activo"];
@@ -1773,15 +1772,15 @@ class ServicioEstudioController extends Controller
                             $puntos = ($rango !== null) ? $rango->valor : null ;
                             $lista_puntos[] = (int) $puntos; // (int) $puntos->valor;
                         break;
-                        case 13:
-                            $total = 0;
-                            $respuesta = array_values(array_filter($pregunta->respuestas, function ($p) {
-                                return isset($p['seccion']) && $p['seccion'] == 'clasificacion';
-                            }));
-
-                            $total = !empty($respuesta) ? $respuesta[0] : [];
-                            //$puntos = ($rango !== null) ? $rango->valor : null ;
-                            $lista_puntos[] = $total; // (int) $puntos->valor;
+                        case 20:
+                            $sumatorias_por_seccion =  $this->sumatoriaRespuesta($pregunta->respuestas);
+                            foreach ($sumatorias_por_seccion as $seccion) {
+                                $total += $seccion["activo"];
+                            }
+                            //$puntos = $this->obtenerCoincidenciaPregunta($pregunta->id_parametro_clasificacion_tipo,$pregunta->id_catalogo_encuestas_preguntas, $total);
+                            $rango = $this->obtenerCoincidenciaColumna('limite_superior',$pregunta->id, $pregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion,$total);
+                            $puntos = ($rango !== null) ? $rango->valor : null ;
+                            $lista_puntos[] = (int) $puntos; // (int) $puntos->valor;
                         break;
                         default:
                             $total = $this->caluloDeCoincidencia("respuesta",$pregunta->respuestas);
