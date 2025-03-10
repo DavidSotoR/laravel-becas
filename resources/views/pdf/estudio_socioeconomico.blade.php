@@ -182,7 +182,7 @@ use Illuminate\Support\Facades\Storage;
                         <td style="width: 20%"></td>
                         <td style="width: 30%" class="text-uppercase">{{$parametro->nombre}}</td>
                         <td style="width: 5%"></td>
-                        <td style="width: 10%" class="border-bottom text-center">{{$parametro->puntos->valor ?? ''}}</td>
+                        <td style="width: 10%" class="border-bottom text-center">{{$parametro->puntos->valor ?? ($parametro->puntos["valor"] ?? '' )}}</td>
                         <td style="width: 5%"></td>
                         <td style="width: 20%"></td>
                     </tr>
@@ -198,7 +198,6 @@ use Illuminate\Support\Facades\Storage;
                     </tr>
                 </table>
                 <br>
-
                 <table style="width: 100%">
                     <tr>
                         <td style="width: 15%"></td>
@@ -279,9 +278,7 @@ function totalPuntosParametros($encuesta){
     return collect($parametros)
         ->reduce(function ($total, $parametro) {
             // Obtener el valor, manejando si es objeto o array
-            $valor = is_object($parametro)
-                ? ($parametro->puntos->valor ?? 0)
-                : ($parametro['puntos']['valor'] ?? 0);
+            $valor = $parametro->puntos->valor ??  ($parametro->puntos['valor'] ?? 0);
 
             // Convertir el valor a entero
             $valorInt = intval($valor, 10);
