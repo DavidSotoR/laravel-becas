@@ -167,6 +167,8 @@ use Illuminate\Support\Facades\Storage;
                 <br>
                 @endif
 
+                <br>
+                <br>
                 <p class="text-uppercase">{{$encuesta->estudio->cliente->nombre}}</p>
                 <p class="text-uppercase">{{$encuesta->estudio->candidato}}</p>
 
