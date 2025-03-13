@@ -900,6 +900,11 @@ class ServicioEstudioController extends Controller
         'no_asignadas' => $familiasNoAsignadas, 'reactivados' => $userReactivados]);
     }
 
+    public function envioDeCorreosPorcentajes(Request $request){
+        $data = $request->all();
+        return response($data);
+    }
+
     public function editar(Request $request, $id)
     {
 

@@ -178,6 +178,8 @@ Route::group([
     Route::get('estudio/socioeconomico/formatoalta/descargar', 'ServicioEstudioController@descargarFormatoAltaFamiliasMasiva');
     Route::post('estudio/socioeconomico/reporte/familias/parametros', 'ServicioEstudioController@resultadosEstudiosSocieconomicosReporte');
 
+    Route::post('estudio/socioeconomico/enviar/correos', 'ServicioEstudioController@envioDeCorreosPorcentajes');
+
     Route::get('estudio/socioeconomico/pregunta/parametro/{id_pregunta}/adicional-uno/items', 'ServicioEstudioController@parametroAdicionalUnoItems');
     Route::get('estudio/socioeconomico/pregunta/parametro/{id_pregunta}/adicional-dos/items', 'ServicioEstudioController@parametroAdicionalDosItems');
 
