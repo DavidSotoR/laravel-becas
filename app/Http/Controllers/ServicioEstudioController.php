@@ -14,6 +14,7 @@ use App\CatalogoEncuestasPreguntasParametrosClasificacions;
 use App\ServiciosEstudiosRespuestas;
 use App\CatalogoEncuestasPreguntas;
 use App\CatalogoEncuestasPreguntasParametrosClasificacionItems;
+use App\CorreoPorcentajeEstudio;
 use App\FamiliasDocumentosTipos;
 use App\FamiliasDocumentos;
 use App\ServiciosEstudiosRespuestasClasificacion;
@@ -179,6 +180,7 @@ class ServicioEstudioController extends Controller
             'padre',
             'madre',
             'contactoPrincipal',
+            'notificacionCorreoPorcentaje'
         ])->orderBy('candidato', 'asc');
 
         //$query->where('id_colaborador',$user->id);
@@ -903,11 +905,56 @@ class ServicioEstudioController extends Controller
 
     public function envioDeCorreosPorcentajes(Request $request){
         $data = $request->all();
+        $correosEnviados = [];
+
         foreach($data as $element){
-            $resp = Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreoPorcentaje($element));
+            //$insertNotify = CorreoPorcentajeEstudio::create();
+            $exist = CorreoPorcentajeEstudio::where('id_servicio_estudio', $element['id_servicio_estudio'])
+            ->where('uniquekey', $element['uniqueKey'])
+            ->where('id_proyecto', $element['id_proyecto'])->first();
+            $enviado = false;
+            if ($exist) {
+                $exist->contador += 1;
+                $exist->fecha_reenvio = now();
+                $exist->save();
+                $enviado = true;
+            } else {
+                $create = CorreoPorcentajeEstudio::create([
+                    'id_servicio_estudio' => $element['id_servicio_estudio'],
+                    'id_proyecto' => $element['id_proyecto'],
+                    'uniquekey' => $element['uniqueKey'], // Ajustando el nombre de la clave
+                    'correo_contacto' => $element['contacto'],
+                    'contador' => 1, // Puedes ajustarlo según la lógica
+                    'fecha_envio' => now(),
+                    'fecha_reenvio' => null,
+                ]);
+                $enviado = true;
+            }
+            /* $correosEnviados[] = [
+                'correo' => $element['contacto'],
+                'uniqueKey' => $element['uniqueKey'],
+                'enviado' => $enviado,
+            ]; */
+            try {
+                $resp = Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreoPorcentaje($element));
+                $correosEnviados[] = [
+                    'correo' => $element['contacto'],
+                    'uniqueKey' => $element['uniqueKey'],
+                    'enviado' => $enviado,
+                ];
+            } catch (\Throwable $th) {
+                $correosEnviados[] = [
+                    'correo' => $element['contacto'],
+                    'uniqueKey' => $element['uniqueKey'],
+                    'enviado' => false,
+                ];
+            }
+            
         }
-        //$resp = Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreo($usuarioF));
-        return response($data);
+        return response()->json([
+            'message' => 'Proceso completado',
+            'correos' => $correosEnviados,
+        ], 200);
     }
 
     public function editar(Request $request, $id)

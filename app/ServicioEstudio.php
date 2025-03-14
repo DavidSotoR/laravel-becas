@@ -72,6 +72,10 @@ class ServicioEstudio extends Model
         return $this->belongsTo('App\OrdenesServicio', 'id_orden_servicio');
     }
 
+    public function notificacionCorreoPorcentaje(){
+        return $this->hasMany('App\CorreoPorcentajeEstudio', 'id_servicio_estudio');
+    }
+
     public function colegiosComunes(){
         return $this->belongsToMany(
             Clientes::class,  // El modelo relacionado
