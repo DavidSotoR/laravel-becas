@@ -18,6 +18,7 @@ use App\FamiliasDocumentosTipos;
 use App\FamiliasDocumentos;
 use App\ServiciosEstudiosRespuestasClasificacion;
 use App\Mail\NotificacionCorreo;
+use App\Mail\NotificacionCorreoPorcentaje;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -902,6 +903,10 @@ class ServicioEstudioController extends Controller
 
     public function envioDeCorreosPorcentajes(Request $request){
         $data = $request->all();
+        foreach($data as $element){
+            $resp = Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreoPorcentaje($element));
+        }
+        //$resp = Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreo($usuarioF));
         return response($data);
     }
 
