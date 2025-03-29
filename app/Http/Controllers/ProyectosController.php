@@ -58,7 +58,8 @@ class ProyectosController extends Controller
         $validator = Validator::make($request->all(),[
             'activo' => 'boolean',
             'nombre' => 'required|string|unique:proyectos',
-            'anio' => 'required|date|unique:proyectos',
+            //'anio' => 'required|date|unique:proyectos',
+            'anio_proyecto'=> 'required|unique:proyectos',
             'id_tipo_cliente' => 'required|int',
         ]);
 
@@ -81,11 +82,12 @@ class ProyectosController extends Controller
             'id' => 'required',
             'activo' => 'required',
             'nombre' => ['required','string', Rule::unique('proyectos')->ignore($id)],
-            'anio' => ['required','date',
+            /* 'anio' => ['required','date',
                 Rule::unique('proyectos')->where(function ($query) use ($id) {
                     $query->where(DB::raw('YEAR(anio)'), request('anio'))->where('id', '!=', $id);
                 }),
-            ],
+            ], */
+            'anio_proyecto' => 'required|unique:proyectos,anio_proyecto',
             'id_tipo_cliente' => 'required|int',
         ]);
 
@@ -98,6 +100,7 @@ class ProyectosController extends Controller
         $editar->nombre = $request->nombre;
         $editar->id_tipo_cliente = $request->id_tipo_cliente;
         $editar->anio = $request->anio;
+        $editar->anio_proyecto = $request->anio_proyecto;
         $editar->save();
 
         return response()->json(['message' => 'Elemento modificado', 'data' => $editar], 201);
