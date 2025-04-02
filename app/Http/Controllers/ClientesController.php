@@ -226,7 +226,19 @@ class ClientesController extends Controller
         return response()->json(['message' => 'Cliente modificado', 'data' => $cliente], 200);
     }
 
+    public function editarConfiguraciones(Request $request){
+        return response()->json(['message' => 'Cliente modificado', 'data' => $request->data()], 200);
+    }
 
+    public function getConfiguraciones(Request $request){
+        $data = Clientes::where('id', $request->id_cliente)->first();
+        if(!empty($data)){
+            return response()->json(['message' => 'Cliente no encontrado.', 'data' => $data], 200);
+        } else {
+            return response()->json(['message' => 'Cliente encontrado.', 'data' => $data], 200);
+        }
+        
+    }
 
     public function clienteUsuarioEmpresa(Request $request)
     {
