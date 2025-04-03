@@ -227,7 +227,7 @@ class ClientesController extends Controller
     }
 
     public function editarConfiguraciones(Request $request){
-        return response()->json(['message' => 'Cliente modificado', 'data' => $request->data()], 200);
+        return response()->json(['message' => 'Cliente modificado', 'data' => $request->all()], 200);
     }
 
     public function getConfiguraciones(Request $request){
