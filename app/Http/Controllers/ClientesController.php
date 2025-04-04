@@ -9,6 +9,7 @@ use Illuminate\Validation\Rule;
 use App\Clientes;
 use App\OrdenesServicio;
 use App\ProyectosClientes;
+use App\User;
 use Illuminate\Support\Facades\Storage;
 
 class ClientesController extends Controller
@@ -227,15 +228,43 @@ class ClientesController extends Controller
     }
 
     public function editarConfiguraciones(Request $request){
-        return response()->json(['message' => 'Cliente modificado', 'data' => $request->all()], 200);
+
+        $dataEditConfig = $request->all();
+        $cuenta = User::with('cliente')->find(auth()->id());  //auth()->id();
+        $cliente = Clientes::findOrFail($cuenta->id_cliente);
+        $cliente->update([
+            'documentacion_digital' => $request->input('documentacion_digital') ? 1 : 0,
+            'requiere_facturar' =>$request->input('requiere_facturar') ? 1 : 0,
+            'habilitar_resumen' => $request->input('habilitar_resumen') ? 1 : 0,
+            'habilitar_alta_familias' => $request->input('habilitar_alta_familias') ? 1 : 0,
+            'habilitar_logo' => $request->input('habilitar_logo') ? 1 : 0,
+        ]);
+        //$cliente->save();
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            $logoNombre = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+            $rutaLogo = "clientes/{$cliente->id}/logo/";
+
+            // Eliminar logo anterior si existe
+            if ($cliente->ubicacion_logo && Storage::disk('public')->exists($cliente->ubicacion_logo)) {
+                Storage::disk('public')->delete($cliente->ubicacion_logo);
+            }
+
+            // Guardar nuevo logo
+            $file->storeAs($rutaLogo, $logoNombre, 'public');
+            $cliente->update(['ubicacion_logo' => $rutaLogo . $logoNombre]);
+        }
+        
+        return response()->json(['message' => 'Cliente modificado', 'data' => $dataEditConfig], 200);
     }
 
-    public function getConfiguraciones(Request $request){
-        $data = Clientes::where('id', $request->id_cliente)->first();
-        if(!empty($data)){
-            return response()->json(['message' => 'Cliente no encontrado.', 'data' => $data], 200);
+    public function getConfiguraciones(){
+        $cuenta = User::with('cliente')->find(auth()->id());
+        $data = Clientes::where('id', $cuenta->id_cliente)->first();
+        if(empty($data)){
+            return response()->json($data, 200);
         } else {
-            return response()->json(['message' => 'Cliente encontrado.', 'data' => $data], 200);
+            return response()->json($data, 200);
         }
         
     }
