@@ -82,12 +82,10 @@ class ProyectosController extends Controller
             'id' => 'required',
             'activo' => 'required',
             'nombre' => ['required','string', Rule::unique('proyectos')->ignore($id)],
-            /* 'anio' => ['required','date',
-                Rule::unique('proyectos')->where(function ($query) use ($id) {
-                    $query->where(DB::raw('YEAR(anio)'), request('anio'))->where('id', '!=', $id);
-                }),
-            ], */
-            'anio_proyecto' => 'required|unique:proyectos,anio_proyecto',
+            'anio_proyecto' => [
+                'required',
+                Rule::unique('proyectos', 'anio_proyecto')->ignore($id)
+            ],
             'id_tipo_cliente' => 'required|int',
         ]);
 
