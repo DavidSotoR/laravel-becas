@@ -35,7 +35,9 @@ class Clientes extends Model
         'habilitar_resumen',
         'ubicacion_logo',
         'requiere_facturar',
-        'terminos'
+        'terminos',
+        'habilitar_alta_familias',
+        'habilitar_logo'
     ];
 
     public function tipoCliente()
