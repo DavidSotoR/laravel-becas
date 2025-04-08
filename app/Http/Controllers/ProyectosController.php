@@ -26,16 +26,20 @@ class ProyectosController extends Controller
 
     public function lista(Request $request){
         $query = Proyectos::query()->with('tipoCliente');
-
-        if(isset($request->id_tipo_cliente)){
-            $query->where('id_tipo_cliente', $request->id_tipo_cliente);
+        if (isset($request->activo) && $request->activo === 'borrado') {
+            $query->where('borrado', 1);
+        } else {
+            if(isset($request->id_tipo_cliente)){
+                $query->where('id_tipo_cliente', $request->id_tipo_cliente);
+            }
+    
+            if(isset($request->activo) && $request->activo !== 'all'){
+                $query->where('activo', $request->activo);
+            }
+    
+            $query->where('borrado', 0);
         }
-
-        if(isset($request->activo) && $request->activo !== 'all'){
-            $query->where('activo', $request->activo);
-        }
-
-        $query->where('borrado', 0);
+       
         $lista = $query->get();
         return response()->json($lista);
     }
