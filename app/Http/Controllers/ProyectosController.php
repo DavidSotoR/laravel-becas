@@ -63,7 +63,13 @@ class ProyectosController extends Controller
             'activo' => 'boolean',
             'nombre' => 'required|string|unique:proyectos',
             //'anio' => 'required|date|unique:proyectos',
-            'anio_proyecto'=> 'required|unique:proyectos',
+            'anio_proyecto' => [
+                'required',
+                Rule::unique('proyectos', 'anio_proyecto')
+                ->where(function ($query) {
+                    return $query->where('borrado', 0); // Solo valida contra proyectos no borrados
+                }),
+            ],
             'id_tipo_cliente' => 'required|int',
         ]);
 
@@ -88,7 +94,11 @@ class ProyectosController extends Controller
             'nombre' => ['required','string', Rule::unique('proyectos')->ignore($id)],
             'anio_proyecto' => [
                 'required',
-                Rule::unique('proyectos', 'anio_proyecto')->ignore($id)
+                Rule::unique('proyectos', 'anio_proyecto')
+                ->ignore($id)
+                ->where(function ($query) {
+                    return $query->where('borrado', 0); // Solo valida contra proyectos no borrados
+                }),
             ],
             'id_tipo_cliente' => 'required|int',
         ]);
@@ -171,11 +181,18 @@ class ProyectosController extends Controller
     }
 
     public function borrarProyecto(Request $request){
+        $id = $request->id;
+        $validator = Validator::make($request->all(),[
+            'anio_proyecto' => [
+                'required',
+                Rule::unique('proyectos', 'anio_proyecto')->ignore($id)
+            ],
+        ]);
 
         $proyecton_tiene_clientes_asignados = ProyectosClientes::where('id_proyecto',$request->id)->count();
 
         if($proyecton_tiene_clientes_asignados){
-            return response()->json(["errors"=>["message"=>["Este proyecto no se puede eliminar porque tiene clientes asignados"]]], 400);
+            return response()->json(["errors"=> "Este proyecto no se puede eliminar porque tiene clientes asignados."], 400);
         }
         $editar = Proyectos::find($request->id);
         $editar->borrado = 1;
@@ -185,4 +202,25 @@ class ProyectosController extends Controller
         $editar->save();
         return response()->json([$editar], 201);
     }
+
+    public function reintegrarProyecto(Request $request){
+        $proyectoReintegrar = Proyectos::find($request->id);
+        if ($proyectoReintegrar->anio_proyecto === null || $proyectoReintegrar->anio_proyecto === '') {
+            $proyectoReintegrar->borrado = 0;
+            $proyectoReintegrar->save();
+            return response()->json(['message'=>'Proyecto "'. $proyectoReintegrar->nombre . '" reintegrado.', 'proyecto' => $proyectoReintegrar]);
+        }
+
+        $coincidenciasProyectos = Proyectos::where('anio_proyecto', $request->anio_proyecto)->where('borrado', 0)->first();
+
+        if (empty($coincidenciasProyectos)) {
+            $proyectoReintegrar->borrado = 0;
+            $proyectoReintegrar->save();
+            return response()->json(['message'=>'Proyecto "'. $proyectoReintegrar->nombre . '" reintegrado.', 'proyecto' => $proyectoReintegrar]);
+        }
+
+        return response()->json([
+                'message'=>'Error al reincorporar proyecto. El proyecto: '. $coincidenciasProyectos->nombre . ' esta asignado con el mismo año.' , 
+                'proyecto' => $proyectoReintegrar]);
+    } 
 }

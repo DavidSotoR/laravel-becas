@@ -77,6 +77,7 @@ Route::group([
     Route::post('proyectos/editar', 'ProyectosController@editar');
     //Route::put('proyectos', 'ProyectosController@eliminar');
     Route::put('proyectos/borrar', 'ProyectosController@borrarProyecto');
+    Route::put('proyectos/reintegrar', 'ProyectosController@reintegrarProyecto');
     //Proyectos Clientes
     Route::get('proyectos/{id_proyecto}/clientes', 'ProyectosClientesController@lista');
     Route::get('proyectos/{id_proyecto}/clientes-encuestas', 'ProyectosClientesController@clientesEncuestaLista');
