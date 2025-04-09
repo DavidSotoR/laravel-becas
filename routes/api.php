@@ -42,6 +42,7 @@ Route::group([
 
     //Tipos de Clientes
     Route::get('clientes/tipos', 'TiposClientesController@lista');
+    Route::post('logo/clientes', 'ClientesController@getLogo');
 
     //Clientes Hermanos
     Route::get('clientes/hermanos', 'ClientesHermanosController@lista');

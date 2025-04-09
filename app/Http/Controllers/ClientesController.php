@@ -128,7 +128,7 @@ class ClientesController extends Controller
             'documentacion_digital' => 'nullable|boolean',
             'terminos' => 'nullable|string',
             'habilitar_resumen' => 'nullable|boolean',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // Validación del logo
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048' // Validación del logo
         ]);
 
         if ($validator->fails()) {
@@ -169,7 +169,7 @@ class ClientesController extends Controller
             'id_clientes_hermanos' => 'nullable|int',
             'id_catalogo_encuesta' => 'nullable|int',
             'documentacion_digital' => 'nullable|boolean',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // Manejo de archivos
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048' // Manejo de archivos
         ]);
 
         if ($validator->fails()) {
@@ -205,7 +205,9 @@ class ClientesController extends Controller
             'estado' => $request->input('estado') ?? $cliente->estado,
             'pais' => $request->input('pais') ?? $cliente->pais,
             'rason_social' => $request->input('rason_social') ?? $cliente->rason_social,
-            'habilitar_resumen' => $request->input('habilitar_resumen') ? 1 : 0
+            'habilitar_resumen' => $request->input('habilitar_resumen') ? 1 : 0,
+            'habilitar_alta_familias' => $request->input('habilitar_alta_familias') ? 1 : 0,
+            'habilitar_logo' => $request->input('habilitar_logo') ? 1 : 0
         ]);
 
         // Manejo de la subida de archivos (logo)
@@ -283,5 +285,21 @@ class ClientesController extends Controller
         $cliente = Clientes::find($id_cliente);
 
         return  response()->json($cliente);
+    }
+
+    public function getLogo(Request $request){
+        //$path = storage_path("app/public/clientes/$id/logo/1743805376_test_conexion_ftp_1.png");
+        $datos = $request->all();
+        $path = storage_path("app/public/" . $datos['logo'] );
+        //return response()->json($datos);
+        if (!file_exists($path)) {
+            return response()->json(['error' => 'No encontrado'], 404);
+        }
+
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $data = file_get_contents($path);
+        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+
+        return response()->json(['base64' => $base64]);
     }
 }
