@@ -90,6 +90,7 @@ Route::group([
     //Proyectos Ordenes de servicio
     Route::get('proyectos/{id_proyecto}/clientes/{id_cliente}/ordenes-servicio', 'OrdenesServicioController@lista');
     Route::get('proyectos/clientes/ordenes-servicio/{id}', 'OrdenesServicioController@id');
+    Route::get('proyectos/clientes/ordenes-servicio/{id}/datos', 'OrdenesServicioController@idDatos');
     Route::post('proyectos/clientes/ordenes-servicio', 'OrdenesServicioController@nuevo');
     Route::put('proyectos/clientes/ordenes-servicio/{id}', 'OrdenesServicioController@editar');
 

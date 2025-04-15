@@ -51,6 +51,12 @@ class OrdenesServicioController extends Controller
         ], 200);
     }
 
+    public function idDatos($id){
+        $elemento = OrdenesServicio::findOrFail($id);
+        // Retornar la respuesta actualizada
+        return response()->json($elemento, 200);
+    }
+
     public function nuevo(Request $request){
         $validator = Validator::make($request->all(),[
             'id_proyecto' => 'required|exists:proyectos,id',
