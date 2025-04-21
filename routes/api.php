@@ -1,5 +1,6 @@
 <?php
 
+use App\Clientes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +14,13 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+/* Route::get('clientes/{id}/link/registro', 'ClientesController@linkRegistroGenerar');
+ */
+
+Route::get('/registro/link/{id}', function ($id) {
+    $cliente = Clientes::find($id);
+    return response()->json([ 'id'=>$id, 'cliente' => $cliente ]);
+});
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();

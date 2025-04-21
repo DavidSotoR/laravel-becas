@@ -287,6 +287,10 @@ class ClientesController extends Controller
         return  response()->json($cliente);
     }
 
+    public function linkRegistroGenerar($id){
+        return response()->json(['id' =>$id]);
+    }
+
     public function getLogo(Request $request){
         //$path = storage_path("app/public/clientes/$id/logo/1743805376_test_conexion_ftp_1.png");
         $datos = $request->all();
