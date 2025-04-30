@@ -11,6 +11,8 @@ use App\OrdenesServicio;
 use App\ProyectosClientes;
 use App\User;
 use Illuminate\Support\Facades\Storage;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\JWT;
 
 class ClientesController extends Controller
 {
@@ -285,6 +287,29 @@ class ClientesController extends Controller
         $cliente = Clientes::find($id_cliente);
 
         return  response()->json($cliente);
+    }
+
+    public function linkRegistroGenerar($id){
+        return response()->json(['id' =>$id]);
+    }
+
+    public function linkGenerarToken($id){
+        $link = 'http://localhost:3000/registro/';
+        $customClaims = [
+            'iss' => "sinergia", // emisor
+            'iat' => time(), // fecha de creación
+            'exp' => strtotime('+1 month'), // expiración (1 hora)
+            'user_id' => 1, // puedes poner el ID o dato que necesites
+        ];
+
+        $payload = JWTAuth::factory()->make($customClaims);
+
+        $token = JWTAuth::encode($payload)->get();
+
+
+        $token = 'token';
+        $linkRegistro = $link . $token;
+        return response()->json(['link' => $link, 'token'=> $token]);
     }
 
     public function getLogo(Request $request){

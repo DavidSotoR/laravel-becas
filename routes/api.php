@@ -1,5 +1,9 @@
 <?php
 
+use App\Clientes;
+use App\OrdenesServicio;
+use App\Proyectos;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +17,25 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+/* Route::get('clientes/{id}/link/registro', 'ClientesController@linkRegistroGenerar');
+ */
+
+Route::get('/registro/link/{id}', function ($id) {
+    $cliente = Clientes::find($id);
+    $anioActual = Carbon::now()->year;
+    //dd($anioActual);
+    $proyecto = Proyectos::with(['clientes'])->where('borrado', 0)->where('activo', 1)->where('anio_proyecto', $anioActual)->first();
+    $proyectoClientes = $proyecto->clientes;
+    //dd($proyectoClientes);
+    $arrayClientes = [];
+    foreach($proyectoClientes as $pc){
+        array_push($arrayClientes, $pc['id']);
+    }
+
+    //dd($arrayClientes);
+    $ordenServicio = OrdenesServicio::whereIn('id_cliente', $arrayClientes)->get();
+    return response()->json($ordenServicio);
+});
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -90,6 +113,7 @@ Route::group([
     //Proyectos Ordenes de servicio
     Route::get('proyectos/{id_proyecto}/clientes/{id_cliente}/ordenes-servicio', 'OrdenesServicioController@lista');
     Route::get('proyectos/clientes/ordenes-servicio/{id}', 'OrdenesServicioController@id');
+    Route::get('proyectos/clientes/ordenes-servicio/{id}/datos', 'OrdenesServicioController@idDatos');
     Route::post('proyectos/clientes/ordenes-servicio', 'OrdenesServicioController@nuevo');
     Route::put('proyectos/clientes/ordenes-servicio/{id}', 'OrdenesServicioController@editar');
 
