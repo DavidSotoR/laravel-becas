@@ -949,7 +949,7 @@ class ServicioEstudioController extends Controller
                     'enviado' => false,
                 ];
             }
-            
+
         }
         return response()->json([
             'message' => 'Proceso completado',
@@ -2099,6 +2099,17 @@ class ServicioEstudioController extends Controller
         }
         $encuesta['parametros'] = $parametros;
         $encuesta['total_parametros'] = $this->totalPorParametro($encuesta->preguntas);
+
+        $encuesta['distribucion_del_gasto'] = $this->getDistribucionDelGasto(
+            $encuesta->estudio->id_proyecto,
+            $encuesta->estudio->id_cliente,
+            $encuesta->estudio->id
+        );
+
+        $encuesta['lista_parametros'] = CatalogoEncuestasPreguntasParametrosClasificacions::with('items')
+        ->where('id_catalogo_encuesta', $encuesta->id)
+        ->where('id_catalogo_encuestas_preguntas_parametros_clasificaciones_tipos', 1)
+        ->get();
 
         //return $encuesta;
 

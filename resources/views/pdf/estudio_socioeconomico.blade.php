@@ -213,9 +213,9 @@ use Illuminate\Support\Facades\Storage;
             </div>
         </div>
     </div>
-    <div class="page-break"></div>  <!--Salto de página -->
 
     @if ($encuesta->preguntas)
+    <div class="page-break"></div>  <!--Salto de página -->
         @foreach ($encuesta->preguntas as $pregunta)
             <div class="mt-1 mb-1 ms-5 me-5 no-page-break">
                 <div class="pt-3">
@@ -256,8 +256,30 @@ use Illuminate\Support\Facades\Storage;
         @endforeach
 
     </div>
+
     @endif
 
+    <div class="page-break"></div>  <!--Salto de página -->
+    <div class="text-center">
+        <p>ANALISIS DE DATOS</p>
+    </div>
+    <br>
+    <div class="text-center">
+    @foreach ( $encuesta["lista_parametros"] as $parametro )
+        @php
+            $resultado = filterIDresultados($encuesta['parametros'], $parametro["id"])
+        @endphp
+        {!! generarGraficaBar($parametro,$resultado) !!}
+        <br>
+    @endforeach
+    <br>
+    {!! generarGraficaDistribucionDelGasto($encuesta["distribucion_del_gasto"]) !!}
+    </div>
+    <!--
+        generarGrafica()
+        json_encode($encuesta["lista_parametros"], JSON_PRETTY_PRINT)
+        json_encode($encuesta['parametros'], JSON_PRETTY_PRINT)
+    -->
 </body>
 </html>
 
@@ -1577,7 +1599,276 @@ function setDefaultValue($idPreguntaTipo, $idEstudio, $idPregunta) {
 
     return $formData;
 }
+// Graficas de reporte
+function labels($dataSelected) {
+    if (isset($dataSelected['items']) && is_array($dataSelected['items'])) {
+        return array_map(function ($item) {
+            $inferior = $item['limiten_inferior'] < 1 ? 'O MENOS' : formatNumber($item['limiten_inferior']);
+            $superior = $item['limite_superior'] === '0' ? 'O MAS' : formatNumber($item['limite_superior']);
+            return "$inferior - $superior";
+        }, $dataSelected['items']);
+    }
+    return [];
+}
 
+function dataChart($dataSelected) {
+    return [
+        'labels' => labels($dataSelected),
+        'datasets' => [
+            [
+                'label' => $dataSelected['nombre'] ?? '',
+                'data' => labelsData($dataSelected),
+                'backgroundColor' => 'rgba(255, 99, 132, 0.5)',
+            ]
+        ]
+    ];
+}
+
+function labelsData($dataSelected) {
+    if (isset($dataSelected['items']) && is_array($dataSelected['items'])) {
+        return array_map(function ($item) {
+            return $item['total_estudios'];
+        }, $dataSelected['items']);
+    }
+    return [];
+}
+
+function generarGrafica(){
+    $type = 'bar';
+    $titulo = 'NIVEL DE LIQUIDEZ';
+    $data = [
+        'labels' => ['O MENOS - 40,000','40,001 - 45,000','45,001 - 50,000','50,001 - 55,000','55,001 - 60,000','60,001 - 65,000','65,001 - 70,000','70,001 - 75,000','75,001 - O MAS'],
+        'datasets' => [[
+            'label' => $titulo,
+            'data' => [48,1,1,0,1,0,0,0,0],
+            'backgroundColor' => [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                ],
+            'borderColor' => [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+                ],
+        ]],
+    ];
+    // Generar la URL de la gráfica
+    $chartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode([
+        'type' => $type,
+        'data' => $data,
+    ]));
+    // Obtener la imagen de la URL
+    $imageData = file_get_contents($chartUrl);
+    $imageBase64 = 'data:image/png;base64,' . base64_encode($imageData);
+
+    echo "<img src='$imageBase64' alt='Chart' style='width: 400px; height: auto;' />";
+}
+function filterIDresultados($resultados, $id) {
+    foreach ($resultados as $resultado) {
+        if ($resultado['id'] == $id) {
+            return $resultado;
+        }
+    }
+    return null;
+}
+function generarGraficaBar($dataSet, $resultado = null) {
+    $type = 'bar';
+    $titulo = $dataSet['nombre'];
+
+    // Preparar las etiquetas y datos
+    $labels = [];
+    $valores = [];
+    $backgroundColor = [];
+    $borderColor = [];
+
+    // Valor a resaltar (si existe)
+    $valorResaltar = null;
+    $limiteInferiorResaltar = null;
+    $limiteSuperiorResaltar = null;
+
+    // Si tenemos un resultado para resaltar
+    if ($resultado !== null && isset($resultado['puntos'])) {
+        $valorResaltar = $resultado['puntos']['valor'];
+        $limiteInferiorResaltar = $resultado['puntos']['limiten_inferior'];
+        $limiteSuperiorResaltar = $resultado['puntos']['limite_superior'];
+    }
+
+    // Generar colores base
+    $baseColor = isset($dataSet['color']) ? $dataSet['color'] : '#0080ff';
+    $baseColor = str_replace('#', '', $baseColor);
+
+    // Convertir el color hexadecimal a RGB
+    $r = hexdec(substr($baseColor, 0, 2));
+    $g = hexdec(substr($baseColor, 2, 2));
+    $b = hexdec(substr($baseColor, 4, 2));
+
+    // Color de resaltado
+    $highlightColor = "rgba(255, 0, 0, 0.6)"; // Rojo semi-transparente
+    $highlightBorder = "rgba(255, 0, 0, 1)";  // Rojo sólido
+
+    foreach($dataSet['items'] as $item) {
+        // Crear etiqueta según los límites
+        if ($item['limiten_inferior'] == 0 && $item['limite_superior'] > 0) {
+            $label = "0 - " . number_format($item['limite_superior'], 0, '.', ',');
+        } elseif ($item['limite_superior'] == 0 && $item['limiten_inferior'] > 0) {
+            $label = number_format($item['limiten_inferior'], 0, '.', ',') . " - O MÁS";
+        } else {
+            $label = number_format($item['limiten_inferior'], 0, '.', ',') . " - " . number_format($item['limite_superior'], 0, '.', ',');
+        }
+
+        $labels[] = $label;
+        $valores[] = intval($item['valor']);
+
+        // Determinar si este elemento coincide con el valor a resaltar
+        $debeResaltar = false;
+        if ($valorResaltar !== null) {
+            // Comparamos por valor primero
+            if ($item['valor'] === $valorResaltar) {
+                // Luego validamos por rangos para confirmar
+                if (($item['limiten_inferior'] == $limiteInferiorResaltar && $item['limite_superior'] == $limiteSuperiorResaltar) ||
+                    // Otra forma de validar: verificar si el valor de sumatoria está dentro del rango
+                    ($resultado['puntos']['sumatoria'] >= $item['limiten_inferior'] &&
+                     ($item['limite_superior'] == 0 || $resultado['puntos']['sumatoria'] <= $item['limite_superior']))) {
+                    $debeResaltar = true;
+                }
+            }
+        }
+
+        if ($debeResaltar) {
+            $backgroundColor[] = $highlightColor;
+            $borderColor[] = $highlightBorder;
+        } else {
+            $backgroundColor[] = "rgba($r, $g, $b, " . (0.8 - (count($backgroundColor) * 0.05)) . ")";
+            $borderColor[] = "rgba($r, $g, $b, 1)";
+        }
+    }
+
+    // Agregar un indicador del valor real en el título si está disponible
+    $tituloCompleto = strtoupper($titulo);
+    if ($resultado !== null && isset($resultado['puntos']['sumatoria'])) {
+        $tituloCompleto .= " - VALOR: " . number_format($resultado['puntos']['sumatoria'], 0, '.', ',');
+    }
+
+    $data = [
+        'labels' => $labels,
+        'datasets' => [[
+            'label' => $titulo,
+            'data' => $valores,
+            'backgroundColor' => $backgroundColor,
+            'borderColor' => $borderColor,
+            'borderWidth' => 1
+        ]],
+    ];
+
+    // Generar la URL de la gráfica
+    $chartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode([
+        'type' => $type,
+        'data' => $data,
+        'options' => [
+            'title' => [
+                'display' => true,
+                'text' => $tituloCompleto
+            ],
+            'scales' => [
+                'yAxes' => [[
+                    'ticks' => [
+                        'beginAtZero' => true
+                    ]
+                ]]
+            ],
+            'plugins' => [
+                'datalabels' => [
+                    'anchor' => 'end',
+                    'align' => 'top',
+                    'formatter' => '(value) => value + " pts"',
+                    'font' => [
+                        'weight' => 'bold'
+                    ]
+                ]
+            ]
+        ]
+    ]));
+
+    // Obtener la imagen de la URL
+    $imageData = file_get_contents($chartUrl);
+    $imageBase64 = 'data:image/png;base64,' . base64_encode($imageData);
+
+    echo "<img src='$imageBase64' alt='Chart' style='width: 420px; height: auto;' />";
+}
+function generarGraficaDistribucionDelGasto($dataSet){
+    $dataLabels = array_map(function($item) { return strtoupper($item['categoria']);}, $dataSet);
+    $dataMontos = array_map(function($item) { return intval($item['total']);}, $dataSet);
+    //number_format(intval($item['total']), 0, '.', ',')
+
+    $type = 'bar';
+    $titulo = 'DISTRIBUCION DEL GASTO';
+    $data = [
+        'labels' => $dataLabels,
+        'datasets' => [
+            [
+                'label' => '',
+                'data' => $dataMontos,
+                'backgroundColor' => [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                ],
+                'borderColor' => [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                ],
+            ],
+        ],
+    ];
+    // Generar la URL de la gráfica
+    $chartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode([
+        'type' => $type,
+        'data' => $data,
+        'options' => [
+            'title' => [
+                'display' => true,
+                'text' => $titulo
+            ],
+            'scales' => [
+                'yAxes' => [[
+                    'ticks' => [
+                        'beginAtZero' => true
+                    ]
+                ]]
+            ],
+            'plugins' => [
+                'datalabels' => [
+                    'anchor' => 'end',
+                    'align' => 'top',
+                    'formatter' => '(value) => value + " pts"',
+                    'font' => [
+                        'weight' => 'bold'
+                    ]
+                ]
+            ]
+        ]
+    ]));
+    // Obtener la imagen de la URL
+    $imageData = file_get_contents($chartUrl);
+    $imageBase64 = 'data:image/png;base64,' . base64_encode($imageData);
+
+    echo "<img src='$imageBase64' alt='Chart' style='width: 420px; height: auto;' />";
+}
+// Función para determinar el tipo de pregunta y generar el HTML correspondiente
 function preguntaPorTipoPregunta(
         $idPreguntaTipo,
         $respuestas,
