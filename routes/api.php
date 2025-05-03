@@ -97,6 +97,7 @@ Route::group([
     Route::get('clientes/filtro/proyecto/{id}', 'ClientesController@listaFiltrosClientesPorRoyecto');
     Route::get('clientes/{id}/usuarios', 'ClientesController@usuarios');
     Route::get('clientes/{id}', 'ClientesController@id');
+    Route::get('clientes/{id}/link/registro', 'ClientesController@getLinkRegistro');
     Route::post('clientes', 'ClientesController@nuevo');
     Route::post('clientes/{id}', 'ClientesController@editar');
     Route::get('clientes/{id_cleinte}/ordenes-servicio', 'ClientesController@ordenesServicio');
