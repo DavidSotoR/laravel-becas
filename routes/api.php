@@ -47,8 +47,14 @@ Route::get('/registro/link/{token}', function ($id) {
 });
 
 Route::get('/registro/escuela/{token}', function ($token) {
-    $tokenRegistro = RegistroToken::where('token_parte1', $token)->first();
-    return response()->json($tokenRegistro);
+    $tokenRegistro = RegistroToken::where('token_parte1', $token)->where('activo', 1)->first();
+    if (empty($tokenRegistro)) {
+        return response()->json(['cliente'=> null, 'proyecto'=> null, 'orden_servicio' => null]); 
+    }
+    $cliente = Clientes::find($tokenRegistro->id_cliente);
+    $proyecto = Proyectos::find($tokenRegistro->id_proyecto);
+    $ordenServicio = OrdenesServicio::find($tokenRegistro->id_orden_servicio);
+    return response()->json(['cliente'=> $cliente, 'proyecto'=> $proyecto, 'orden_servicio' => $ordenServicio]);
 });
 
 
