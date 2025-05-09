@@ -4,6 +4,7 @@ use App\Clientes;
 use App\OrdenesServicio;
 use App\Proyectos;
 use App\RegistroToken;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -56,6 +57,8 @@ Route::get('/registro/escuela/{token}', function ($token) {
     $ordenServicio = OrdenesServicio::find($tokenRegistro->id_orden_servicio);
     return response()->json(['cliente'=> $cliente, 'proyecto'=> $proyecto, 'orden_servicio' => $ordenServicio]);
 });
+
+Route::post('/registro/escuela/{token}', 'RegistroExternoController@registroExternoToken');
 
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
