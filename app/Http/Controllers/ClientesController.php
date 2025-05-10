@@ -273,6 +273,7 @@ class ClientesController extends Controller
             $file->storeAs($rutaLogo, $logoNombre, 'public');
             $cliente->update(['ubicacion_logo' => $rutaLogo . $logoNombre]);
         }
+        
         $errorLink = null;
         $newLink = null;
         /* if ($request->input('habilitar_alta_familias') == 1) {
@@ -313,7 +314,7 @@ class ClientesController extends Controller
            
         } */
 
-        return response()->json(['message' => 'Cliente modificado', 'data' => $cliente, 'tokenData' => $newLink ?? null, 'error_link' => $errorLink ], 200);
+        return response()->json(['message' => 'Cliente modificado', 'data' => $cliente ], 200);
     }
 
     public function getLinkRegistro($id){
