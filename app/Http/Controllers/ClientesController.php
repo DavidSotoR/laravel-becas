@@ -328,7 +328,7 @@ class ClientesController extends Controller
             }
         }
         //return response()->json($cliente);
-        $linkData = RegistroToken::where('id_cliente', $cliente->id)->where('id_proyecto', $proyActual->id)->first();
+        $linkData = RegistroToken::where('id_cliente', $cliente['id'])->where('id_proyecto', $proyActual->id)->first();
 
         if (empty($linkData)) {
             $proyecto = Proyectos::with(['clientes'])->where('borrado', 0)->where('activo', 1)->where('anio_proyecto', $anioActual)->first();
