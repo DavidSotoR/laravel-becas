@@ -327,6 +327,10 @@ class ClientesController extends Controller
                 $proyActual = $py;
             }
         }
+
+        if ($proyActual == null) {
+            return response()->json(['message' => 'ERROR cliente no cuenta con proyecto actual.', 'data' => $cliente, 'tokenData' => null, 'error_link' => 'Cliente no asignado a proyecto en curso.' ], 422);
+        }
         //return response()->json($cliente);
         $linkData = RegistroToken::where('id_cliente', $cliente['id'])->where('id_proyecto', $proyActual->id)->first();
 
