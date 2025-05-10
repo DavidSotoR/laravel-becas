@@ -147,7 +147,7 @@ class RegistroExternoController extends Controller
                 'candidato' => $datos['candidato'],
                 'situacion' => 'EN PROCESO',
                 'email' => $datos['email'],
-                'direccion' => $$direccion,
+                'direccion' => $direccion,
                 'calle' => $datos['calle'],
                 'numero_exterior' => $datos['numero_exterior'],
                 'colonia' => $datos['colonia'],
@@ -155,7 +155,7 @@ class RegistroExternoController extends Controller
                 'estado' => $datos['estado'],
                 'codigo_postal' => $datos['codigo_postal'],
                 'pais' => $datos['pais'],
-                'clave_familia_colegio'=> $datos['clave_familia']
+                'clave_familia_colegio'=> $datos['clave_familia'] ? $datos['clave_familia'] : '0000000'
             ];
 
             $servNew = ServicioEstudio::create($newServicioEconomico);
