@@ -91,7 +91,7 @@ class RegistroExternoController extends Controller
                 'email' => $datos['padre']['contecto_principal'] == true ?  $datos['padre']['email'] : $datos['madre']['email'],
                 'id_perfil' => 6,
                 'id_cliente' => $datos['id_cliente'] ,
-                'password' => $nuevaContraseña,
+                'password' => bcrypt($nuevaContraseña),
                 'password_temporal' => $nuevaContraseña,
                 'latitud' => $lat ?? null,
                 'longitud' => $lon ?? null,
@@ -105,7 +105,6 @@ class RegistroExternoController extends Controller
                 'pais' => $datos['pais'] ?? null,
                 'externo' => 1,
             ];
-
 
             $validator = Validator::make($newUser, [
                 'name' => 'required|present|string|max:255',
