@@ -210,9 +210,7 @@ class RegistroExternoController extends Controller
                     ]);
                 }
                 //return response()->json(['colabs' => $colabs, 'servcreado' => $servNew, 'comparacion' => $userFamiliaDistancia]);
-            } else {
-                array_push($familiasNoAsignadas, ['familia' => $servNew]);
-            }
+            } 
 
         }
         return response()->json(['error' => false, 'data'=> $request->all(), 'registro' => true]);
