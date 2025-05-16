@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use App\CatalogoEncuestas;
 
@@ -80,75 +81,114 @@ class CatalogoEncuestasController extends Controller
 
     public function copia(Request $request, $id){
 
-        $elemento = CatalogoEncuestas::with('preguntas','parametros','parametros.items')->where('id',$id)->first();
-        if(isset($request->nombre) && $elemento){
-            $request->nombre = $elemento->nombre." - ".$request->nombre;
+        $elemento = CatalogoEncuestas::with('preguntas', 'parametros.items')->find($id);
+
+        if (!$elemento) {
+            return response()->json(['error' => 'Encuesta no encontrada'], 404);
         }
 
-        //return response()->json($elemento);
+        if (isset($request->nombre)) {
+            $request->merge([
+                'nombre' => $elemento->nombre . " - " . $request->nombre
+            ]);
+        }
 
-        $validator = Validator::make($request->all(),[
-            'nombre' => ['required','string','min:2',Rule::unique('catalogo_encuestas')->ignore($id)],
+        $validator = Validator::make($request->all(), [
+            'nombre' => ['required', 'string', 'min:2', Rule::unique('catalogo_encuestas')->ignore($id)],
             'password' => 'required'
         ]);
 
-        /*$UserPassword = auth()->user()->password;
-        $ComprovacionPassword = bcrypt($request->password);
-
-        if($UserPassword != $ComprovacionPassword){
-            return response()->json(['error' => ['password'=>['Contraseña Incorrecta',$UserPassword,$ComprovacionPassword]]], 400);
-        }*/
-
-
-        $nuevoElemento = $elemento->replicate();
-        $nuevoElemento->nombre = $request->nombre;
-        $nuevoElemento->save();
-
-        $idsParametrosTransacction = array();
-        $idsPreguntasTransacction = array();
-
-        // Clonar parámetros
-        foreach ($elemento->parametros as $parametro) {
-            $nuevoParametro = $parametro->replicate();
-            $nuevoElemento->parametros()->save($nuevoParametro);
-
-            // Clonar items
-            foreach ($parametro->items as $item) {
-                $nuevoItem = $item->replicate();
-                $nuevoParametro->items()->save($nuevoItem);
-            }
-
-            $idsPreguntasTransacction[$parametro->id] = $nuevoElemento->id;
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Clonar preguntas
-        foreach ($elemento->preguntas as $pregunta) {
-            //$pregunta->
-            $nuevaPregunta = $pregunta->replicate();
+        // Verificar si la contraseña es correcta
+        $user = auth()->user();
 
-            if($nuevaPregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion !== null){
-                $nuevaPregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion = $idsPreguntasTransacction[$nuevaPregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion];
-            }
-            if($nuevaPregunta->id_parametro_clasificacion_parametro_adicional_uno !== null){
-                $nuevaPregunta->id_parametro_clasificacion_parametro_adicional_uno = $idsPreguntasTransacction[$nuevaPregunta->id_parametro_clasificacion_parametro_adicional_uno];
-            }
-            if($nuevaPregunta->id_parametro_clasificacion_parametro_adicional_dos !== null){
-                $nuevaPregunta->id_parametro_clasificacion_parametro_adicional_dos = $idsPreguntasTransacction[$nuevaPregunta->id_parametro_clasificacion_parametro_adicional_dos];
-            }
-
-            $nuevoElemento->preguntas()->save($nuevaPregunta);
-
-            /*'id_catalogo_encuestas_preguntas_parametro_clasificacion',
-            'id_parametro_clasificacion_parametro_adicional_uno',
-            'id_parametro_clasificacion_parametro_adicional_dos',
-            $idsPreguntasTransacction[$nuevaPregunta->id] = array(
-                'parametro' => ,
-                'parametro_adicional_uno'=> ,
-                'parametro_adicional_dos' =>
-            );*/
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'errors' => [
+                    'password' => ['La contraseña no es correcta.'],
+                ]
+            ], 302);
         }
 
+        \DB::beginTransaction();
 
-        return response()->json($elemento);
+        try {
+
+            $nuevoElemento = $elemento->replicate();
+            $nuevoElemento->nombre = $request->nombre;
+            $nuevoElemento->save();
+
+            $idsParametrosMap = [];
+            $idsPreguntasMap = [];
+
+            // Clonar parámetros con sus items
+            foreach ($elemento->parametros as $parametro) {
+                $nuevoParametro = $parametro->replicate();
+                $nuevoElemento->parametros()->save($nuevoParametro);
+
+                foreach ($parametro->items as $item) {
+                    $nuevoItem = $item->replicate();
+                    $nuevoItem->id_catalogo_encuestas_preguntas_parametro_clasificacion = $nuevoParametro->id;
+
+                    // Se actualizará id_catalogo_encuestas_preguntas después de clonar preguntas
+                    $nuevoItem->save();
+
+                    // Guardamos la relación original de item para poder actualizarlo luego
+                    $itemsMap[] = [
+                        'nuevoItem' => $nuevoItem,
+                        'originalItem' => $item
+                    ];
+                }
+
+                $idsParametrosMap[$parametro->id] = $nuevoParametro->id;
+            }
+
+            // Clonar preguntas con referencias actualizadas
+            foreach ($elemento->preguntas as $pregunta) {
+                $nuevaPregunta = $pregunta->replicate();
+
+                if ($pregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion !== null) {
+                    $nuevaPregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion = $idsParametrosMap[$pregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion] ?? null;
+                }
+
+                if ($pregunta->id_parametro_clasificacion_parametro_adicional_uno !== null) {
+                    $nuevaPregunta->id_parametro_clasificacion_parametro_adicional_uno = $idsParametrosMap[$pregunta->id_parametro_clasificacion_parametro_adicional_uno] ?? null;
+                }
+
+                if ($pregunta->id_parametro_clasificacion_parametro_adicional_dos !== null) {
+                    $nuevaPregunta->id_parametro_clasificacion_parametro_adicional_dos = $idsParametrosMap[$pregunta->id_parametro_clasificacion_parametro_adicional_dos] ?? null;
+                }
+
+                $nuevoElemento->preguntas()->save($nuevaPregunta);
+                $idsPreguntasMap[$pregunta->id] = $nuevaPregunta->id;
+            }
+
+            // Actualizar id_catalogo_encuestas_preguntas en los items nuevos
+            if (!empty($itemsMap)) {
+                foreach ($itemsMap as $map) {
+                    $nuevoItem = $map['nuevoItem'];
+                    $originalItem = $map['originalItem'];
+
+                    if ($originalItem->id_catalogo_encuestas_preguntas && isset($idsPreguntasMap[$originalItem->id_catalogo_encuestas_preguntas])) {
+                        $nuevoItem->id_catalogo_encuestas_preguntas = $idsPreguntasMap[$originalItem->id_catalogo_encuestas_preguntas];
+                        $nuevoItem->save();
+                    }
+                }
+            }
+
+            \DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'nueva_encuesta_id' => $nuevoElemento->id,
+                'mensaje' => 'Encuesta copiada correctamente.'
+            ]);
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return response()->json(['error' => 'Error al copiar la encuesta', 'mensaje' => $e->getMessage()], 500);
+        }
     }
 }
