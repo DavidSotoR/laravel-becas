@@ -18,9 +18,11 @@ class CreateRegistroTokensTable extends Migration
             $table->unsignedBigInteger('id_cliente');
             $table->unsignedBigInteger('id_proyecto');
             $table->unsignedBigInteger('id_orden_servicio');
-            $table->text('token');         // token completo
-            $table->string('token_parte1'); // primera parte visible en el link
-            $table->string('token_parte2'); // segunda parte oculta
+            $table->text('token');          // token completo
+            $table->text('token_parte1'); // primera parte visible en el link
+            $table->text('token_parte2'); // segunda parte oculta
+            $table->boolean('activo')->default(true);
+            $table->text('link_registro')->default(null);
             $table->timestamps();
         });
     }

@@ -688,7 +688,7 @@ class ServicioEstudioController extends Controller
                     $newUser['id_perfil'] = 6;
                     $newUser['id_cliente'] = $id_cliente;
                     $newUser['password_temporal'] = $this->generarContraseñaTemporal();
-                    $newUser['externo'] = 1;
+                    $newUser['externo'] = 1; 
 
                     $pass = $this->generarContraseñaTemporal();
                     $dataDireccion = [

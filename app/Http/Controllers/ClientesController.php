@@ -8,8 +8,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use App\Clientes;
 use App\OrdenesServicio;
+use App\Proyectos;
 use App\ProyectosClientes;
+use App\RegistroToken;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\JWT;
@@ -72,8 +75,51 @@ class ClientesController extends Controller
 
     public function id($id)
     {
+        /* $anioActual = Carbon::now()->year;
+        $proyecto = Proyectos::with(['clientes'])->where('borrado', 0)->where('activo', 1)->where('anio_proyecto', $anioActual)->first();
+        $proyectoClientes = $proyecto->clientes;
+        $arrayClientes = [];
+        foreach($proyectoClientes as $pc){
+            array_push($arrayClientes, $pc['id']);
+        }
+
+        if (in_array($id, $arrayClientes)) {
+            
+            $ordenServicio = OrdenesServicio::where('id_cliente', $id)->where('id_proyecto', $proyecto->id)->where('activo', 1)->first();
+            if (!empty($ordenServicio)) {
+                $tokenLink = RegistroToken::where('id_cliente', $id)->where('id_proyecto', $proyecto->id)->where('id_orden_servicio', $ordenServicio->id)->first();
+                
+            }
+            //dd($ordenServicio);
+        } */
         $elemento = Clientes::with("tipoCliente")->where('id', $id)->first();
+
         return response()->json($elemento);
+    }
+
+    public function getDataLinkRegistro($id){
+        $anioActual = Carbon::now()->year;
+        $proyecto = Proyectos::with(['clientes'])->where('borrado', 0)->where('activo', 1)->where('anio_proyecto', $anioActual)->first();
+        $proyectoClientes = $proyecto->clientes;
+        $arrayClientes = [];
+        foreach($proyectoClientes as $pc){
+            array_push($arrayClientes, $pc['id']);
+        }
+
+        if (in_array($id, $arrayClientes)) {
+            
+            $ordenServicio = OrdenesServicio::where('id_cliente', $id)->where('id_proyecto', $proyecto->id)->where('activo', 1)->first();
+            if (!empty($ordenServicio)) {
+                $tokenLink = RegistroToken::where('id_cliente', $id)->where('id_proyecto', $proyecto->id)->where('id_orden_servicio', $ordenServicio->id)->first();
+                
+            }
+            //dd($ordenServicio);
+        }
+        $elemento = Clientes::with("tipoCliente")->where('id', $id)->first();
+        /* $arrEl = (array)$elemento;
+        $arrLink = (array)$tokenLink;
+        array_push($arrEl, $arrLink); */
+        return response()->json(['cliente'=> $elemento, 'tokenLink' => $tokenLink]);
     }
 
     public function ordenesServicio(Request $request, $id_cleinte = 0)
@@ -227,8 +273,104 @@ class ClientesController extends Controller
             $file->storeAs($rutaLogo, $logoNombre, 'public');
             $cliente->update(['ubicacion_logo' => $rutaLogo . $logoNombre]);
         }
+        
+        $errorLink = null;
+        $newLink = null;
+        /* if ($request->input('habilitar_alta_familias') == 1) {
+            $anioActual = Carbon::now()->year;
+            $proyecto = Proyectos::with(['clientes'])->where('borrado', 0)->where('activo', 1)->where('anio_proyecto', $anioActual)->first();
 
-        return response()->json(['message' => 'Cliente modificado', 'data' => $cliente], 200);
+            if (empty($proyecto)) {
+                $errorLink = 'Cliente no asignado a proyecto en curso.';
+                //return response()->json(['message' => 'Cliente modificado', 'data' => $cliente, 'tokenData' => null, 'error_link' => 'Cliente no asignado a proyecto en curso.' ], 200);;
+            } else {
+                $proyectoClientes = $proyecto['clientes'];
+                $arrayClientes = [];
+                foreach($proyectoClientes as $pc){
+                    array_push($arrayClientes, $pc['id']);
+                }
+                //return response()->json(['data'=> $arrayClientes], 400);
+                if (in_array($id, $arrayClientes)) {
+                    
+                    $ordenServicio = OrdenesServicio::where('id_cliente', $id)->where('id_proyecto', $proyecto->id)->where('activo', 1)->first();
+                    if (!empty($ordenServicio)) {
+                        $resTk = $this->linkGenerarToken($id);
+                        //return response()->json([$resTk], 400);
+                        $newLink = RegistroToken::create([
+                            'id_cliente'        => $id,
+                            'id_proyecto'       => $proyecto->id,
+                            'id_orden_servicio' => $ordenServicio->id,
+                            'token'             => $resTk['token'],
+                            'token_parte1'      => $resTk['token1'],
+                            'token_parte2'      => $resTk['token2'],
+                            'link_registro' => $resTk['link']
+                        ]);
+                    } else {
+                        $errorLink = 'Se necesita asignar una Orden de servicio al cliente.';
+                    }
+                    //dd($ordenServicio);
+                }
+            }
+           
+        } */
+
+        return response()->json(['message' => 'Cliente modificado', 'data' => $cliente ], 200);
+    }
+
+    public function getLinkRegistro($id){
+        $anioActual = Carbon::now()->year;
+        $cliente = Clientes::with('proyectos')->find($id);
+        $proyectos = $cliente->proyectos;
+        $proyActual = null;
+        foreach($proyectos as $py){
+            if ($py->anio_proyecto == $anioActual && $py->activo == 1 && $py->borrado == 0) {
+                $proyActual = $py;
+            }
+        }
+
+        if ($proyActual == null) {
+            return response()->json(['message' => 'ERROR cliente no cuenta con proyecto actual.', 'data' => $cliente, 'tokenData' => null, 'error_link' => 'Cliente no asignado a proyecto en curso.' ], 422);
+        }
+        //return response()->json($cliente);
+        $linkData = RegistroToken::where('id_cliente', $cliente['id'])->where('id_proyecto', $proyActual->id)->first();
+
+        if (empty($linkData)) {
+            $proyecto = Proyectos::with(['clientes'])->where('borrado', 0)->where('activo', 1)->where('anio_proyecto', $anioActual)->first();
+
+            if (empty($proyecto)) {
+                $errorLink = 'Cliente no asignado a proyecto en curso.';
+                //return response()->json(['message' => 'Cliente modificado', 'data' => $cliente, 'tokenData' => null, 'error_link' => 'Cliente no asignado a proyecto en curso.' ], 200);;
+            } else {
+                $proyectoClientes = $proyecto['clientes'];
+                $arrayClientes = [];
+                foreach($proyectoClientes as $pc){
+                    array_push($arrayClientes, $pc['id']);
+                }
+                //return response()->json(['data'=> $arrayClientes], 400);
+                if (in_array($id, $arrayClientes)) {
+                    
+                    $ordenServicio = OrdenesServicio::where('id_cliente', $id)->where('id_proyecto', $proyecto->id)->where('activo', 1)->first();
+                    if (!empty($ordenServicio)) {
+                        $resTk = $this->linkGenerarToken($id);
+                        //return response()->json([$resTk], 400);
+                        $linkData = RegistroToken::create([
+                            'id_cliente'        => $id,
+                            'id_proyecto'       => $proyecto->id,
+                            'id_orden_servicio' => $ordenServicio->id,
+                            'token'             => $resTk['token'],
+                            'token_parte1'      => $resTk['token1'],
+                            'token_parte2'      => $resTk['token2'],
+                            'link_registro' => $resTk['link']
+                        ]);
+                    } else {
+                        $errorLink = 'Se necesita asignar una Orden de servicio al cliente.';
+                    }
+                    //dd($ordenServicio);
+                }
+            }
+        }
+
+        return response()->json($linkData);
     }
 
     public function editarConfiguraciones(Request $request){
@@ -299,17 +441,19 @@ class ClientesController extends Controller
             'iss' => "sinergia", // emisor
             'iat' => time(), // fecha de creación
             'exp' => strtotime('+1 month'), // expiración (1 hora)
-            'user_id' => 1, // puedes poner el ID o dato que necesites
+            'cliente_id' => $id, // puedes poner el ID o dato que necesites
         ];
 
         $payload = JWTAuth::factory()->make($customClaims);
 
-        $token = JWTAuth::encode($payload)->get();
+        $tokenJWT = JWTAuth::encode($payload)->get();
 
+        $halfLength = strlen($tokenJWT) / 2;
+        $tokenPart1 = substr($tokenJWT, 0, (int) $halfLength);
+        $tokenPart2 = substr($tokenJWT, (int) $halfLength);
 
-        $token = 'token';
-        $linkRegistro = $link . $token;
-        return response()->json(['link' => $link, 'token'=> $token]);
+        $linkRegistro = $link . $tokenPart1;
+        return ['link' => $linkRegistro, 'token'=> $tokenJWT, 'token1' => $tokenPart1, 'token2' => $tokenPart2];
     }
 
     public function getLogo(Request $request){

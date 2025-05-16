@@ -3,6 +3,8 @@
 use App\Clientes;
 use App\OrdenesServicio;
 use App\Proyectos;
+use App\RegistroToken;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,22 +22,44 @@ use Illuminate\Support\Facades\Route;
 /* Route::get('clientes/{id}/link/registro', 'ClientesController@linkRegistroGenerar');
  */
 
-Route::get('/registro/link/{id}', function ($id) {
+Route::get('/registro/link/{token}', function ($id) {
     $cliente = Clientes::find($id);
     $anioActual = Carbon::now()->year;
-    //dd($anioActual);
     $proyecto = Proyectos::with(['clientes'])->where('borrado', 0)->where('activo', 1)->where('anio_proyecto', $anioActual)->first();
     $proyectoClientes = $proyecto->clientes;
-    //dd($proyectoClientes);
     $arrayClientes = [];
     foreach($proyectoClientes as $pc){
         array_push($arrayClientes, $pc['id']);
     }
 
-    //dd($arrayClientes);
+    if (in_array($id, $arrayClientes)) {
+        
+        $ordenServicio = OrdenesServicio::where('id_cliente', $id)->where('id_proyecto', $proyecto->id)->where('activo', 1)->first();
+        if (!empty($ordenServicio)) {
+            dd('tiene los parametros para generar link.');
+        }
+        //dd($ordenServicio);
+    } else {
+        dd('no existe el cliente');
+    }
+
     $ordenServicio = OrdenesServicio::whereIn('id_cliente', $arrayClientes)->get();
     return response()->json($ordenServicio);
 });
+
+Route::get('/registro/escuela/{token}', function ($token) {
+    $tokenRegistro = RegistroToken::where('token_parte1', $token)->where('activo', 1)->first();
+    if (empty($tokenRegistro)) {
+        return response()->json(['cliente'=> null, 'proyecto'=> null, 'orden_servicio' => null]); 
+    }
+    $cliente = Clientes::find($tokenRegistro->id_cliente);
+    $proyecto = Proyectos::find($tokenRegistro->id_proyecto);
+    $ordenServicio = OrdenesServicio::find($tokenRegistro->id_orden_servicio);
+    return response()->json(['cliente'=> $cliente, 'proyecto'=> $proyecto, 'orden_servicio' => $ordenServicio]);
+});
+
+Route::post('/registro/escuela/{token}', 'RegistroExternoController@registroExternoToken');
+
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -66,6 +90,7 @@ Route::group([
     //Tipos de Clientes
     Route::get('clientes/tipos', 'TiposClientesController@lista');
     Route::post('logo/clientes', 'ClientesController@getLogo');
+    //Route::get('')
 
     //Clientes Hermanos
     Route::get('clientes/hermanos', 'ClientesHermanosController@lista');
@@ -81,6 +106,7 @@ Route::group([
     Route::get('clientes/filtro/proyecto/{id}', 'ClientesController@listaFiltrosClientesPorRoyecto');
     Route::get('clientes/{id}/usuarios', 'ClientesController@usuarios');
     Route::get('clientes/{id}', 'ClientesController@id');
+    Route::get('clientes/{id}/link/registro', 'ClientesController@getLinkRegistro');
     Route::post('clientes', 'ClientesController@nuevo');
     Route::post('clientes/{id}', 'ClientesController@editar');
     Route::get('clientes/{id_cleinte}/ordenes-servicio', 'ClientesController@ordenesServicio');
