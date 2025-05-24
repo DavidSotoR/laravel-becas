@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\FamiliasPadres;
+use App\Mail\NotificacionCorreo;
 use App\OrdenesServicio;
 use App\Proyectos;
 use App\RegistroToken;
@@ -10,6 +11,7 @@ use App\ServicioEstudio;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class RegistroExternoController extends Controller
@@ -131,7 +133,7 @@ class RegistroExternoController extends Controller
 
             $user = User::create($newUser);
             $userID = $user->id;
-
+            $this->estudioSocioeconomicoEnviarCorreo($userID);
             //2. crear Caso Servicio Estudio
             $directorio = $this->setDirectorioEstudio($userID);
 
@@ -215,6 +217,14 @@ class RegistroExternoController extends Controller
         }
         return response()->json(['error' => false, 'data'=> $request->all(), 'registro' => true]);
     }
+
+    public function estudioSocioeconomicoEnviarCorreo($id){
+        $usuarioF = User::find($id);
+        $resp = Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreo($usuarioF));
+
+        return response()->json(['message'=> 'se envio correctamente el correo.']);
+    }
+
 
     public function crearDireccion($data)
     { // FUNCION PARA GENERAR DIRECCION PARA BUSCAR EN API
