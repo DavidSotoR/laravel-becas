@@ -169,7 +169,10 @@ class RegistroExternoController extends Controller
                 'email' => $datos['padre']['email'] ? $datos['padre']['email']  : '',
                 'id_servicio_estudio' => $servNew->id,
                 'contecto_principal' => $datos['padre']['contecto_principal'] == true ? 1 : 0,
-                'edad' => $datos['padre']['edad'] ? $datos['padre']['edad'] : 0 
+                'edad' => $datos['padre']['edad'] ? $datos['padre']['edad'] : 0,
+                'ocupacion_actual' => $datos['padre']['ocupacion_actual'] ?? 'SIN DATO',
+                'empresa_trabajo' => $datos['padre']['empresa_trabajo'] ?? 'SIN DATO',
+                'telefono_casa' => $datos['padre']['telefono_casa'] ?? 'SIN DATO',
             ];
 
             $newMadre = [
@@ -180,7 +183,10 @@ class RegistroExternoController extends Controller
                 'email' => $datos['madre']['email'] ? $datos['padre']['email']  : '',
                 'id_servicio_estudio' => $servNew->id,
                 'contecto_principal' => $datos['madre']['contecto_principal'] == true ? 1 : 0,
-                'edad' => $datos['madre']['edad'] ? $datos['madre']['edad'] : 0 
+                'edad' => $datos['madre']['edad'] ? $datos['madre']['edad'] : 0,
+                'ocupacion_actual' => $datos['madre']['ocupacion_actual'] ?? 'SIN DATO',
+                'empresa_trabajo' => $datos['madre']['empresa_trabajo'] ?? 'SIN DATO',
+                'telefono_casa' => $datos['madre']['telefono_casa'] ?? 'SIN DATO',
 
             ];
 
