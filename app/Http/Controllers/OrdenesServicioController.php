@@ -68,6 +68,7 @@ class OrdenesServicioController extends Controller
             'fecha_estimada_finalizacion' => 'required|date|after_or_equal:fecha_estimada_entrega',
             'fecha_real_finalizacion' => 'nullable|date|after_or_equal:fecha_real_entrega',
             'activo' => 'required|boolean',
+            'bloqueado' => 'required|boolean',
         ]);
 
 
@@ -96,6 +97,7 @@ class OrdenesServicioController extends Controller
             'fecha_estimada_finalizacion' => 'required|date|after_or_equal:fecha_estimada_entrega',
             'fecha_real_finalizacion' => 'nullable|date|after_or_equal:fecha_real_entrega',
             'activo' => 'required|boolean',
+            'bloqueado' => 'required|boolean',
         ]);
 
         if($validator->fails()){

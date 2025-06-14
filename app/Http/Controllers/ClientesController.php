@@ -349,7 +349,7 @@ class ClientesController extends Controller
                 //return response()->json(['data'=> $arrayClientes], 400);
                 if (in_array($id, $arrayClientes)) {
                     
-                    $ordenServicio = OrdenesServicio::where('id_cliente', $id)->where('id_proyecto', $proyecto->id)->where('activo', 1)->first();
+                    $ordenServicio = OrdenesServicio::where('id_cliente', $id)->where('id_proyecto', $proyecto->id)->where('activo', 1)->where('borrado', 0)->first();
                     if (!empty($ordenServicio)) {
                         $resTk = $this->linkGenerarToken($id);
                         //return response()->json([$resTk], 400);

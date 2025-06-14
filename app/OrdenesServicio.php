@@ -12,6 +12,7 @@ class OrdenesServicio extends Model
         'id_proyecto',
         'id_cliente',
         'activo',
+        'bloqueado',
         'descripcion',
         'notas',
         'fecha_estimada_entrega',

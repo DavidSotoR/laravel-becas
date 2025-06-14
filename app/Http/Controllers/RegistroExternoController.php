@@ -20,6 +20,7 @@ class RegistroExternoController extends Controller
         $tokenRegistro = RegistroToken::where('token_parte1', $token)->where('activo', 1)->first();
         //return response()->json(['data'=> $request->all(), 'token'=> $tokenRegistro]);
         $datos = $request->all();
+
         if (empty($tokenRegistro)) {
             return response()->json(['error'=> true, 'message'=> 'Token no valido.', 'registro' => false], 404); 
         }
@@ -32,9 +33,6 @@ class RegistroExternoController extends Controller
         if ($existe !== null) {
             //array_push($usuariosExistentes, ["error" => "Email previamente registrado", 'tipo' => 'existe', "familia" => $existe]);
             $existe->activo = true;
-            $existe->active = true;
-
-            
 
             $passReactive = $nuevaContraseña;
             $existe->password = bcrypt($passReactive);
