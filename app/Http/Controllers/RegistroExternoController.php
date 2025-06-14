@@ -24,6 +24,9 @@ class RegistroExternoController extends Controller
         if (empty($tokenRegistro)) {
             return response()->json(['error'=> true, 'message'=> 'Token no valido.', 'registro' => false], 404); 
         }
+
+        //$ordenesServicioCliente = OrdenesServicio::where('id_proyecto', $tokenRegistro->id_proyecto)->where('id_cliente', $tokenRegistro->id_cliente)->get();
+        //return response()->json($ordenesServicioCliente);
         
         $existe = User::select('*')->where('email', $datos['email'])->first();
         $dataSetCaracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
