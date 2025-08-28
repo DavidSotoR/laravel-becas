@@ -59,16 +59,22 @@ class ProyectosController extends Controller
 
     public function nuevo(Request $request){
 
-        $validator = Validator::make($request->all(),[
-            'activo' => 'boolean',
-            'nombre' => 'required|string|unique:proyectos',
-            //'anio' => 'required|date|unique:proyectos',
-            'anio_proyecto' => [
-                'required',
+        $validator = Validator::make($request->all(), [
+        'activo' => 'boolean',
+        'nombre' => 'required|string|unique:proyectos',
+        'anio_proyecto' => [
+            'required',
                 Rule::unique('proyectos', 'anio_proyecto')
-                ->where(function ($query) {
-                    return $query->where('borrado', 0); // Solo valida contra proyectos no borrados
-                }),
+                    ->where(function ($query) use ($request) {
+                        // Si la empresa es 2, no aplicamos la restricción de unicidad
+                        if ($request->id_empresa == 2) {
+                            return $query; // devuelve el query "en crudo", sin condiciones extras
+                        }
+
+                        // Para las demás empresas sí validamos por cliente y borrado
+                        return $query->where('borrado', 0)
+                                    ->where('id_tipo_cliente', $request->id_tipo_cliente);
+                    }),
             ],
             'id_tipo_cliente' => 'required|int',
         ]);

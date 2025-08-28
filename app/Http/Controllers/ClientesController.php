@@ -130,7 +130,7 @@ class ClientesController extends Controller
 
         $query = OrdenesServicio::query();
 
-        $query->where('id_cliente', $request->id_cliente);
+        $query->where('id_cliente', $id_cleinte);
 
         if (isset($request->id_tipo_cliente)) {
             $query->where('id_tipo_cliente', $request->id_tipo_cliente);

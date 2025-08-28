@@ -25,9 +25,9 @@ class CatalogoEncuestasController extends Controller
         $query->with('tipoCliente');
 
         //Filtrar encuestas por filtro de cliente empresa o escuelas
-        if($request->id_tipo_cliente){
+        /* if($request->id_tipo_cliente){
             $query->where('id_tipo_cliente', $request->id_tipo_cliente);
-        }
+        } */
 
         $lista = $query->get();
         return response()->json($lista);
