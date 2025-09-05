@@ -475,4 +475,10 @@ class ClientesController extends Controller
 
         return response()->json(['base64' => $base64]);
     }
+
+    public function getEmpresasCliente(Request $request){
+        $listaEmpresas = Clientes::where('id_tipo_cliente', 2)->get();
+
+        return response()->json($listaEmpresas);
+    }
 }

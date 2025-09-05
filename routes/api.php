@@ -117,6 +117,11 @@ Route::group([
     Route::post('clientes', 'ClientesController@nuevo');
     Route::post('clientes/{id}', 'ClientesController@editar');
     Route::get('clientes/{id_cleinte}/ordenes-servicio', 'ClientesController@ordenesServicio');
+
+    // MODULO EMPRESAS
+    Route::get('empresas/lista', 'ModuloEmpresasController@getEmpresasCliente');
+    Route::post('empresas/sucursal/nueva', 'ModuloEmpresasController@postNuevaSucursal');
+    Route::post('empresas/sucursal/lista', 'ModuloEmpresasController@getSucursales');
     
     Route::post('cuenta/configuraciones', 'ClientesController@editarConfiguraciones');
     Route::get('cuenta/configuraciones', 'ClientesController@getConfiguraciones');

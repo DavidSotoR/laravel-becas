@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRespuestasFormulariosTable extends Migration
+class CreateTableEmpleados extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,17 @@ class CreateRespuestasFormulariosTable extends Migration
      */
     public function up()
     {
-        Schema::create('respuestas_formularios', function (Blueprint $table) {
+        Schema::create('empleados', function (Blueprint $table) {
             $table->id();
-            $table->json('respuestas');
             $table->unsignedBigInteger('id_cliente');
-            $table->unsignedBigInteger('id_candidato');
-            $table->unsignedBigInteger('id_formulario');
+            $table->unsignedBigInteger('id_sucursal');
+            $table->string('nombre');
+            $table->string('rfc');
+            $table->string('curp');
+            $table->string('telefono');
+            $table->string('domicilio');
+            $table->string('correo');
+            $table->boolean('activo');
             $table->timestamps();
         });
     }
@@ -30,6 +35,6 @@ class CreateRespuestasFormulariosTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('respuestas_formularios');
+        Schema::dropIfExists('empleados');
     }
 }
