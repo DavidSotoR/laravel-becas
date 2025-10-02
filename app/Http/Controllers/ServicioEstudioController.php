@@ -1107,7 +1107,7 @@ class ServicioEstudioController extends Controller
                     ]
                 ], 400);
             }
-        } else {
+        } else if ($request->generar_usuario_automaticamente){
             return response()->json([
                 "errors" => [
                     'padre.contecto_principal' => ['Seleccione un contacto principal'],
@@ -1116,44 +1116,47 @@ class ServicioEstudioController extends Controller
             ], 400);
         }
         //validar si ya esisite un contacot con en la orden de servicio con el mismo email
-        $estudio_contacto = ServicioEstudio::with(['familiasPadres' => function ($query) use ($contacto_por_defecto) {
-            $query
-                ->where('email', $contacto_por_defecto["email"]);
-            //->where('contecto_principal',true);
-        }])->where('id_orden_servicio', $request->id_orden_servicio)->first();
+        
+        if ($request->generar_usuario_automaticamente) {
+            $estudio_contacto = ServicioEstudio::with(['familiasPadres' => function ($query) use ($contacto_por_defecto) {
+                $query
+                    ->where('email', $contacto_por_defecto["email"]);
+                //->where('contecto_principal',true);
+            }])->where('id_orden_servicio', $request->id_orden_servicio)->first();
 
-        /* if($estudio_contacto && count($estudio_contacto->familias_padres)){
-            return response()->json([
-                "errors"=>[
-                    $contacto_por_defecto_es.'.contecto_principal' => ['Contacto principal ya registrado en esta orden de servicio'],
-                    ]
-            ], 400);
-        }
-        */
+            /* if($estudio_contacto && count($estudio_contacto->familias_padres)){
+                return response()->json([
+                    "errors"=>[
+                        $contacto_por_defecto_es.'.contecto_principal' => ['Contacto principal ya registrado en esta orden de servicio'],
+                        ]
+                ], 400);
+            }
+            */
+            $user = User::where('email', $contacto_por_defecto["email"])->first();
 
-        $user = User::where('email', $contacto_por_defecto["email"])->first();
+            if ($user) {
+                $id_familia = $user->id;
+            } else {
+                if ($request->generar_usuario_automaticamente == true) {
+                    $password_temposral =  $this->generarContraseñaTemporal();
 
-        if ($user) {
-            $id_familia = $user->id;
-        } else {
-            if ($request->generar_usuario_automaticamente == true) {
-                $password_temposral =  $this->generarContraseñaTemporal();
+                    $usuario_familia = User::create([
+                        'name' => $contacto_por_defecto["nombre"],
+                        'email' => $contacto_por_defecto["email"],
+                        'id_cliente' => $request->id_cliente,
+                        'id_perfil' => 6,
+                        'password' => bcrypt($password_temposral),
+                        'password_temporal' => $password_temposral,
+                        'externo' => 1
+                    ]);
 
-                $usuario_familia = User::create([
-                    'name' => $contacto_por_defecto["nombre"],
-                    'email' => $contacto_por_defecto["email"],
-                    'id_cliente' => $request->id_cliente,
-                    'id_perfil' => 6,
-                    'password' => bcrypt($password_temposral),
-                    'password_temporal' => $password_temposral,
-                    'externo' => 1
-                ]);
+                    $id_familia =  $usuario_familia->id;
 
-                $id_familia =  $usuario_familia->id;
-
-                $this->enviarCorreo($usuario_familia);
+                    $this->enviarCorreo($usuario_familia);
+                }
             }
         }
+        
 
 
 
