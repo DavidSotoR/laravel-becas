@@ -14,6 +14,7 @@ use App\CatalogoEncuestasPreguntasParametrosClasificacions;
 use App\ServiciosEstudiosRespuestas;
 use App\CatalogoEncuestasPreguntas;
 use App\CatalogoEncuestasPreguntasParametrosClasificacionItems;
+use App\Clientes;
 use App\CorreoPorcentajeEstudio;
 use App\FamiliasDocumentosTipos;
 use App\FamiliasDocumentos;
@@ -989,10 +990,12 @@ class ServicioEstudioController extends Controller
 
     public function rejistroSocioeconomico(Request $request)
     {
-
+        $dataJson = $request->all();
         $contacto_por_defecto = array();
         $contacto_por_defecto_es = '';
         $id_familia = null;
+        
+        $cliente = Clientes::find($dataJson['id_cliente']);
 
         $messages = [
             'candidato.required' => 'El nombrede familia es requerido.',
@@ -1013,7 +1016,7 @@ class ServicioEstudioController extends Controller
             'es_familia_comun' => 'nullable|boolean',
             'candidato' => 'required|string|max:255',
             'situacion' => 'required|string|max:500',
-            'generar_usuario_automaticamente' => 'nullable|boolean',
+            //'generar_usuario_automaticamente' => 'nullable|boolean',
 
             'calle' => 'nullable|string|max:120',
             'numero_exterior' => 'nullable|string|max:10',
@@ -1107,7 +1110,7 @@ class ServicioEstudioController extends Controller
                     ]
                 ], 400);
             }
-        } else if ($request->generar_usuario_automaticamente){
+        } else if ($cliente['documentacion_digital']){
             return response()->json([
                 "errors" => [
                     'padre.contecto_principal' => ['Seleccione un contacto principal'],
@@ -1117,7 +1120,7 @@ class ServicioEstudioController extends Controller
         }
         //validar si ya esisite un contacot con en la orden de servicio con el mismo email
         
-        if ($request->generar_usuario_automaticamente) {
+        if ($cliente['documentacion_digital']) {
             $estudio_contacto = ServicioEstudio::with(['familiasPadres' => function ($query) use ($contacto_por_defecto) {
                 $query
                     ->where('email', $contacto_por_defecto["email"]);
@@ -1137,7 +1140,7 @@ class ServicioEstudioController extends Controller
             if ($user) {
                 $id_familia = $user->id;
             } else {
-                if ($request->generar_usuario_automaticamente == true) {
+                if ($cliente['documentacion_digital'] == true) {
                     $password_temposral =  $this->generarContraseñaTemporal();
 
                     $usuario_familia = User::create([
