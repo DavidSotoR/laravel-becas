@@ -1198,61 +1198,64 @@ class ServicioEstudioController extends Controller
             return response()->json(["errors" => $validator->errors()], 400);
         }
 
-        $padre_request_validar = $request->padre;
-        //$padre_request['email'] = $padre_request['email']=== null ? 'SIN DATO' : $padre_request['email'];
-        $madre_request_validar = $request->madre;
-        $emailMadreExist = FamiliasPadres::where('email', $madre_request_validar['email'])->first();
-        $emailPadreExist = FamiliasPadres::where('email', $padre_request_validar['email'])->first();
+        if ($cliente->documentacion_digital == 1) {
+            $padre_request_validar = $request->padre;
+            //$padre_request['email'] = $padre_request['email']=== null ? 'SIN DATO' : $padre_request['email'];
+            $madre_request_validar = $request->madre;
+            $emailMadreExist = FamiliasPadres::where('email', $madre_request_validar['email'])->first();
+            $emailPadreExist = FamiliasPadres::where('email', $padre_request_validar['email'])->first();
 
-        if ($emailMadreExist) {
-            return response()->json([
-                "errors" => [
-                    'madre.email' => ['Email de Madre se encuentra registrado.'],
-                ]
-            ], 400);
-        }
-
-        if ($emailPadreExist) {
-            return response()->json([
-                "errors" => [
-                    'padre.email' => ['Email de Padre se encuentra registrado.'],
-                ]
-            ], 400);
-        }
-
-        if ($request->padre["contecto_principal"]) {
-            $contacto_por_defecto = $request->padre;
-            $contacto_por_defecto['edad'] = $contacto_por_defecto['edad'] === null ? 0 : $contacto_por_defecto['edad'];
-            $contacto_por_defecto_es = 'padre';
-            if ($contacto_por_defecto['nombre'] === null || $contacto_por_defecto['email'] === null) {
+            if ($emailMadreExist) {
                 return response()->json([
                     "errors" => [
-                        'padre.nombre' => ['Nombre de Contacto Principal es REQUERIDO'],
-                        'padre.email' => ['Email de Contacto Principal es REQUERIDO'],
+                        'madre.email' => ['Email de Madre se encuentra registrado.'],
                     ]
                 ], 400);
             }
 
-        } else if ($request->madre["contecto_principal"]) {
-            $contacto_por_defecto = $request->madre;
-            $contacto_por_defecto['edad'] = $contacto_por_defecto['edad'] === null ? 0 : $contacto_por_defecto['edad'];
-            $contacto_por_defecto_es = 'madre';
-            if ($contacto_por_defecto['nombre'] === null || $contacto_por_defecto['email'] === null) {
+            if ($emailPadreExist) {
                 return response()->json([
                     "errors" => [
-                        'madre.nombre' => ['Nombre de Contacto Principal es REQUERIDO'],
-                        'madre.email' => ['Email de Contacto Principal es REQUERIDO'],
+                        'padre.email' => ['Email de Padre se encuentra registrado.'],
                     ]
                 ], 400);
             }
-        } else if ($cliente['documentacion_digital']){
-            return response()->json([
-                "errors" => [
-                    'padre.contecto_principal' => ['Seleccione un contacto principal'],
-                    'madre.contecto_principal' => ['Seleccione un contacto principal'],
-                ]
-            ], 400);
+
+            if ($request->padre["contecto_principal"]) {
+                $contacto_por_defecto = $request->padre;
+                $contacto_por_defecto['edad'] = $contacto_por_defecto['edad'] === null ? 0 : $contacto_por_defecto['edad'];
+                $contacto_por_defecto_es = 'padre';
+                if ($contacto_por_defecto['nombre'] === null || $contacto_por_defecto['email'] === null) {
+                    return response()->json([
+                        "errors" => [
+                            'padre.nombre' => ['Nombre de Contacto Principal es REQUERIDO'],
+                            'padre.email' => ['Email de Contacto Principal es REQUERIDO'],
+                        ]
+                    ], 400);
+                }
+
+            } else if ($request->madre["contecto_principal"]) {
+                $contacto_por_defecto = $request->madre;
+                $contacto_por_defecto['edad'] = $contacto_por_defecto['edad'] === null ? 0 : $contacto_por_defecto['edad'];
+                $contacto_por_defecto_es = 'madre';
+                if ($contacto_por_defecto['nombre'] === null || $contacto_por_defecto['email'] === null) {
+                    return response()->json([
+                        "errors" => [
+                            'madre.nombre' => ['Nombre de Contacto Principal es REQUERIDO'],
+                            'madre.email' => ['Email de Contacto Principal es REQUERIDO'],
+                        ]
+                    ], 400);
+                }
+            } else if ($cliente['documentacion_digital']){
+                return response()->json([
+                    "errors" => [
+                        'padre.contecto_principal' => ['Seleccione un contacto principal'],
+                        'madre.contecto_principal' => ['Seleccione un contacto principal'],
+                    ]
+                ], 400);
+            }
         }
+        
         //validar si ya esisite un contacot con en la orden de servicio con el mismo email
         
         if ($cliente['documentacion_digital']) {
@@ -1294,13 +1297,10 @@ class ServicioEstudioController extends Controller
                 }
             }
         }
-        
-
-
 
         $elemento = ServicioEstudio::create(array_merge(
             $validator->validate(),
-            ['id_familia' => $id_familia]
+            ['id_familia' => $cliente->documentacion_digital == 1 ? $id_familia : null]
         ));
 
         $id_servicio_estudio = $elemento->id;
