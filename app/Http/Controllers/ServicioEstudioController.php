@@ -582,6 +582,8 @@ class ServicioEstudioController extends Controller
         $usuariosExistentes = [];
         $userReactivados = [];
 
+        $clienteData = Clientes::find($id_cliente);
+
         if ($extension === 'csv' || $extension === 'txt') {
             if (($handle = fopen($file->getPathname(), 'r')) !== false) {
                 // Leer la primera fila como encabezados
@@ -671,209 +673,342 @@ class ServicioEstudioController extends Controller
             foreach ($formattedData as $familiaPorCrear) {
                 $existe = User::select('*')->where('email', $familiaPorCrear['Email_cuenta'])->first();
                 //return response()->json(['message' => count($existe)]);
-                if ($existe !== null) {
-                    //array_push($usuariosExistentes, ["error" => "Email previamente registrado", 'tipo' => 'existe', "familia" => $existe]);
-                    $existe->activo = true;
-                    $existe->active = true;
-                    $passReactive = $this->generarContraseñaTemporal();
-                    $existe->password = bcrypt($passReactive);
-                    $existe->password_temporal = $passReactive;
-                    $existe->save();
-                    array_push($userReactivados, [ 'email' => $existe->email, 'name' => $existe->name ]);
-                    //return response()->json(['message' => 'Existe el suser ' . $familiaPorCrear['Email_cuenta']]);
-                } else {
-                    // enpieza el insert
-                    //1. crear USUARIO
+                if ($clienteData->documentecion_digital == 1) {
+                    if ($existe !== null) {
+                        //array_push($usuariosExistentes, ["error" => "Email previamente registrado", 'tipo' => 'existe', "familia" => $existe]);
+                        $existe->activo = true;
+                        $existe->active = true;
+                        $passReactive = $this->generarContraseñaTemporal();
+                        $existe->password = bcrypt($passReactive);
+                        $existe->password_temporal = $passReactive;
+                        $existe->save();
+                        array_push($userReactivados, [ 'email' => $existe->email, 'name' => $existe->name ]);
+                        //return response()->json(['message' => 'Existe el suser ' . $familiaPorCrear['Email_cuenta']]);
+                    } else {
+                        // enpieza el insert
+                        //1. crear USUARIO
 
-                    $newUser = $familiaPorCrear;
-                    $newUser['id_perfil'] = 6;
-                    $newUser['id_cliente'] = $id_cliente;
-                    $newUser['password_temporal'] = $this->generarContraseñaTemporal();
-                    $newUser['externo'] = 1; 
+                        $newUser = $familiaPorCrear;
+                        $newUser['id_perfil'] = 6;
+                        $newUser['id_cliente'] = $id_cliente;
+                        $newUser['password_temporal'] = $this->generarContraseñaTemporal();
+                        $newUser['externo'] = 1; 
 
-                    $pass = $this->generarContraseñaTemporal();
-                    $dataDireccion = [
-                        'numero_exterior' => $familiaPorCrear['Numero_exterior'],
-                        'calle' => $familiaPorCrear['Calle'],
-                        'colonia' => $familiaPorCrear['Colonia'],
-                        'municipio' => $familiaPorCrear['Municipio'],
-                        'estado' => $familiaPorCrear['Estado'],
-                        'codigo_postal' => $familiaPorCrear['Codigo_postal'],
-                        'pais' => $familiaPorCrear['Pais'],
-                    ];
-
-
-                    $direccion = $this->crearDireccion($dataDireccion);
-
-                    //$url = "https://nominatim.openstreetmap.org/search?q=". str_replace(' ', '%', $direccion) . "&format=json&addressdetails=1";
-                    //return response()->json($url);
-                    // Realiza la petición GET
-                    //$response = Http::get($url);
-                    /* $response = Http::get('https://nominatim.openstreetmap.org/search', [
-                        'q' => $direccion,
-                        'format' => 'json',
-                        'addressdetails' => 1,
-                    ]); */
-
-                    $response = Http::withHeaders([
-                        'User-Agent' => 'SinergiaEstudiosMX/1.0', // Configuración del User-Agent
-                    ])->get('https://nominatim.openstreetmap.org/search', [
-                        'q' => $direccion,
-                        'format' => 'json',
-                        'addressdetails' => 1,
-                    ]);
-
-                    if ($response->successful()) {
-                        $dataResp = json_decode($response->body());
-                        if (empty($dataResp)) {
-                            //return response()->json(['data' => 'No contiene datos']);
-                            $lat = null;
-                            $lon = null;
-                        } else {
-                            //return response()->json(['datos' => $dataResp, 'estatus' => true]);
-                            $direccion = $dataResp[0]->display_name; //$display_name;// = $dataResp[0]->display_name;
-                            //return response()->json(['direccion' => $display_name, 'estatus' => true]);
-                            $lat = $dataResp[0]->lat;
-                            $lon = $dataResp[0]->lon;
-                        }
-                    }
+                        $pass = $this->generarContraseñaTemporal();
+                        $dataDireccion = [
+                            'numero_exterior' => $familiaPorCrear['Numero_exterior'],
+                            'calle' => $familiaPorCrear['Calle'],
+                            'colonia' => $familiaPorCrear['Colonia'],
+                            'municipio' => $familiaPorCrear['Municipio'],
+                            'estado' => $familiaPorCrear['Estado'],
+                            'codigo_postal' => $familiaPorCrear['Codigo_postal'],
+                            'pais' => $familiaPorCrear['Pais'],
+                        ];
 
 
-                    $newUser = [
-                        'name' => $familiaPorCrear['Nombre'] === '' ? null : $familiaPorCrear['Nombre'],
-                        'email' => $familiaPorCrear['Email_cuenta'] === '' ? null : $familiaPorCrear['Email_cuenta'],
-                        'id_perfil' => 6,
-                        'id_cliente' => intval($id_cliente, 10) ,
-                        'password' => bcrypt($pass),
-                        'password_temporal' => $pass,
-                        'latitud' => $lat ?? null,
-                        'longitud' => $lon ?? null,
-                        'direccion' => $direccion,
-                        'calle' => $familiaPorCrear['Calle'] ?? null,
-                        'numero_exterior' => strval($familiaPorCrear['Numero_exterior'] ) ?? '',
-                        'colonia' => $familiaPorCrear['Colonia'] ?? null,
-                        'municipio' => $familiaPorCrear['Municipio'] ?? null,
-                        'estado' => $familiaPorCrear['Estado'] ?? null,
-                        'codigo_postal' => strval($familiaPorCrear['Codigo_postal']) ?? null,
-                        'pais' => $familiaPorCrear['Pais'] ?? null,
-                        'externo' => 1,
-                    ];
+                        $direccion = $this->crearDireccion($dataDireccion);
 
-                    array_push($dataToInsert, $newUser);
+                        //$url = "https://nominatim.openstreetmap.org/search?q=". str_replace(' ', '%', $direccion) . "&format=json&addressdetails=1";
+                        //return response()->json($url);
+                        // Realiza la petición GET
+                        //$response = Http::get($url);
+                        /* $response = Http::get('https://nominatim.openstreetmap.org/search', [
+                            'q' => $direccion,
+                            'format' => 'json',
+                            'addressdetails' => 1,
+                        ]); */
 
-                    $validator = Validator::make($newUser, [
-                        'name' => 'required|present|string|max:255',
-                        'email' => ['required', 'email:rfc,dns','regex:/^[^@]+@[^@]+\.[a-z]{2,}$/i', 'max:100', 'unique:users', 'present'],
-                        'id_perfil' => 'required|int',
-                        'id_cliente' => 'nullable|int',
-                        'latitud' => 'nullable|string',
-                        'longitud' => 'nullable|string',
-                        'direccion' => 'nullable|string',
-                        'calle' => 'nullable|string',
-                        'numero_exterior' => 'nullable|string',
-                        'colonia' => 'nullable|string',
-                        'municipio' => 'nullable|string',
-                        'estado' => 'nullable|string',
-                        'codigo_postal' => 'nullable|string',
-                        'pais' => 'nullable|string',
-                        'externo' => 'boolean',
-                    ]);
-
-                    if ($validator->fails()) {
-                        $errorsRow = $validator->errors();
-                        array_push($usuariosExistentes, [
-                            "error" => "Formato no válido. Revisar datos ingresados de las familias.",
-                            "errorValidate" => $errorsRow->toArray(),
-                            'tipo' => 'validador',
-                            "familia" => $newUser
+                        $response = Http::withHeaders([
+                            'User-Agent' => 'SinergiaEstudiosMX/1.0', // Configuración del User-Agent
+                        ])->get('https://nominatim.openstreetmap.org/search', [
+                            'q' => $direccion,
+                            'format' => 'json',
+                            'addressdetails' => 1,
                         ]);
-                        continue; // Detiene el flujo si hay errores de validación
-                    }
 
-                    $user = User::create($newUser);
-                    $userID = $user->id;
-
-                    //2. crear Caso Servicio Estudio
-                    $directorio = $this->setDirectorioEstudio($userID);
-
-                    $newServicioEconomico = [
-                        'id_servicio_estado' => 1,
-                        'id_proyecto' => $id_proyecto,
-                        'id_cliente' => $id_cliente,
-                        'id_familia' => $userID,
-                        'id_orden_servicio' => $id_orden_servicio,
-                        'es_cliente_comun' => 0,
-                        'directorio' => $directorio,
-                        'candidato' => $familiaPorCrear['Familia'],
-                        'situacion' => 'EN PROCESO',
-                        'email' => $familiaPorCrear['Email_cuenta'],
-                        'direccion' => 'PENDIENTE',
-                        'calle' => $familiaPorCrear['Calle'],
-                        'numero_exterior' => $familiaPorCrear['Numero_exterior'],
-                        'colonia' => $familiaPorCrear['Colonia'],
-                        'municipio' => $familiaPorCrear['Municipio'],
-                        'estado' => $familiaPorCrear['Estado'],
-                        'codigo_postal' => $familiaPorCrear['Codigo_postal'],
-                        'pais' => $familiaPorCrear['Pais'],
-                        'clave_familia_colegio'=> $familiaPorCrear['Clave_familia']
-                    ];
-
-                    $servNew = ServicioEstudio::create($newServicioEconomico);
-
-                    $newPadre = [
-                        'id_familias_padres_tipo' => 1,
-                        'nombre' => strtolower($familiaPorCrear['Es_Padre']) == 'x' ? $familiaPorCrear['Nombre'] : '',
-                        'vive' => $familiaPorCrear['Padre_vive'] == 'si' ? 1 : 0,
-                        'direccion' => $direccion,
-                        'email' => strtolower($familiaPorCrear['Es_Padre']) == 'x' ? $familiaPorCrear['Email_cuenta'] : '',
-                        'id_servicio_estudio' => $servNew->id,
-                        'contecto_principal' => strtolower($familiaPorCrear['Es_Padre']) == 'x' ? 1 : 0,
-                        'edad' => 0
-
-                    ];
-
-                    $newMadre = [
-                        'id_familias_padres_tipo' => 2,
-                        'nombre' => strtolower($familiaPorCrear['Es_Madre']) == 'x' ? $familiaPorCrear['Nombre'] : '',
-                        'vive' => $familiaPorCrear['Es_Madre'] == 'si' ? 1 : 0,
-                        'direccion' => $direccion,
-                        'email' => strtolower($familiaPorCrear['Es_Madre']) == 'x' ? $familiaPorCrear['Email_cuenta'] : '',
-                        'id_servicio_estudio' => $servNew->id,
-                        'contecto_principal' => strtolower($familiaPorCrear['Es_Madre']) == 'x' ? 1 : 0,
-                        'edad' => 0
-
-                    ];
-
-                    FamiliasPadres::create($newPadre);
-                    FamiliasPadres::create($newMadre);
-                    //$addPadreMadre = FamiliasPadres
-
-                    if ($asignarColaboradorReq) {
-                        if ($lat !== null && $lon !== null) { // se asginan colaboradres
-                            //DB::rollBack();
-                            $colabs = User::where('id_perfil', 4)->where('active', 1)->get();
-                            $userFamiliaDistancia = [];
-                            foreach ($colabs as $colab) {
-                                if ($colab->latitud && $colab->longitud) {
-                                    $distancia = $this->calcularDistanciaColabFamilia(floatval($colab->latitud), floatval($colab->longitud), floatval($lat), floatval($lon));
-                                    array_push($userFamiliaDistancia, ['distancia' => $distancia, 'calab' => $colab->id, 'se' => $servNew->id]);
-                                }
+                        if ($response->successful()) {
+                            $dataResp = json_decode($response->body());
+                            if (empty($dataResp)) {
+                                //return response()->json(['data' => 'No contiene datos']);
+                                $lat = null;
+                                $lon = null;
+                            } else {
+                                //return response()->json(['datos' => $dataResp, 'estatus' => true]);
+                                $direccion = $dataResp[0]->display_name; //$display_name;// = $dataResp[0]->display_name;
+                                //return response()->json(['direccion' => $display_name, 'estatus' => true]);
+                                $lat = $dataResp[0]->lat;
+                                $lon = $dataResp[0]->lon;
                             }
-
-                            $minDistancia = collect($userFamiliaDistancia)->sortBy('distancia')->first();
-                            if ($minDistancia) {
-                                // Actualizar el registro en la base de datos
-                                $servNew->update([
-                                    'id_colaborador' => $minDistancia['calab']
-                                ]);
-                            }
-                            //return response()->json(['colabs' => $colabs, 'servcreado' => $servNew, 'comparacion' => $userFamiliaDistancia]);
-                        } else {
-                            array_push($familiasNoAsignadas, ['familia' => $servNew]);
                         }
-                    }
 
-                    $totalInserts++;
+
+                        $newUser = [
+                            'name' => $familiaPorCrear['Nombre'] === '' ? null : $familiaPorCrear['Nombre'],
+                            'email' => $familiaPorCrear['Email_cuenta'] === '' ? null : $familiaPorCrear['Email_cuenta'],
+                            'id_perfil' => 6,
+                            'id_cliente' => intval($id_cliente, 10) ,
+                            'password' => bcrypt($pass),
+                            'password_temporal' => $pass,
+                            'latitud' => $lat ?? null,
+                            'longitud' => $lon ?? null,
+                            'direccion' => $direccion,
+                            'calle' => $familiaPorCrear['Calle'] ?? null,
+                            'numero_exterior' => strval($familiaPorCrear['Numero_exterior'] ) ?? '',
+                            'colonia' => $familiaPorCrear['Colonia'] ?? null,
+                            'municipio' => $familiaPorCrear['Municipio'] ?? null,
+                            'estado' => $familiaPorCrear['Estado'] ?? null,
+                            'codigo_postal' => strval($familiaPorCrear['Codigo_postal']) ?? null,
+                            'pais' => $familiaPorCrear['Pais'] ?? null,
+                            'externo' => 1,
+                        ];
+
+                        array_push($dataToInsert, $newUser);
+
+                        $validator = Validator::make($newUser, [
+                            'name' => 'required|present|string|max:255',
+                            'email' => ['required', 'email:rfc,dns','regex:/^[^@]+@[^@]+\.[a-z]{2,}$/i', 'max:100', 'unique:users', 'present'],
+                            'id_perfil' => 'required|int',
+                            'id_cliente' => 'nullable|int',
+                            'latitud' => 'nullable|string',
+                            'longitud' => 'nullable|string',
+                            'direccion' => 'nullable|string',
+                            'calle' => 'nullable|string',
+                            'numero_exterior' => 'nullable|string',
+                            'colonia' => 'nullable|string',
+                            'municipio' => 'nullable|string',
+                            'estado' => 'nullable|string',
+                            'codigo_postal' => 'nullable|string',
+                            'pais' => 'nullable|string',
+                            'externo' => 'boolean',
+                        ]);
+
+                        if ($validator->fails()) {
+                            $errorsRow = $validator->errors();
+                            array_push($usuariosExistentes, [
+                                "error" => "Formato no válido. Revisar datos ingresados de las familias.",
+                                "errorValidate" => $errorsRow->toArray(),
+                                'tipo' => 'validador',
+                                "familia" => $newUser
+                            ]);
+                            continue; // Detiene el flujo si hay errores de validación
+                        }
+
+                        $user = User::create($newUser);
+                        $userID = $user->id;
+
+                        //2. crear Caso Servicio Estudio
+                        $directorio = $this->setDirectorioEstudio($userID);
+
+                        $newServicioEconomico = [
+                            'id_servicio_estado' => 1,
+                            'id_proyecto' => $id_proyecto,
+                            'id_cliente' => $id_cliente,
+                            'id_familia' => $userID,
+                            'id_orden_servicio' => $id_orden_servicio,
+                            'es_cliente_comun' => 0,
+                            'directorio' => $directorio,
+                            'candidato' => $familiaPorCrear['Familia'],
+                            'situacion' => 'EN PROCESO',
+                            'email' => $familiaPorCrear['Email_cuenta'],
+                            'direccion' => 'PENDIENTE',
+                            'calle' => $familiaPorCrear['Calle'],
+                            'numero_exterior' => $familiaPorCrear['Numero_exterior'],
+                            'colonia' => $familiaPorCrear['Colonia'],
+                            'municipio' => $familiaPorCrear['Municipio'],
+                            'estado' => $familiaPorCrear['Estado'],
+                            'codigo_postal' => $familiaPorCrear['Codigo_postal'],
+                            'pais' => $familiaPorCrear['Pais'],
+                            'clave_familia_colegio'=> $familiaPorCrear['Clave_familia']
+                        ];
+
+                        $servNew = ServicioEstudio::create($newServicioEconomico);
+
+                        $newPadre = [
+                            'id_familias_padres_tipo' => 1,
+                            'nombre' => strtolower($familiaPorCrear['Es_Padre']) == 'x' ? $familiaPorCrear['Nombre'] : '',
+                            'vive' => $familiaPorCrear['Padre_vive'] == 'si' ? 1 : 0,
+                            'direccion' => $direccion,
+                            'email' => strtolower($familiaPorCrear['Es_Padre']) == 'x' ? $familiaPorCrear['Email_cuenta'] : '',
+                            'id_servicio_estudio' => $servNew->id,
+                            'contecto_principal' => strtolower($familiaPorCrear['Es_Padre']) == 'x' ? 1 : 0,
+                            'edad' => 0
+
+                        ];
+
+                        $newMadre = [
+                            'id_familias_padres_tipo' => 2,
+                            'nombre' => strtolower($familiaPorCrear['Es_Madre']) == 'x' ? $familiaPorCrear['Nombre'] : '',
+                            'vive' => $familiaPorCrear['Es_Madre'] == 'si' ? 1 : 0,
+                            'direccion' => $direccion,
+                            'email' => strtolower($familiaPorCrear['Es_Madre']) == 'x' ? $familiaPorCrear['Email_cuenta'] : '',
+                            'id_servicio_estudio' => $servNew->id,
+                            'contecto_principal' => strtolower($familiaPorCrear['Es_Madre']) == 'x' ? 1 : 0,
+                            'edad' => 0
+
+                        ];
+
+                        FamiliasPadres::create($newPadre);
+                        FamiliasPadres::create($newMadre);
+                        //$addPadreMadre = FamiliasPadres
+
+                        if ($asignarColaboradorReq) {
+                            if ($lat !== null && $lon !== null) { // se asginan colaboradres
+                                //DB::rollBack();
+                                $colabs = User::where('id_perfil', 4)->where('active', 1)->get();
+                                $userFamiliaDistancia = [];
+                                foreach ($colabs as $colab) {
+                                    if ($colab->latitud && $colab->longitud) {
+                                        $distancia = $this->calcularDistanciaColabFamilia(floatval($colab->latitud), floatval($colab->longitud), floatval($lat), floatval($lon));
+                                        array_push($userFamiliaDistancia, ['distancia' => $distancia, 'calab' => $colab->id, 'se' => $servNew->id]);
+                                    }
+                                }
+
+                                $minDistancia = collect($userFamiliaDistancia)->sortBy('distancia')->first();
+                                if ($minDistancia) {
+                                    // Actualizar el registro en la base de datos
+                                    $servNew->update([
+                                        'id_colaborador' => $minDistancia['calab']
+                                    ]);
+                                }
+                                //return response()->json(['colabs' => $colabs, 'servcreado' => $servNew, 'comparacion' => $userFamiliaDistancia]);
+                            } else {
+                                array_push($familiasNoAsignadas, ['familia' => $servNew]);
+                            }
+                        }
+
+                        $totalInserts++;
+                    }
+                } else{
+                    
+                        // enpieza el insert
+                        //1. crear USUARIO
+                        $dataDireccion = [
+                            'numero_exterior' => $familiaPorCrear['Numero_exterior'],
+                            'calle' => $familiaPorCrear['Calle'],
+                            'colonia' => $familiaPorCrear['Colonia'],
+                            'municipio' => $familiaPorCrear['Municipio'],
+                            'estado' => $familiaPorCrear['Estado'],
+                            'codigo_postal' => $familiaPorCrear['Codigo_postal'],
+                            'pais' => $familiaPorCrear['Pais'],
+                        ];
+
+
+                        $direccion = $this->crearDireccion($dataDireccion);
+
+                        //$url = "https://nominatim.openstreetmap.org/search?q=". str_replace(' ', '%', $direccion) . "&format=json&addressdetails=1";
+                        //return response()->json($url);
+                        // Realiza la petición GET
+                        //$response = Http::get($url);
+                        /* $response = Http::get('https://nominatim.openstreetmap.org/search', [
+                            'q' => $direccion,
+                            'format' => 'json',
+                            'addressdetails' => 1,
+                        ]); */
+
+                        $response = Http::withHeaders([
+                            'User-Agent' => 'SinergiaEstudiosMX/1.0', // Configuración del User-Agent
+                        ])->get('https://nominatim.openstreetmap.org/search', [
+                            'q' => $direccion,
+                            'format' => 'json',
+                            'addressdetails' => 1,
+                        ]);
+
+                        if ($response->successful()) {
+                            $dataResp = json_decode($response->body());
+                            if (empty($dataResp)) {
+                                //return response()->json(['data' => 'No contiene datos']);
+                                $lat = null;
+                                $lon = null;
+                            } else {
+                                //return response()->json(['datos' => $dataResp, 'estatus' => true]);
+                                $direccion = $dataResp[0]->display_name; //$display_name;// = $dataResp[0]->display_name;
+                                //return response()->json(['direccion' => $display_name, 'estatus' => true]);
+                                $lat = $dataResp[0]->lat;
+                                $lon = $dataResp[0]->lon;
+                            }
+                        }
+
+                        //2. crear Caso Servicio Estudio
+                        //$directorio = $this->setDirectorioEstudio($userID);
+
+                        $newServicioEconomico = [
+                            'id_servicio_estado' => 1,
+                            'id_proyecto' => $id_proyecto,
+                            'id_cliente' => $id_cliente,
+                            'id_familia' => null, // al no tener documento digital no crea usuario familia
+                            'id_orden_servicio' => $id_orden_servicio,
+                            'es_cliente_comun' => 0,
+                            'directorio' => null, // al no tener documento  digital no crea directorio
+                            'candidato' => $familiaPorCrear['Familia'],
+                            'situacion' => 'EN PROCESO',
+                            'email' => $familiaPorCrear['Email_cuenta'],
+                            'direccion' => 'PENDIENTE',
+                            'calle' => $familiaPorCrear['Calle'],
+                            'numero_exterior' => $familiaPorCrear['Numero_exterior'],
+                            'colonia' => $familiaPorCrear['Colonia'],
+                            'municipio' => $familiaPorCrear['Municipio'],
+                            'estado' => $familiaPorCrear['Estado'],
+                            'codigo_postal' => $familiaPorCrear['Codigo_postal'],
+                            'pais' => $familiaPorCrear['Pais'],
+                            'clave_familia_colegio'=> $familiaPorCrear['Clave_familia']
+                        ];
+
+                        $servNew = ServicioEstudio::create($newServicioEconomico);
+
+                        $newPadre = [
+                            'id_familias_padres_tipo' => 1,
+                            'nombre' => strtolower($familiaPorCrear['Es_Padre']) == 'x' ? $familiaPorCrear['Nombre'] : '',
+                            'vive' => $familiaPorCrear['Padre_vive'] == 'si' ? 1 : 0,
+                            'direccion' => $direccion,
+                            'email' => strtolower($familiaPorCrear['Es_Padre']) == 'x' ? $familiaPorCrear['Email_cuenta'] : '',
+                            'id_servicio_estudio' => $servNew->id,
+                            'contecto_principal' => strtolower($familiaPorCrear['Es_Padre']) == 'x' ? 1 : 0,
+                            'edad' => 0
+
+                        ];
+
+                        $newMadre = [
+                            'id_familias_padres_tipo' => 2,
+                            'nombre' => strtolower($familiaPorCrear['Es_Madre']) == 'x' ? $familiaPorCrear['Nombre'] : '',
+                            'vive' => $familiaPorCrear['Es_Madre'] == 'si' ? 1 : 0,
+                            'direccion' => $direccion,
+                            'email' => strtolower($familiaPorCrear['Es_Madre']) == 'x' ? $familiaPorCrear['Email_cuenta'] : '',
+                            'id_servicio_estudio' => $servNew->id,
+                            'contecto_principal' => strtolower($familiaPorCrear['Es_Madre']) == 'x' ? 1 : 0,
+                            'edad' => 0
+
+                        ];
+
+                        FamiliasPadres::create($newPadre);
+                        FamiliasPadres::create($newMadre);
+                        //$addPadreMadre = FamiliasPadres
+
+                        if ($asignarColaboradorReq) {
+                            if ($lat !== null && $lon !== null) { // se asginan colaboradres
+                                //DB::rollBack();
+                                $colabs = User::where('id_perfil', 4)->where('active', 1)->get();
+                                $userFamiliaDistancia = [];
+                                foreach ($colabs as $colab) {
+                                    if ($colab->latitud && $colab->longitud) {
+                                        $distancia = $this->calcularDistanciaColabFamilia(floatval($colab->latitud), floatval($colab->longitud), floatval($lat), floatval($lon));
+                                        array_push($userFamiliaDistancia, ['distancia' => $distancia, 'calab' => $colab->id, 'se' => $servNew->id]);
+                                    }
+                                }
+
+                                $minDistancia = collect($userFamiliaDistancia)->sortBy('distancia')->first();
+                                if ($minDistancia) {
+                                    // Actualizar el registro en la base de datos
+                                    $servNew->update([
+                                        'id_colaborador' => $minDistancia['calab']
+                                    ]);
+                                }
+                                //return response()->json(['colabs' => $colabs, 'servcreado' => $servNew, 'comparacion' => $userFamiliaDistancia]);
+                            } else {
+                                array_push($familiasNoAsignadas, ['familia' => $servNew]);
+                            }
+                        }
+
+                        $totalInserts++;
                 }
             }
             /* DB::rollBack();
