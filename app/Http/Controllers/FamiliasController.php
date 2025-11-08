@@ -24,11 +24,23 @@ class FamiliasController extends Controller
         $this->middleware('auth:api');
     }
 
-    public function estudioSocioeconomicoEnviarCorreo($id){
+    public function estudioSocioeconomicoEnviarCorreo($id, Request $request){
         $usuarioF = User::find($id);
-        $resp = Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreo($usuarioF));
+        $data = $request->all();
+        $usuarioF->candidato = $data['candidato'];
+        try {
+            if ($usuarioF) {
+                $resp = Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreo($usuarioF));
+                return response()->json(['message'=> 'se envio correctamente el correo.', 'user' => $usuarioF]);
+            } else{
+                return response()->json(['message'=> 'Correo no enviado.', "user" => $usuarioF]);
+            }
+        } catch (\Throwable $th) {
+            return response()->json(['message'=> 'Correo no enviado.', 'error' => $th->getMessage()]);
+        }
+        
 
-        return response()->json(['message'=> 'se envio correctamente el correo.']);
+        
     }
 
 

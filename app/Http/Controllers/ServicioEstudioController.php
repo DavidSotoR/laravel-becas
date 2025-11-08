@@ -1205,7 +1205,7 @@ class ServicioEstudioController extends Controller
             $emailMadreExist = FamiliasPadres::where('email', $madre_request_validar['email'])->first();
             $emailPadreExist = FamiliasPadres::where('email', $padre_request_validar['email'])->first();
 
-            if ($emailMadreExist) {
+            if ($emailMadreExist && $emailMadreExist->email !== '' && $emailMadreExist->email !== null) {
                 return response()->json([
                     "errors" => [
                         'madre.email' => ['Email de Madre se encuentra registrado.'],
@@ -1213,7 +1213,7 @@ class ServicioEstudioController extends Controller
                 ], 400);
             }
 
-            if ($emailPadreExist) {
+            if ($emailPadreExist && $emailPadreExist->email !== '' && $emailPadreExist->email !== null) {
                 return response()->json([
                     "errors" => [
                         'padre.email' => ['Email de Padre se encuentra registrado.'],
@@ -1292,6 +1292,8 @@ class ServicioEstudioController extends Controller
                     ]);
 
                     $id_familia =  $usuario_familia->id;
+
+                    $usuario_familia->candidato = $dataJson['candidato'];
 
                     $this->enviarCorreo($usuario_familia);
                 }
