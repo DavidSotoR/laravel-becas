@@ -20,6 +20,20 @@ class UsuariosController extends Controller
         $this->middleware('auth:api');
     }
 
+    public function actualizarPassword(Request $request){
+        $data = $request->all();
+        if ($data['password_nueva'] === $data['password_confirmar']) {
+            $user = User::find($data['id']);
+            $user->password = bcrypt($data['password_nueva']);
+            $user->force_password_reset = 0;
+            $user->save();
+
+            return response()->json(["error"=> false, "message"=>"Se actualizo la CONTRASEÑA"]);
+        } else {
+            return response()->json(["error"=> true, "message"=>"La contraseñas deben de coincidir."]);
+        }
+    }
+
     public function lista(Request $request)
     {
         

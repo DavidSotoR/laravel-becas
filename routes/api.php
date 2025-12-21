@@ -1,12 +1,16 @@
 <?php
 
 use App\Clientes;
+use App\Http\Controllers\UsuariosController;
+use App\Mail\NotificacionCorreo;
+use App\Mail\NotificacionReset;
 use App\OrdenesServicio;
 use App\Proyectos;
 use App\RegistroToken;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,6 +25,13 @@ use Illuminate\Support\Facades\Route;
 */
 /* Route::get('clientes/{id}/link/registro', 'ClientesController@linkRegistroGenerar');
  */
+function generarContraseñaTemporal()
+{
+    $dataSetCaracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    $mesclar = str_shuffle($dataSetCaracteres);
+    $nuevaContraseña = substr($mesclar, 0, 8);
+    return $nuevaContraseña;
+}
 
 Route::get('/registro/link/{token}', function ($id) {
     $cliente = Clientes::find($id);
@@ -67,6 +78,29 @@ Route::get('/registro/escuela/{token}', function ($token) {
 
 Route::post('/registro/escuela/{token}', 'RegistroExternoController@registroExternoToken');
 
+Route::post('/user/reset', function(Request $request){
+    $data = $request->all();
+    try {
+        $user = User::where('email', $data['email_registrado'])->whereIn('id_perfil', [1,2,3,4,5] )->first(); // todos menos familias
+        $passwordTemp = generarContraseñaTemporal();
+        $cambio = [
+            "nombre" => $user->name,
+            "email" => $user->email,
+            "password_temporal" => $passwordTemp,
+        ];
+
+        $user->force_password_reset = true;
+        $user->password = bcrypt($passwordTemp);
+        $user->save();
+        
+        Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionReset($cambio));
+        return response()->json(['error'=>false, "message"=> "Se realizo el cambio de contraseña. Revise el correo registrado."]);
+    } catch (\Throwable $th) {
+        return response()->json(['error'=>true, "message"=> $th->getMessage()]);
+    }
+    
+    
+});
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -81,6 +115,7 @@ Route::group([
     Route::post('refresh', 'AuthController@refresh');
     Route::post('me', 'AuthController@me');
     Route::post('register', 'AuthController@register');
+    Route::post('reset/password', 'UsuariosController@actualizarPassword');
 
     //Usuarios
     Route::get('usuarios', 'UsuariosController@lista');
