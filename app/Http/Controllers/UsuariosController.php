@@ -112,6 +112,12 @@ class UsuariosController extends Controller
         return response()->json($elemento);
     }
 
+    public function getVerUsuarioPerfil(Request $request){
+        $data = $request->all();
+        $elemento = User::with('perfil', 'cliente')->where('id', $data['id'])->first();
+        return response()->json($elemento);
+    }
+
     public function editar(Request $request)
     {
         $id = $request->id;

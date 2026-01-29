@@ -166,6 +166,7 @@ class ServicioEstudioController extends Controller
 
          return $pregunta;
     }
+    
     public function listaConcluidos(Request $request, int $id_proyecto)
     {
 
