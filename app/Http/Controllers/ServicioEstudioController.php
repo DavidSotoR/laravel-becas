@@ -1072,7 +1072,8 @@ class ServicioEstudioController extends Controller
                 'enviado' => $enviado,
             ]; */
             try {
-                $resp = Mail::to([$element['contacto']])->send(new NotificacionCorreoPorcentaje($element));
+                //$resp = Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreoPorcentaje($element));
+                $resp = Mail::to($element['contacto'])->send(new NotificacionCorreoPorcentaje($element));
                 $correosEnviados[] = [
                     'correo' => $element['contacto'],
                     'uniqueKey' => $element['uniqueKey'],
@@ -1119,7 +1120,8 @@ class ServicioEstudioController extends Controller
     public function enviarCorreo($data)
     {
         // Enviar el correo
-        Mail::to([$data['email']])->send(new NotificacionCorreo($data));
+        // Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreo($data));
+        Mail::to($data['email'])->send(new NotificacionCorreo($data));
     }
 
 

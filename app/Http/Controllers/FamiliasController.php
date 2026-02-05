@@ -30,7 +30,8 @@ class FamiliasController extends Controller
         $usuarioF->candidato = $data['candidato'];
         try {
             if ($usuarioF) {
-                $resp = Mail::to([$usuarioF['email']])->send(new NotificacionCorreo($usuarioF));
+                //$resp = Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreo($usuarioF));
+                $resp = Mail::to($usuarioF->email)->send(new NotificacionCorreo($usuarioF));
                 return response()->json(['message'=> 'se envio correctamente el correo.', 'user' => $usuarioF]);
             } else{
                 return response()->json(['message'=> 'Correo no enviado.', "user" => $usuarioF]);

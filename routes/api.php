@@ -7,6 +7,7 @@ use App\RegistroToken;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -67,6 +68,61 @@ Route::get('/registro/escuela/{token}', function ($token) {
 
 Route::post('/registro/escuela/{token}', 'RegistroExternoController@registroExternoToken');
 
+Route::post('/user/reset', function(Request $request){
+    $data = $request->all();
+    $interno = [1,2,3,4,5];
+    try {
+        $user = User::where('email', $data['email_registrado'])->first(); // todos menos familias // ->whereIn('id_perfil', [1,2,3,4,5] )
+        if (!$user) {
+            return response()->json(['error' => true, 'message' => 'USUARIO NO EXISTE O INACTIVO']);
+        }
+
+        if (!$user->active) {
+            return response()->json(['error' => true, 'message' => 'USUARIO INACTIVO O NO EXISTE']);
+        }
+
+        if ($user->id_perfil === 6) { // in_array($user->id_perfil,$interno)
+            //$passReactive = $this->generarContraseñaTemporal();
+            //$existe->password = bcrypt($passReactive);
+            //$existe->password_temporal = $passReactive;
+            //$existe->save();
+            $passwordTemp = generarContraseñaTemporal();
+            $user->password = bcrypt($passwordTemp);
+            $user->password_temporal = $passwordTemp;
+            $user->force_password_reset = true;
+            $user->save();
+            $cambio = [
+                "nombre" => $user->name,
+                "email" => $user->email,
+                "password_temporal" => $passwordTemp,
+            ];
+
+            //Mail::to(['davidsotord93@gmail.com'])->send(new NotificacionReset($cambio));
+            Mail::to($user->email)->send(new NotificacionReset($cambio));
+
+        } else {
+            $passwordTemp = generarContraseñaTemporal();
+            $cambio = [
+                "nombre" => $user->name,
+                "email" => $user->email,
+                "password_temporal" => $passwordTemp,
+            ];
+
+            $user->force_password_reset = true;
+            $user->password = bcrypt($passwordTemp);
+            $user->save();
+            
+            //Mail::to(['davidsotord93@gmail.com'])->send(new NotificacionReset($cambio));// 'mrr20012@gmail.com', 'mrr2001@hotmail.com'
+            Mail::to($user->email)->send(new NotificacionReset($cambio));// 'mrr20012@gmail.com', 'mrr2001@hotmail.com'
+        }
+        
+        return response()->json(['error'=>false, "message"=> "Se realizo el cambio de contraseña. Revise el correo registrado."]);
+    } catch (\Throwable $th) {
+        return response()->json(['error'=>true, "message"=> $th->getMessage()]);
+    }
+    
+    
+});
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
