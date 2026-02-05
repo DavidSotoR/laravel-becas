@@ -227,7 +227,8 @@ class RegistroExternoController extends Controller
 
     public function estudioSocioeconomicoEnviarCorreo($id){
         $usuarioF = User::find($id);
-        $resp = Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreo($usuarioF));
+        //$resp = Mail::to(['davidsotord93@gmail.com', 'mrr20012@gmail.com', 'mrr2001@hotmail.com'])->send(new NotificacionCorreo($usuarioF));
+        $resp = Mail::to($usuarioF->email)->send(new NotificacionCorreo($usuarioF));
 
         return response()->json(['message'=> 'se envio correctamente el correo.']);
     }

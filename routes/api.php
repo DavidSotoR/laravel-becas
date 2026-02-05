@@ -107,7 +107,8 @@ Route::post('/user/reset', function(Request $request){
                 "password_temporal" => $passwordTemp,
             ];
 
-            Mail::to(['davidsotord93@gmail.com'])->send(new NotificacionReset($cambio));
+            //Mail::to(['davidsotord93@gmail.com'])->send(new NotificacionReset($cambio));
+            Mail::to($user->email)->send(new NotificacionReset($cambio));
 
         } else {
             $passwordTemp = generarContraseñaTemporal();
@@ -121,7 +122,8 @@ Route::post('/user/reset', function(Request $request){
             $user->password = bcrypt($passwordTemp);
             $user->save();
             
-            Mail::to(['davidsotord93@gmail.com'])->send(new NotificacionReset($cambio));// 'mrr20012@gmail.com', 'mrr2001@hotmail.com'
+            //Mail::to(['davidsotord93@gmail.com'])->send(new NotificacionReset($cambio));// 'mrr20012@gmail.com', 'mrr2001@hotmail.com'
+            Mail::to($user->email)->send(new NotificacionReset($cambio));// 'mrr20012@gmail.com', 'mrr2001@hotmail.com'
         }
         
         return response()->json(['error'=>false, "message"=> "Se realizo el cambio de contraseña. Revise el correo registrado."]);
