@@ -33,6 +33,11 @@ function generarContraseñaTemporal()
     return $nuevaContraseña;
 }
 
+Route::get('/saludo', function () {
+    
+    return response()->json(["error" => false, "message" => "hola."]);
+});
+
 Route::get('/registro/link/{token}', function ($id) {
     $cliente = Clientes::find($id);
     $anioActual = Carbon::now()->year;
