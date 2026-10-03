@@ -10,7 +10,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use Notifiable;
+    use Notifiable, \Illuminate\Database\Eloquent\Factories\HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -84,3 +84,4 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne('App\Clientes','id','id_cliente');
     }
 }
+

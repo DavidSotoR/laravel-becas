@@ -1,33 +1,16 @@
-# Usa una imagen base de PHP con FPM
-FROM php:7.4-fpm
+FROM php:8.4-fpm
 
-# Instala extensiones de PHP necesarias
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libssl-dev \
-    zip \
-    unzip \
-    git \
-    curl \
+    libpng-dev libjpeg62-turbo-dev libfreetype6-dev libzip-dev libonig-dev \
+    libxml2-dev libicu-dev unzip git curl \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd mysqli pdo pdo_mysql \
+    && docker-php-ext-install gd pdo_mysql mbstring zip intl bcmath \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Instala Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Establece el directorio de trabajo
 WORKDIR /var/www/html
-
-# Copia el contenido del proyecto Laravel
 COPY . /var/www/html
-
-# Asigna permisos a las carpetas necesarias
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Ejecuta comandos de Artisan en modo producción - Desarrollo entrar a container y ejecutar
-#RUN php artisan config:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
-
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+EXPOSE 9000
+CMD ["php-fpm"]

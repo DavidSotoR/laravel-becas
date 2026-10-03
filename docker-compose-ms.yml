@@ -1,20 +1,15 @@
-networks:
-  encuestas:
-    driver: bridge
-
+name: becas-php84-mysql
 services:
-
   mysql_db:
-    image: bitnami/mysql:8.0
-    restart: always
+    image: mysql:8.4
     ports:
-      - "3306:3306"
+      - "127.0.0.1:33084:3306"
     environment:
-      - MYSQL_ROOT_USER=admin
-      - MYSQL_ROOT_PASSWORD=admin
-      - MYSQL_USER=admin
-      - MYSQL_PASSWORD=admin
-      - MYSQL_DATABASE=encuestas
-    networks:
-      - encuestas
-    # (this is just an example, not intended to be a production configuration)
+      MYSQL_ROOT_PASSWORD: local-root-only
+      MYSQL_USER: becas
+      MYSQL_PASSWORD: local-becas-only
+      MYSQL_DATABASE: becas_php84
+    volumes:
+      - becas_php84_mysql:/var/lib/mysql
+volumes:
+  becas_php84_mysql:

@@ -1,0 +1,25 @@
+{
+  "MissingFiles": [],
+  "ChangedFiles": [
+    ".env.example",
+    ".gitignore",
+    "composer.json",
+    "composer.lock",
+    "docker-compose-ms.yml",
+    "docker-compose.yml",
+    "Dockerfile",
+    "phpunit.xml",
+    "README.md",
+    "app\\User.php",
+    "app\\Http\\Kernel.php",
+    "app\\Http\\Controllers\\AuthController.php",
+    "app\\Http\\Middleware\\CheckForMaintenanceMode.php",
+    "app\\Http\\Middleware\\TrustProxies.php",
+    "config\\mail.php",
+    "database\\factories\\UserFactory.php",
+    "database\\migrations\\2024_12_15_175306_caracteresespecial_update_servicios_estudios_table.php",
+    "database\\seeds\\DatabaseSeeder.php",
+    "nginx\\laravel.conf",
+    "routes\\api.php"
+  ]
+}

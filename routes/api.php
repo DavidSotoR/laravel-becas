@@ -25,13 +25,6 @@ use Illuminate\Support\Facades\Route;
 */
 /* Route::get('clientes/{id}/link/registro', 'ClientesController@linkRegistroGenerar');
  */
-function generarContraseñaTemporal()
-{
-    $dataSetCaracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    $mesclar = str_shuffle($dataSetCaracteres);
-    $nuevaContraseña = substr($mesclar, 0, 8);
-    return $nuevaContraseña;
-}
 
 Route::get('/saludo', function () {
     
@@ -101,7 +94,7 @@ Route::post('/user/reset', function(Request $request){
             //$existe->password = bcrypt($passReactive);
             //$existe->password_temporal = $passReactive;
             //$existe->save();
-            $passwordTemp = generarContraseñaTemporal();
+            $passwordTemp = \Illuminate\Support\Str::random(8);
             $user->password = bcrypt($passwordTemp);
             $user->password_temporal = $passwordTemp;
             $user->force_password_reset = true;
@@ -116,7 +109,7 @@ Route::post('/user/reset', function(Request $request){
             Mail::to($user->email)->send(new NotificacionReset($cambio));
 
         } else {
-            $passwordTemp = generarContraseñaTemporal();
+            $passwordTemp = \Illuminate\Support\Str::random(8);
             $cambio = [
                 "nombre" => $user->name,
                 "email" => $user->email,
