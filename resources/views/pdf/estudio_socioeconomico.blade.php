@@ -8,272 +8,476 @@ use Illuminate\Support\Facades\Storage;
     <link rel="stylesheet" href="{{ public_path('css/bootstrap.min.css') }}">
     <style>
         @page {
-            margin: 50px 25px 100px; /* Ajusta el margen inferior para dar espacio al pie de página */
+            margin: 45px 35px 50px 35px;
         }
         @font-face {
             font-family: 'MiFuentePersonalizada';
-            src: url('public_path('/public/fonts/TT_Rounds_Neue_Trial_Regular.ttf')' ) format('truetype');/* GarbataTrial-Regular */
+            src: url('/public/fonts/TT_Rounds_Neue_Trial_Regular.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
-        header {
-            position: fixed;
-            top: -40px;
-            left: 0;
-            right: 0;
-            height: 50px;
-            font-size: 11px;
-            font-weight: bold;
-            color: #333;
-            text-align: center;
-        }
-
-
         @font-face {
             font-family: 'MiFuentePersonalizada_2';
             src: url('/public/fonts/TT_Rounds_Neue_Trial_Regular.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
-        body,h5,h4,h3,h2,h1 {
-            font-family: 'MiFuentePersonalizada', sans-serif;
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'MiFuentePersonalizada', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #1a1a1a;
+            font-size: 11px;
+            line-height: 1.45;
+            background: #ffffff;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'MiFuentePersonalizada', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #111111;
+            margin: 0;
+            font-weight: 600;
         }
         .numeros {
-            font-family: 'MiFuentePersonalizada_2, sans-serif';
+            font-family: 'MiFuentePersonalizada_2', sans-serif;
             font-size: .9rem;
         }
         .page-break {
-            page-break-before: always; /* O usa page-break-after: always; según sea necesario */
-        }
-        .text-before-page-break {
-            text-align: center;
-            font-weight: bold;
-            font-size: 16px;
-            margin-top: 220px;
+            page-break-before: always;
         }
         .no-page-break {
-            page-break-inside: avoid; /* Evita que el contenido se corte */
+            page-break-inside: avoid;
         }
-
-        .footer {
+        
+        /* Encabezado y Pie de página fijos */
+        header {
             position: fixed;
-            bottom: 0;
+            top: -30px;
             left: 0;
             right: 0;
+            height: 30px;
+            font-size: 8.5px;
+            letter-spacing: 0.8px;
+            color: #777777;
+            text-transform: uppercase;
+            border-bottom: 0.5px solid #eaeaea;
+            padding-bottom: 4px;
+        }
+        .footer {
+            position: fixed;
+            bottom: -30px;
+            left: 0;
+            right: 0;
+            height: 25px;
             text-align: center;
-            font-size: 12px;
-            color: #555;
+            font-size: 8px;
+            color: #888888;
+            letter-spacing: 0.5px;
+            border-top: 0.5px solid #eaeaea;
+            padding-top: 6px;
         }
-        .respuestas{
-            font-size:11px;
-        }
-        br{
-            margin-top: 0px;
+        @page:first header {
+            display: none;
         }
 
-        @page:first header { display: none; }
+        /* Portada minimalista monocromática */
+        .portada-container {
+            padding: 40px 20px 20px;
+            text-align: center;
+            height: 100%;
+        }
+        .portada-badge {
+            display: inline-block;
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #555555;
+            border: 0.75px solid #cccccc;
+            padding: 5px 14px;
+            border-radius: 20px;
+            margin-bottom: 45px;
+        }
+        .portada-empresa {
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #444444;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .portada-titulo {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #000000;
+            margin-bottom: 8px;
+        }
+        .portada-subtitulo {
+            font-size: 13px;
+            color: #555555;
+            font-weight: 400;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 35px;
+        }
+        .portada-divider {
+            width: 60px;
+            height: 1.5px;
+            background: #111111;
+            margin: 0 auto 40px auto;
+        }
+        .portada-cliente {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            color: #222222;
+            text-transform: uppercase;
+            margin-bottom: 50px;
+        }
+        .portada-box-candidato {
+            border: 1px solid #111111;
+            padding: 22px 25px;
+            max-width: 440px;
+            margin: 0 auto 60px auto;
+            background-color: #fafafa;
+        }
+        .portada-candidato-label {
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: #666666;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .portada-candidato-nombre {
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #000000;
+            text-transform: uppercase;
+        }
+
+        /* Tarjetas y Fichas ejecutivas */
+        .seccion-card {
+            border: 0.75px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            background-color: #ffffff;
+        }
+        .seccion-header-tag {
+            font-size: 9px;
+            letter-spacing: 1.2px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #555555;
+            border-bottom: 0.5px solid #e8e8e8;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        .clasificacion-box {
+            background-color: #f7f7f7;
+            border-left: 3px solid #111111;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #111111;
+            margin-bottom: 15px;
+        }
+        .observaciones-texto {
+            font-size: 10.5px;
+            line-height: 1.6;
+            color: #333333;
+            white-space: pre-wrap;
+            background-color: #fafafa;
+            border: 0.5px solid #ececec;
+            padding: 12px 14px;
+            min-height: 90px;
+            text-align: justify;
+        }
+
+        /* Tablas minimalistas monocromáticas */
+        .tabla-minimal {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10.5px;
+            margin-bottom: 15px;
+        }
+        .tabla-minimal th {
+            text-transform: uppercase;
+            font-size: 8.5px;
+            letter-spacing: 0.8px;
+            font-weight: 700;
+            color: #444444;
+            background-color: #f5f5f5;
+            border-top: 1px solid #111111;
+            border-bottom: 1px solid #111111;
+            padding: 6px 8px;
+        }
+        .tabla-minimal td {
+            padding: 6px 8px;
+            border-bottom: 0.5px solid #eeeeee;
+            color: #222222;
+        }
+        .tabla-minimal tr:last-child td {
+            border-bottom: 1px solid #111111;
+        }
+        .tabla-minimal .fila-total td {
+            font-weight: 700;
+            border-top: 1px solid #111111;
+            border-bottom: 1.5px solid #111111;
+            background-color: #fafafa;
+        }
+
+        /* KPIs de Porcentajes */
+        .kpi-container {
+            width: 100%;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        .kpi-cell {
+            width: 48%;
+            border: 0.75px solid #dddddd;
+            background-color: #fbfbfb;
+            padding: 12px 15px;
+            text-align: center;
+        }
+        .kpi-titulo {
+            font-size: 8.5px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #666666;
+            margin-bottom: 6px;
+        }
+        .kpi-valor {
+            font-size: 18px;
+            font-weight: 700;
+            color: #000000;
+            letter-spacing: 0.5px;
+        }
+
+        /* Bloques de preguntas */
+        .pregunta-item {
+            margin-bottom: 16px;
+            page-break-inside: avoid;
+        }
+        .pregunta-header {
+            background-color: #f5f5f5;
+            border-left: 2.5px solid #111111;
+            padding: 6px 10px;
+            margin-bottom: 8px;
+        }
+        .pregunta-titulo {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #111111;
+            margin: 0;
+        }
+        .respuestas {
+            font-size: 10px;
+        }
+
+        /* Sección títulos de Anexos y Análisis */
+        .seccion-titulo-pagina {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #111111;
+            text-align: center;
+            border-bottom: 1px solid #111111;
+            padding-bottom: 8px;
+            margin-bottom: 24px;
+        }
     </style>
 </head>
 <body>
 
-    <!--<header>
-        <p class="text-uppercase">{{$encuesta->estudio->cliente->nombre}} <br> FAMILIA {{$encuesta->estudio->candidato}}</p>
-    </header>-->
+    <header>
+        <table style="width: 100%;">
+            <tr>
+                <td style="text-align: left; width: 50%;">
+                    {{$encuesta->estudio->cliente->nombre}} &bull; {{$encuesta->proyecto->nombre}}
+                </td>
+                <td style="text-align: right; width: 50%;">
+                    FAMILIA: {{$encuesta->estudio->candidato}}
+                </td>
+            </tr>
+        </table>
+    </header>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="text-center">
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <h5>SINERGIA EN ESTUDIOS SOCIOECONÓMICOS</h5>
-                <br/>
-                <p class="text-uppercase mt-5">ESTUDIO SOCIOECONÓMICO PARA BECAS<br>{{$encuesta->proyecto->nombre}}</p>
-                <br/>
-                <p class="text-uppercase">{{$encuesta->estudio->cliente->nombre}}</p>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <p>RESULTADO CONFIDENCIAL</p>
-                <br/>
-                <p>FAMILIA</p>
-                <br/>
-                <table style="width: 100%">
-                    <tr>
-                    <td style="width: 20%"></td>
-                    <td>
-                        <div class="text-center text-uppercase border-bottom pb-2">
-                            {{$encuesta->estudio->candidato}}
-                        </div>
+    <!-- PÁGINA 1: PORTADA EJECUTIVA MINIMALISTA -->
+    <div class="portada-container">
+        <div class="portada-badge">Confidencial</div>
+        <div class="portada-empresa">Sinergia en Estudios Socioeconómicos</div>
+        <h1 class="portada-titulo">Estudio Socioeconómico para Becas</h1>
+        <div class="portada-subtitulo">{{$encuesta->proyecto->nombre}}</div>
+        
+        <div class="portada-divider"></div>
+
+        <div class="portada-cliente">{{$encuesta->estudio->cliente->nombre}}</div>
+
+        <div class="portada-box-candidato">
+            <div class="portada-candidato-label">Expediente Familiar</div>
+            <div class="portada-candidato-nombre">{{$encuesta->estudio->candidato}}</div>
+        </div>
+
+        <div class="footer">
+            EL COLEGIO ES RESPONSABLE DE LA INFORMACIÓN Y CONTENIDO DEL PRESENTE ESTUDIO
+        </div>
+        <div class="page-break"></div>
+    </div>
+
+    <!-- PÁGINA 2: EVALUACIÓN, COMENTARIO DEL ENTREVISTADOR Y PONDERACIÓN -->
+    <div style="padding: 10px 15px;">
+        
+        <!-- Clasificación / Dictamen -->
+        <div class="seccion-header-tag">Dictamen del Entrevistador</div>
+        <div class="clasificacion-box">
+            {{getClasificacionEncuesta($encuesta->preguntas)}}
+        </div>
+
+        <!-- Observaciones / Resumen -->
+        @if($encuesta->estudio->aniadir_observaciones === 1)
+        <div class="seccion-header-tag">Resumen de la Entrevista</div>
+        <div class="observaciones-texto">{{$encuesta->estudio->observaciones}}</div>
+        <br>
+        @endif
+
+        <!-- Ficha de Datos del Candidato / Alumno -->
+        <div class="seccion-header-tag" style="margin-top: 10px;">Detalle de Evaluación</div>
+        <table style="width: 100%; margin-bottom: 12px; font-size: 10.5px;">
+            <tr>
+                <td style="width: 50%; padding: 4px 0;">
+                    <span style="color: #666; font-size: 9px; text-transform: uppercase;">Institución:</span><br>
+                    <strong>{{$encuesta->estudio->cliente->nombre}}</strong>
+                </td>
+                <td style="width: 50%; padding: 4px 0;">
+                    <span style="color: #666; font-size: 9px; text-transform: uppercase;">Familia / Candidato:</span><br>
+                    <strong>{{$encuesta->estudio->candidato}}</strong>
+                </td>
+            </tr>
+            @if (isset($encuesta["hijo"]))
+            <tr>
+                <td colspan="2" style="padding: 4px 0;">
+                    <span style="color: #666; font-size: 9px; text-transform: uppercase;">Alumno Aspirante:</span><br>
+                    <strong>{{$encuesta->hijo->nombre}}</strong>
+                </td>
+            </tr>
+            @endif
+        </table>
+
+        <!-- Tabla de Ponderación de Parámetros -->
+        <table class="tabla-minimal">
+            <thead>
+                <tr>
+                    <th style="width: 75%; text-align: left;">Parámetro Evaluado</th>
+                    <th style="width: 25%; text-align: right;">Puntaje</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($encuesta->parametros as $parametro)
+                <tr>
+                    <td>{{$parametro->nombre}}</td>
+                    <td style="text-align: right; font-weight: 600;">
+                        {{$parametro->puntos->valor ?? ($parametro->puntos["valor"] ?? '0')}}
                     </td>
-                    <td style="width: 20%"></td>
-                    </tr>
-                </table>
-                <div class="footer">
-                    <i>EL COLEGIO ES RESPONSABLE DE LA INFORMACIÓN Y CONTENIDO DEL PRESENTE ESTUDIO</i>
-                </div>
-                <div class="page-break"></div>  <!--Salto de página -->
-            </div>
-        </div>
+                </tr>
+                @endforeach
+                <tr class="fila-total">
+                    <td>TOTAL PUNTOS</td>
+                    <td style="text-align: right; font-size: 12px;">{{totalPuntosParametros($encuesta)}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- KPIs de Porcentajes Sugerido vs Otorgado -->
+        <table class="kpi-container">
+            <tr>
+                <td class="kpi-cell">
+                    <div class="kpi-titulo">Porcentaje Sugerido</div>
+                    <div class="kpi-valor">{{porcentajeSugerido($encuesta)}}</div>
+                </td>
+                <td style="width: 4%;"></td>
+                <td class="kpi-cell">
+                    <div class="kpi-titulo">Porcentaje Otorgado</div>
+                    <div class="kpi-valor">
+                        {{ (isset($encuesta["hijo"])) ? $encuesta->hijo->porcentaje_otorgado.'%' : ($encuesta->estudio->porcentaje_otorgado ? $encuesta->estudio->porcentaje_otorgado.'%':'N/A')}}
+                    </div>
+                </td>
+            </tr>
+        </table>
+
     </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="text-center">
-                <br/>
-                <p class="text-uppercase mt-5">COMENTARIO DEL ENTREVISTADOR</p>
-                <br/>
-                <table style="width: 100%">
-                    <tr>
-                        <td style="width: 10%"></td>
-                        <td>
-                            <div class="text-center text-uppercase ">
-                                {{getClasificacionEncuesta($encuesta->preguntas)}}
-                            </div>
-                        </td>
-                        <td style="width: 10%"></td>
-                    </tr>
-                </table>
-                <br/>
-                @if($encuesta->estudio->aniadir_observaciones === 1 )
-                <table style="width: 100%">
-                    <tr>
-                        <td style="width: 10%"></td>
-                        <td>RESUMEN</td>
-                        <td style="width: 10%"></td>
-                    </tr>
-                </table>
-                <table style="width: 100%">
-                    <tr>
-                        <td style="width: 10%"></td>
-                        <td class="text-start  border" style="height: 230px">
-                            <div
-                            style="
-                                width: 100%;
-                                min-height: 200px;
-                                padding: 5px;
-                                line-height: 1.55;
-                                white-space: pre-wrap;
-                                font-size:12px;
-                            ">{{$encuesta->estudio->observaciones}}</div>
-                        </td>
-                        <td style="width: 10%"></td>
-                    </tr>
-                </table>
-                <br>
-                @endif
-
-                <br>
-                <br>
-                <p class="text-uppercase">{{$encuesta->estudio->cliente->nombre}}</p>
-                <p class="text-uppercase">{{$encuesta->estudio->candidato}}</p>
-
-                @if (isset($encuesta["hijo"]))
-                <p class="text-uppercase">{{$encuesta->hijo->nombre}}</p>
-                @endif
-
-                <table style="width: 100%; font-size: 12px;">
-                    @foreach ($encuesta->parametros as $parametro)
-                    <tr>
-                        <td style="width: 20%"></td>
-                        <td style="width: 30%" class="text-uppercase">{{$parametro->nombre}}</td>
-                        <td style="width: 5%"></td>
-                        <td style="width: 10%" class="border-bottom text-center">{{$parametro->puntos->valor ?? ($parametro->puntos["valor"] ?? '' )}}</td>
-                        <td style="width: 5%"></td>
-                        <td style="width: 20%"></td>
-                    </tr>
-                    @endforeach
-
-                    <tr>
-                        <td style="width: 20%"></td>
-                        <td style="width: 30%">TOTAL</td>
-                        <td style="width: 5%"></td>
-                        <td style="width: 10%" class="border-bottom text-center">{{totalPuntosParametros($encuesta)}}</td>
-                        <td style="width: 5%"></td>
-                        <td style="width: 20%"></td>
-                    </tr>
-                </table>
-                <br>
-                <table style="width: 100%">
-                    <tr>
-                        <td style="width: 15%"></td>
-                        <td style="width: 15%">PORCENTAJE SUGERIDO</td>
-                        <td style="width: 5%"  class="border text-center">{{porcentajeSugerido($encuesta)}}</td>
-                        <td style="width: 5%"></td>
-                        <td style="width: 15%">PORCENTAJE OTORGADO</td>
-                        <td style="width: 5%"  class="border text-center">{{ (isset($encuesta["hijo"])) ? $encuesta->hijo->porcentaje_otorgado.'%' : ($encuesta->estudio->porcentaje_otorgado ? $encuesta->estudio->porcentaje_otorgado.'%':'')}}</td>
-                        <td style="width: 15%"></td>
-                    </tr>
-                </table>
-
-            </div>
-        </div>
-    </div>
-
+    <!-- PÁGINA 3 EN ADELANTE: DESGLOSE DE PREGUNTAS -->
     @if ($encuesta->preguntas)
-    <div class="page-break"></div>  <!--Salto de página -->
+    <div class="page-break"></div>
         @foreach ($encuesta->preguntas as $pregunta)
-            <div class="mt-1 mb-1 ms-5 me-5 no-page-break">
-                <div class="pt-3">
-                    <p style="font-size: 1rem" class="text-uppercase fw-bolder">{{$pregunta->numero_pregunta}}.- {{$pregunta->pregunta}}</p>
+            <div class="pregunta-item">
+                <div class="pregunta-header">
+                    <div class="pregunta-titulo">{{$pregunta->numero_pregunta}}.- {{$pregunta->pregunta}}</div>
                 </div>
-                {!!
-                    preguntaPorTipoPregunta(
-                        $pregunta->id_catalogo_encuestas_preguntas_tipo,
-                        $pregunta->respuestas,
-                        $pregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion,
-                        $encuesta->total_parametros,
-                        ($pregunta->parametros ?? array()),
-                        ($pregunta->parametros_promedio_academico ?? array()),
-                        ($pregunta->parametros_promedio_conducta ?? array()),
-                    )
-                !!}
+                <div style="padding-left: 6px; padding-right: 6px;">
+                    {!!
+                        preguntaPorTipoPregunta(
+                            $pregunta->id_catalogo_encuestas_preguntas_tipo,
+                            $pregunta->respuestas,
+                            $pregunta->id_catalogo_encuestas_preguntas_parametro_clasificacion,
+                            $encuesta->total_parametros,
+                            ($pregunta->parametros ?? array()),
+                            ($pregunta->parametros_promedio_academico ?? array()),
+                            ($pregunta->parametros_promedio_conducta ?? array()),
+                        )
+                    !!}
+                </div>
             </div>
         @endforeach
     @endif
 
+    <!-- ANEXO FOTOGRÁFICO -->
     @if ($encuesta->imagenes)
     <div>
-
         @foreach ($encuesta->imagenes as $index => $imagenes)
-
             @if (count($imagenes->documentos) AND ($imagenes->nombre == "CASA HABITACION" || $imagenes->nombre == "AUTOMOVILES"))
+                <div class="page-break"></div>
+                <div class="seccion-titulo-pagina">ANEXO FOTOGRÁFICO: {{$imagenes->nombre}}</div>
 
-                <div class="page-break"></div>  <!--Salto de página -->
-                <h2>{{$imagenes->nombre}}</h2>
-                <br><br>
-
-                @foreach (mostrarImagenes($imagenes->documentos) AS $img)
-                    {!! $img !!}
-                @endforeach
-
+                <div style="text-align: center; margin-top: 20px;">
+                    @foreach (mostrarImagenes($imagenes->documentos) AS $img)
+                        <div style="display: inline-block; margin: 10px; border: 0.5px solid #d5d5d5; padding: 6px; background-color: #fafafa;">
+                            {!! $img !!}
+                        </div>
+                    @endforeach
+                </div>
             @endif
-
         @endforeach
-
     </div>
-
     @endif
 
-    <div class="page-break"></div>  <!--Salto de página -->
-    <div class="text-center">
-        <p>ANALISIS DE DATOS</p>
-    </div>
-    <br>
-    <div class="text-center">
+    <!-- ANÁLISIS DE DATOS Y GRÁFICAS -->
+    <div class="page-break"></div>
+    <div class="seccion-titulo-pagina">ANÁLISIS DE DATOS Y DISTRIBUCIÓN</div>
+
+    <div style="text-align: center; margin-top: 15px;">
     @foreach ( $encuesta["lista_parametros"] as $parametro )
         @php
             $resultado = filterIDresultados($encuesta['parametros'], $parametro["id"])
         @endphp
-        {!! generarGraficaBar($parametro,$resultado) !!}
+        <div style="margin-bottom: 22px; padding: 10px; border: 0.5px solid #e5e5e5; display: inline-block; background-color: #ffffff;">
+            {!! generarGraficaBar($parametro,$resultado) !!}
+        </div>
         <br>
     @endforeach
     <br>
-    {!! generarGraficaDistribucionDelGasto($encuesta["distribucion_del_gasto"]) !!}
+    <div style="margin-top: 10px; padding: 10px; border: 0.5px solid #e5e5e5; display: inline-block; background-color: #ffffff;">
+        {!! generarGraficaDistribucionDelGasto($encuesta["distribucion_del_gasto"]) !!}
+    </div>
     </div>
     <!--
         generarGrafica()
