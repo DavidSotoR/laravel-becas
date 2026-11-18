@@ -854,7 +854,7 @@ function inverciones($formData,$totalParametros){
     $html = '';
     foreach($formData AS $item){
         if($item["seccion"] == "activa"){
-            $activo = isset($datos['activo']) && $datos['activo'] ? 'SI' : 'NO';
+            $activo = isset($item['activo']) && $item['activo'] ? 'SI' : 'NO';
             $html  .= "<p style='width: 5%;'class='respuestas border-bottom text-center'>$activo</p>";
         }
     }

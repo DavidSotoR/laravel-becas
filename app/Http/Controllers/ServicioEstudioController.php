@@ -166,7 +166,7 @@ class ServicioEstudioController extends Controller
 
          return $pregunta;
     }
-    
+
     public function listaConcluidos(Request $request, int $id_proyecto)
     {
 
@@ -693,7 +693,7 @@ class ServicioEstudioController extends Controller
                         $newUser['id_perfil'] = 6;
                         $newUser['id_cliente'] = $id_cliente;
                         $newUser['password_temporal'] = $this->generarContraseñaTemporal();
-                        $newUser['externo'] = 1; 
+                        $newUser['externo'] = 1;
 
                         $pass = $this->generarContraseñaTemporal();
                         $dataDireccion = [
@@ -880,7 +880,7 @@ class ServicioEstudioController extends Controller
                         $totalInserts++;
                     }
                 } else{
-                    
+
                         // enpieza el insert
                         //1. crear USUARIO
                         $dataDireccion = [
@@ -1132,7 +1132,7 @@ class ServicioEstudioController extends Controller
         $contacto_por_defecto = array();
         $contacto_por_defecto_es = '';
         $id_familia = null;
-        
+
         $cliente = Clientes::find($dataJson['id_cliente']);
 
         $messages = [
@@ -1258,9 +1258,9 @@ class ServicioEstudioController extends Controller
                 ], 400);
             }
         }
-        
+
         //validar si ya esisite un contacot con en la orden de servicio con el mismo email
-        
+
         if ($cliente['documentacion_digital']) {
             $estudio_contacto = ServicioEstudio::with(['familiasPadres' => function ($query) use ($contacto_por_defecto) {
                 $query
@@ -2260,7 +2260,7 @@ class ServicioEstudioController extends Controller
         //return $encuesta;
 
         // Cargar la vista y pasar los datos
-        $pdf = PDF::loadView('pdf.estudio_socioeconomico', compact('encuesta'))->setPaper('A4', 'portrait');
+        $pdf = PDF::loadView('pdf.estudio_socioeconomico_opcion_dos', compact('encuesta'))->setPaper('A4', 'portrait');
         return $pdf;
     }
 
