@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\Storage;
         }
         @font-face {
             font-family: 'MiFuentePersonalizada';
-            src: url('/public/fonts/TT_Rounds_Neue_Trial_Regular.ttf') format('truetype');
+            src: url('{{ public_path("fonts/TT_Rounds_Neue_Trial_Regular.ttf") }}') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
         @font-face {
             font-family: 'MiFuentePersonalizada_2';
-            src: url('/public/fonts/TT_Rounds_Neue_Trial_Regular.ttf') format('truetype');
+            src: url('{{ public_path("fonts/TT_Rounds_Neue_Trial_Regular.ttf") }}') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
