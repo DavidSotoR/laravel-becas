@@ -860,10 +860,26 @@ function porcentajeSugerido($encuesta){
         return $descuentoFinal . '%';
 }
 
+function leerContenidoImagen($source){
+    $data = @file_get_contents($source);
+
+    if ($data === false || $data === '') {
+        logger()->warning('No se pudo obtener el contenido de una imagen.');
+        return null;
+    }
+
+    return $data;
+}
+
 function imagenReturn($path){
     $contents = storage_path('app/public/' . $path);
     $type = pathinfo($contents, PATHINFO_EXTENSION);
-    $data = file_get_contents($contents);
+    $data = leerContenidoImagen($contents);
+
+    if ($data === null) {
+        return '';
+    }
+
     $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
     return "<img src=\"$base64\" width=\"350\" height=\"350\"/>";
 }
@@ -1954,7 +1970,12 @@ function generarGrafica(){
         'data' => $data,
     ]));
     // Obtener la imagen de la URL
-    $imageData = file_get_contents($chartUrl);
+    $imageData = leerContenidoImagen($chartUrl);
+
+    if ($imageData === null) {
+        return;
+    }
+
     $imageBase64 = 'data:image/png;base64,' . base64_encode($imageData);
 
     echo "<img src='$imageBase64' alt='Chart' style='width: 400px; height: auto;' />";
@@ -2086,7 +2107,12 @@ function generarGraficaBar($dataSet, $resultado = null) {
     ]));
 
     // Obtener la imagen de la URL
-    $imageData = file_get_contents($chartUrl);
+    $imageData = leerContenidoImagen($chartUrl);
+
+    if ($imageData === null) {
+        return;
+    }
+
     $imageBase64 = 'data:image/png;base64,' . base64_encode($imageData);
 
     echo "<img src='$imageBase64' alt='Chart' style='width: 420px; height: auto;' />";
@@ -2152,7 +2178,12 @@ function generarGraficaDistribucionDelGasto($dataSet){
         ]
     ]));
     // Obtener la imagen de la URL
-    $imageData = file_get_contents($chartUrl);
+    $imageData = leerContenidoImagen($chartUrl);
+
+    if ($imageData === null) {
+        return;
+    }
+
     $imageBase64 = 'data:image/png;base64,' . base64_encode($imageData);
 
     echo "<img src='$imageBase64' alt='Chart' style='width: 420px; height: auto;' />";
