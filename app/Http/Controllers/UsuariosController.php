@@ -166,6 +166,22 @@ class UsuariosController extends Controller
         return response()->json(['message' => 'Usuario modificado', 'data' => $editar], 201);
     }
 
+    public function adminPassword($id, Request $request)
+    {
+        abort_unless((int) $request->user()->id_perfil === 1, 403, 'Solo los administradores pueden cambiar contraseñas de usuarios.');
+
+        $validated = $request->validate([
+            'password' => ['required', 'string', 'min:6', 'max:20', 'confirmed', 'regex:/[A-Z]/', 'regex:/[a-z]/', 'regex:/[0-9]/', 'not_regex:/\s/'],
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->password = bcrypt($validated['password']);
+        $user->password_temporal = null;
+        $user->force_password_reset = false;
+        $user->save();
+
+        return response()->json(['message' => 'Contraseña actualizada correctamente.']);
+    }
     public function editarPassword($id, Request $request)
     {
 

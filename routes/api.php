@@ -89,11 +89,7 @@ Route::post('/user/reset', function(Request $request){
             return response()->json(['error' => true, 'message' => 'USUARIO INACTIVO O NO EXISTE']);
         }
 
-        if ($user->id_perfil === 6) { // in_array($user->id_perfil,$interno)
-            //$passReactive = $this->generarContraseñaTemporal();
-            //$existe->password = bcrypt($passReactive);
-            //$existe->password_temporal = $passReactive;
-            //$existe->save();
+        if ($user->id_perfil == 6) { // in_array($user->id_perfil,$interno)
             $passwordTemp = \Illuminate\Support\Str::random(8);
             $user->password = bcrypt($passwordTemp);
             $user->password_temporal = $passwordTemp;
@@ -155,6 +151,7 @@ Route::group([
     Route::delete('usuarios/{id}', 'UsuariosController@disableOrEnable');
     Route::put('usuarios/lista/activar', 'UsuariosController@disableOrEnableList');
     Route::put('usuarios/{id}/password', 'UsuariosController@editarPassword');
+    Route::put('usuarios/{id}/admin-password', 'UsuariosController@adminPassword');
 
     //Perfiles
     Route::get('perfiles', 'PerfilesController@lista');
